@@ -1,0 +1,451 @@
+
+<!doctype html>
+<html lang="en">
+ 	<head>
+ 		<meta charset="utf-8">
+ 		<meta name="viewport" content="width=device-width, initial-scale=1">
+ 		<title>Client Portal Dashboard</title>
+ 		<!-- Bootstrap CSS -->
+ 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+ 		<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+        <link href="css/client.css" rel="stylesheet">
+ 	</head>
+ 	<body>
+
+ 		<!--
+ 		Page: Tableau de bord du portail client
+ 		Commentaires ajoutés en français pour faciliter la lecture du code :
+ 		- En-tête (header)
+ 		- Section principale (main) avec statistiques, recherche rapide, onglets
+ 		- Scripts d'interaction (bouton de suivi et formulaire de support)
+ 		-->
+
+ 		<!-- En-tête : barre supérieure avec le nom de la marque et bouton de déconnexion -->
+ 		<header class="topbar">
+ 			<div class="container d-flex align-items-center justify-content-between">
+ 				<div class="d-flex align-items-center gap-3">
+ 					<div class="brand d-flex align-items-center gap-2">
+ 						<i class="bi bi-box-seam" style="font-size:1.4rem"></i>
+ 						<div>
+ 							<div style="font-weight:700">Client Portal</div>
+ 							<small style="opacity:.9">Acme Corp</small>
+ 						</div>
+ 					</div>
+ 				</div>
+
+ 				<div>
+ 					<button class="header-logout" type="button"><i class="bi bi-box-arrow-right"></i>&nbsp; Logout</button>
+ 				</div>
+ 			</div>
+ 		</header>
+
+ 		<!-- Contenu principal : statistiques rapides, suivi, onglets pour expéditions, factures et support -->
+ 		<main class="container my-4">
+
+ 			<!-- stats row -->
+ 			<!-- ================== Statistics Section (FROM BACKEND) ================== -->
+<div class="row g-3 mb-4">
+
+    <!-- Active Shipments -->
+    <div class="col-6 col-md-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <div class="stat-icon">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div>
+                <!-- {{ stats.active_shipments }} -->
+                <div style="font-size:1.25rem; font-weight:700">0</div>
+                <small class="text-muted">Active Shipments</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed Shipments -->
+    <div class="col-6 col-md-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <div class="stat-icon" style="background:#eafcf2; color:#28a745">
+                <i class="bi bi-check2-circle"></i>
+            </div>
+            <div>
+                <!-- {{ stats.completed_shipments }} -->
+                <div style="font-size:1.25rem; font-weight:700">0</div>
+                <small class="text-muted">Completed</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Invoices -->
+    <div class="col-6 col-md-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <div class="stat-icon" style="background:#fff4e6; color:#ff8c42">
+                <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <div>
+                <!-- {{ stats.pending_invoices }} -->
+                <div style="font-size:1.25rem; font-weight:700">0</div>
+                <small class="text-muted">Pending Invoices</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Open Tickets -->
+    <div class="col-6 col-md-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <div class="stat-icon" style="background:#f7f0ff; color:#a450ff">
+                <i class="bi bi-chat-dots"></i>
+            </div>
+            <div>
+                <!-- {{ stats.open_tickets }} -->
+                <div style="font-size:1.25rem; font-weight:700">0</div>
+                <small class="text-muted">Open Tickets</small>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- ================== End Statistics Section ================== -->
+
+
+ 			<!-- Quick Track : recherche rapide par numéro de suivi -->
+ 			<div class="quick-track mb-4">
+ 				<h5 style="color:#243b55;">Quick Track</h5>
+ 				<div class="row g-2 align-items-center mt-3">
+ 					<div class="col-md-10">
+ 						<div class="input-group">
+ 							<span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+ 							<input id="trackingInput" type="text" class="form-control border-start-0" placeholder="Enter tracking number...">
+ 						</div>
+
+						<!-- Result area: populated when the user clicks Track -->
+						<div id="trackResult" class="mt-3" aria-live="polite"></div>
+ 					</div>
+
+ 					<div class="col-md-2 text-end">
+ 						<button id="trackBtn" class="btn text-white" style="background:var(--brand-purple);" type="button">Track</button>
+ 					</div>
+ 				</div>
+ 			</div>
+
+ 			<!-- Onglets : Mes envois, Factures, Support -->
+ 			<div class="table-card">
+ 				<ul class="nav nav-tabs" id="mainTabs" role="tablist">
+ 					<li class="nav-item" role="presentation">
+ 						<button class="nav-link active" id="shipments-tab" data-bs-toggle="tab" data-bs-target="#shipments" type="button" role="tab"><i class="bi bi-box-seam"></i> My Shipments</button>
+ 					</li>
+ 					<li class="nav-item" role="presentation">
+ 						<button class="nav-link" id="invoices-tab" data-bs-toggle="tab" data-bs-target="#invoices" type="button" role="tab"><i class="bi bi-receipt"></i> Invoices</button>
+ 					</li>
+ 					<li class="nav-item" role="presentation">
+ 						<button class="nav-link" id="support-tab" data-bs-toggle="tab" data-bs-target="#support" type="button" role="tab"><i class="bi bi-chat-square-text"></i> Support</button>
+ 					</li>
+ 				</ul>
+
+ 				<div class="tab-content p-4" id="mainTabsContent">
+ 					<!-- Onglet "Mes envois" (Shipments) : liste des envois et détails de progression -->
+ 					<div class="tab-pane fade show active" id="shipments" role="tabpanel">
+
+ 						<!-- ================== Shipment Card (Backend Template) ================== -->
+ 						<div class="shipment-card mb-4">
+
+ 							<!-- Header: اسم الشحنة + الحالة + تاريخ التسليم -->
+ 							<div class="d-flex justify-content-between align-items-start">
+ 								<div>
+ 									<!-- Shipment title (FROM BACKEND) -->
+ 									<h5 style="margin:0;">
+ 										<!-- {{ shipment_title }} -->
+ 										Shipment Title
+ 										<!-- Shipment status badge (FROM BACKEND) -->
+ 										<span class="badge badge-status badge-in-transit ms-2">Status</span>
+ 									</h5>
+
+ 									<!-- Tracking number (FROM BACKEND) -->
+ 									<div class="text-muted">Tracking: <!-- {{ tracking_number }} --></div>
+ 								</div>
+
+ 								<!-- Estimated delivery date (FROM BACKEND) -->
+ 								<div class="text-end text-muted">Est. Delivery: <!-- {{ estimated_delivery_date }} --></div>
+ 							</div>
+
+ 							<!-- Locations: From / To -->
+ 							<div class="row mt-3">
+ 								<div class="col-md-6">
+ 									<small class="text-muted"><i class="bi bi-geo-alt"></i> From</small>
+ 									<div><!-- {{ origin_city }} --></div>
+ 								</div>
+
+ 								<div class="col-md-6 text-md-end">
+ 									<small class="text-muted"><i class="bi bi-geo"></i> To</small>
+ 									<div><!-- {{ destination_city }} --></div>
+ 								</div>
+ 							</div>
+
+ 							<!-- Progress section -->
+ 							<div class="mt-3 p-3" style="background:#f8f9fb; border-radius:8px;">
+ 								<div class="mb-2"><i class="bi bi-truck"></i> Current Location: <!-- {{ current_location }} --></div>
+
+ 								<div class="d-flex align-items-center justify-content-between">
+ 									<!-- Progress bar percentage (FROM BACKEND) -->
+ 									<div class="progress-track w-100 me-3"><div class="bar" style="width:0%;"></div></div>
+
+ 									<div style="min-width:40px; text-align:right"><!-- {{ progress_percentage }}% --></div>
+ 								</div>
+ 							</div>
+
+ 							<!-- Shipment timeline (FROM BACKEND LOOP) -->
+ 							<ul class="mt-3 list-unstyled">
+ 								<!-- Loop example: foreach (shipment_events as event) -->
+ 								<li class="mb-2">
+ 									<span class="d-inline-block" style="width:10px; height:10px; background:#ccc; border-radius:50%; margin-right:.7rem"></span>
+ 									Event description
+ 									<div class="text-muted"><!-- {{ event_date }} --></div>
+ 								</li>
+ 							</ul>
+
+ 						</div>
+ 						<!-- ================== End Shipment Card ================== -->
+
+ 					</div>
+
+ 					<!-- Onglet "Factures" (Invoices) : tableau des factures liées aux envois -->
+ 					<!-- ================== Invoices Tab (Backend Template) ================== -->
+<div class="tab-pane fade" id="invoices" role="tabpanel">
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+
+            <!-- Table Header -->
+            <thead>
+                <tr class="text-muted small">
+                    <th>Invoice ID</th>
+                    <th>Shipment</th>
+                    <th>Amount</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <!-- Table Body (FROM BACKEND LOOP) -->
+            <tbody>
+
+                <!-- 
+                    Loop example:
+                    - Django: {% for invoice in invoices %}
+                    - Laravel: @foreach($invoices as $invoice)
+                    - PHP: foreach ($invoices as $invoice)
+                -->
+
+                <tr>
+                    <!-- Invoice ID -->
+                    <td>
+                        <a href="#" class="purple-link">
+                            <!-- {{ invoice.id }} -->
+                            Invoice_ID
+                        </a>
+                    </td>
+
+                    <!-- Related shipment tracking -->
+                    <td>
+                        <!-- {{ invoice.shipment_tracking }} -->
+                        Shipment_Tracking
+                    </td>
+
+                    <!-- Invoice amount -->
+                    <td>
+                        <!-- {{ invoice.amount }} -->
+                        Amount
+                    </td>
+
+                    <!-- Due date -->
+                    <td>
+                        <!-- {{ invoice.due_date }} -->
+                        Due_Date
+                    </td>
+
+                    <!-- Invoice status -->
+                    <td>
+                        <!-- status: pending | paid | overdue -->
+                        <span class="badge badge-status">
+                            <!-- {{ invoice.status }} -->
+                            Status
+                        </span>
+                    </td>
+
+                    <!-- Actions -->
+                    <td>
+                        <!-- Download invoice -->
+                        <a href="#">
+                            <i class="bi bi-download"></i>
+                            Download
+                        </a>
+
+                       
+                        <!-- if invoice.status == 'pending' -->
+                        <a href="#" class="purple-link ms-2">
+                           
+                        </a>
+                    </td>
+                </tr>
+
+                <!-- 
+                    End Loop
+                    - Django: {% endfor %}
+                    - Laravel: @endforeach
+                    - PHP: }
+                -->
+
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+<!-- ================== End Invoices Tab ================== -->
+
+
+ 					<!-- Onglet "Support" : formulaire de contact et liste des tickets -->
+ 					<div class="tab-pane fade" id="support" role="tabpanel">
+ 						<div class="mb-4">
+ 							<h5>Submit a Support Request</h5>
+ 							<form id="supportForm">
+ 								<div class="mb-3 mt-3">
+ 									<label class="form-label">Subject</label>
+ 									<input type="text" class="form-control" placeholder="Brief description of your issue...">
+ 								</div>
+ 								<div class="mb-3">
+ 									<label class="form-label">Message</label>
+ 									<textarea class="form-control" rows="5" placeholder="Please provide details about your inquiry..."></textarea>
+ 								</div>
+ 								<button class="btn text-white" style="background:var(--brand-purple);" type="submit"><i class="bi bi-send"></i> Submit Ticket</button>
+ 							</form>
+ 						</div>
+
+ 						<div>
+
+    <!-- Title -->
+    <h6>Your Support Tickets</h6>
+
+    <!-- ================= Support Ticket Card (LOOP FROM BACKEND) ================= -->
+    <!-- 
+        Backend loop example:
+        - Django: {% for ticket in tickets %}
+        - Laravel: @foreach ($tickets as $ticket)
+        - PHP: foreach ($tickets as $ticket)
+    -->
+
+    <div class="ticket mb-3">
+        <div class="d-flex justify-content-between">
+
+            <!-- Ticket main info -->
+            <div>
+                <!-- Ticket subject/title -->
+                <strong>
+                    <!-- {{ ticket.subject }} -->
+                    Ticket Subject
+                </strong>
+
+                <!-- Ticket status -->
+                <!-- status: Open | Resolved | Closed -->
+                <span class="badge" style="
+                    background:#eaf4ff;
+                    color:#2b64a8;
+                    border-radius:999px;
+                    padding:.2rem .5rem;
+                ">
+                    <!-- {{ ticket.status }} -->
+                    Status
+                </span>
+
+                <!-- Ticket meta info -->
+                <div class="text-muted small">
+                    Ticket ID:
+                    <!-- {{ ticket.id }} -->
+                    TKT-XXX
+                    <br>
+                    <!-- {{ ticket.created_at }} -->
+                    --
+                </div>
+            </div>
+
+            <!-- Action link -->
+            <div class="align-self-center">
+                <a href="#" class="purple-link view-details">
+                    <!-- Link to ticket details -->
+                    View Details
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= END LOOP ================= -->
+    <!-- {% endfor %} -->
+
+
+    <!-- ================= Help Box (STATIC or FROM BACKEND) ================= -->
+    <div class="help-box mt-4">
+
+        <h6>Need Immediate Help?</h6>
+
+        <!-- Support phone -->
+        <div class="mt-2">
+            <i class="bi bi-info-circle"></i>
+            Phone:
+            <!-- {{ support.phone }} -->
+            ---
+        </div>
+
+        <!-- Support email -->
+        <div class="mt-1">
+            <i class="bi bi-info-circle"></i>
+            Email:
+            <!-- {{ support.email }} -->
+            ---
+        </div>
+
+        <!-- Support hours -->
+        <div class="text-muted small mt-2">
+            <!-- {{ support.hours }} -->
+            ---
+        </div>
+
+    </div>
+
+</div>
+
+ 					</div>
+ 				</div>
+ 			</div>
+
+ 		</main>
+
+ 		
+
+        <!-- Ticket Details Modal -->
+        <div class="modal fade" id="ticketModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Ticket</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-2"><strong>ID:</strong> <span id="ticketId"></span></div>
+                        <div class="mb-2"><strong>Status:</strong> <span id="ticketStatus"></span></div>
+                        <div class="mb-2"><strong>Date:</strong> <span id="ticketDate"></span></div>
+                        <hr>
+                        <div id="ticketMessage"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="js/client.js"></script>
+
+ 		
+ 	</body>
+</html>
+

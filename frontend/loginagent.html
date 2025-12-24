@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <!-- Viewport for responsive design -->
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <title>Connexion — Agent / Admin</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Global style -->
+    <link href="css/loginagent.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <!-- Centered container -->
+    <div class="d-flex align-items-center justify-content-center min-vh-100">
+
+      <!-- Login Card -->
+      <div class="card shadow-sm" style="width:420px;border-radius:12px">
+        <div class="card-body p-4">
+
+          <h4 class="card-title text-primary mb-1">
+            Connexion — Agent / Admin
+          </h4>
+          <p class="text-muted mb-3">
+            Entrez vos identifiants pour accéder au tableau de bord.
+          </p>
+
+          <!-- ================= LOGIN FORM ================= -->
+          <!--
+            Backend notes:
+            - method & action will be added later
+            - input names are IMPORTANT for backend parsing
+            - email  => request.email
+            - password => request.password
+          -->
+          <form
+            id="agentForm"
+            class="needs-validation"
+            novalidate
+          >
+
+            <!-- EMAIL / IDENTIFIER -->
+            <div class="mb-3">
+              <label for="agent-email" class="form-label">
+                Email ou identifiant
+              </label>
+
+              <!--
+                name="email" => used by backend
+                type can be changed to "text" if identifier != email
+              -->
+              <input
+                id="agent-email"
+                name="email"
+                type="email"
+                class="form-control"
+                placeholder="votre@email.com"
+                required
+              >
+
+              <!-- Frontend validation message -->
+              <div class="invalid-feedback">
+                Veuillez fournir un email ou identifiant valide.
+              </div>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="mb-3">
+              <label for="agent-pass" class="form-label">
+                Mot de passe
+              </label>
+
+              <!--
+                name="password" => backend expects this key
+                minlength = frontend validation only
+              -->
+              <input
+                id="agent-pass"
+                name="password"
+                type="password"
+                class="form-control"
+                placeholder="Mot de passe"
+                required
+                minlength="6"
+              >
+
+              <div class="invalid-feedback">
+                Le mot de passe doit contenir au moins 6 caractères.
+              </div>
+            </div>
+
+            <!-- REMEMBER ME -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="form-check">
+
+                <!--
+                  Optional:
+                  Backend can ignore or use this value
+                -->
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="agent-remember"
+                  name="remember"
+                >
+                <label class="form-check-label ms-2" for="agent-remember">
+                  Se souvenir de moi
+                </label>
+              </div>
+
+              <!-- Can be linked to backend password reset -->
+              <a href="#" class="text-decoration-none">
+                Mot de passe oublié?
+              </a>
+            </div>
+
+            <!-- SUBMIT -->
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">
+                Se connecter
+              </button>
+            </div>
+          </form>
+          <!-- =============== END FORM ================= -->
+
+          <!-- Back navigation -->
+          <a href="login.html" class="d-block text-center text-muted mt-3">
+            ← Retour
+          </a>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="js/loginagent.js"></script>
+
+  </body>
+</html>

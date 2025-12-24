@@ -1,0 +1,26 @@
+body{font-family:Nunito,system-ui,Arial;background:#000;color:#222}
+.card-centered{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+
+/* Buttons base + smooth transitions */
+.btn-agent, .btn-driver, .btn-client{
+	border:0;
+	transition:transform .16s cubic-bezier(.2,.9,.3,1), box-shadow .16s ease, filter .12s ease;
+	will-change:transform,box-shadow;
+}
+
+.btn-agent{background:#1e6bff}
+.btn-driver{background:#0ea03a}
+.btn-client{background:#8b2bff}
+
+/* Hover: subtle lift + color tint + shadow */
+.btn-agent:hover{background-color:#1553cc ; transform:translateY(-4px);box-shadow:0 10px 30px rgba(30,107,255,0.14);filter:brightness(1.03)}
+.btn-driver:hover{background-color:#0b7d2d ; transform:translateY(-4px);box-shadow:0 10px 30px rgba(14,160,58,0.12);filter:brightness(1.03)}
+.btn-client:hover{background-color: #6a1fd1; transform:translateY(-4px);box-shadow:0 10px 30px rgba(139,43,255,0.12);filter:brightness(1.03)}
+
+/* Focus for keyboard users */
+.btn-agent:focus-visible, .btn-driver:focus-visible, .btn-client:focus-visible{
+	outline:3px solid rgba(255,255,255,0.12);
+	outline-offset:3px;
+}
+
+.option-icon{width:28px;height:28px;margin-right:12px}
