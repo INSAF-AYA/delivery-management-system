@@ -1,0 +1,169 @@
+<!--{% extends 'base.html' %}
+
+{% block title %}Drivers{% endblock %}
+
+{% block content %}-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="CSS/drivers.css">
+  <title>Drivers</title>
+</head>
+<body>
+  <!--yb9a mena w ro7-->
+  <div class="content">
+  <div class="container">
+
+    <div class="field">
+      <h1>Drivers Management</h1>
+      <p class="description">Manage driver accounts and assignments</p>
+    </div>
+
+    <div class="buttons">
+      <button id="addDriverBtn">
+        <i class="btn-icn fa-solid fa-plus"></i>
+        Add Driver
+      </button>
+
+      <button class="delete" id="deleteDriverBtn">
+        <i class="fa-solid fa-trash"></i>
+        Delete Driver
+      </button>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Driver ID</th>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Vehicle</th>
+        <th>Total Deliveries</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- {% for driver in drivers %}
+      <tr>
+          <td>{{ driver.driver_id }}</td>
+          <td>{{ driver.name }}</td>
+          <td>{{ driver.phone }}</td>
+          <td>{{ driver.vehicle }}</td>
+          <td>{{ driver.total_deliveries }}</td>
+          <td>{{ driver.status }}</td>
+          <td>{{ driver.actions }}</td>
+      </tr>
+      {% endfor %} -->
+      <tr>
+        <td class="driver-id">D001</td>
+        <td>John Doe</td>
+        <td>+1-555-0201</td>
+        <td>VAN-001</td>
+        <td>145</td>
+        <td><span class="status status-active">Active</span></td>
+        <td>
+          <div class="actions">
+            <i class="fa-solid fa-eye"></i>
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="driver-id">D002</td>
+        <td>Jane Smith</td>
+        <td>+1-555-0202</td>
+        <td>TRUCK-002</td>
+        <td>198</td>
+        <td><span class="status status-active">Active</span></td>
+        <td>
+          <div class="actions">
+            <i class="fa-solid fa-eye"></i>
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="driver-id">D003</td>
+        <td>Mike Johnson</td>
+        <td>+1-555-0203</td>
+        <td>VAN-003</td>
+        <td>87</td>
+        <td><span class="status status-break">On Break</span></td>
+        <td>
+          <div class="actions">
+            <i class="fa-solid fa-eye"></i>
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="driver-id">D004</td>
+        <td>Sarah Wilson</td>
+        <td>+1-555-0204</td>
+        <td>TRUCK-004</td>
+        <td>156</td>
+        <td><span class="status status-active">Active</span></td>
+        <td>
+          <div class="actions">
+            <i class="fa-solid fa-eye"></i>
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <!--7at lehna-->
+
+  <!-- ADD DRIVER MODAL -->
+  <div id="addDriverModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Add Driver</h2>
+
+      <form id="addDriverForm">
+        <input name="name" placeholder="Full name" required>
+        <input name="phone" placeholder="Phone number" required>
+
+        <select name="vehicle" required>
+          <option value="">Assign vehicle</option>
+          <!--{% for vehicle in vehicles %}
+            <option value="{{ vehicle.id }}">{{ vehicle.code }}</option>
+          {% endfor %} -->
+        </select>
+
+        <select name="status" required>
+          <option value="">Status</option>
+          <option>Active</option>
+          <option>On Break</option>
+        </select>
+
+        <button type="submit">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- DELETE DRIVER MODAL -->
+  <div id="deleteDriverModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Delete Driver</h2>
+
+      <form id="deleteDriverForm">
+        <input name="driver_id" placeholder="Driver ID (D001)" required>
+        <button type="submit" class="delete">Delete</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="JS/drivers.js"></script>
+
+</body>
+</html>
+
+<!--{% endblock %}-->

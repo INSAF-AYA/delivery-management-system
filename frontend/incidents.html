@@ -1,0 +1,187 @@
+<!--{% extends 'base.html' %}
+
+{% block title %}incidents{% endblock %}
+
+{% block content %}-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="CSS/incidents.css">
+  <title>Incidents</title>
+</head>
+<body>
+  <!--yb9a mena w ro7-->
+  <div class="content">
+  <div class="container">
+
+    <div class="field">
+      <h1>incidents Management</h1>
+      <p class="description">Manage incident accounts and assignments</p>
+    </div>
+
+    <div class="buttons">
+      <button id="addBtn">
+        <i class="btn-icn fa-solid fa-plus"></i>
+        Add incident
+      </button>
+
+      <button class="delete" id="deleteBtn">
+        <i class="fa-solid fa-trash"></i>
+        Delete incident
+      </button>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Incident ID</th>
+        <th>Shipment</th>
+        <th>Type</th>
+        <th>Severity</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- {% for incident in incidents %}
+      <tr>
+          <td>{{ incident.incident_id }}</td>
+          <td>{{ incident.shipment }}</td>
+          <td>{{ incident.type }}</td>
+          <td>{{ incident.severity }}</td>
+          <td>{{ incident.description }}</td>
+          <td>{{ incident.status }}</td>
+          <td>{{ incident.date }}</td>
+          <td>{{ incident.actions }}</td>
+      </tr>
+      {% endfor %} -->
+      <tr>
+        <td class="incident-id">INC-501</td>
+        <td>SW789456</td>
+        <td>Delay</td>
+        <td><span class="severity severity-low">Low</span></td>
+        <td>Traffic congestion</td>
+        <td><span class="status status-resolved">Resolved</span></td>
+        <td>2024-12-18</td>
+        <td>
+          <div class="actions">
+            <i class="fa-solid fa-eye"></i>
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="incident-id">INC-502</td>
+        <td>SW789453</td>
+        <td>Damage</td>
+        <td><span class="severity severity-high">High</span></td>
+        <td>Package damaged during loading</td>
+        <td><span class="status status-in-progress">In Progress</span></td>
+        <td>2024-12-19</td>
+        <td>
+          <div class="actions">
+            <i class="fa-solid fa-eye"></i>
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="incident-id">INC-503</td>
+        <td>SW789450</td>
+        <td>Lost</td>
+        <td><span class="severity severity-critical">Critical</span></td>
+        <td>Package misplaced at hub</td>
+        <td><span class="status status-open">Open</span></td>
+        <td>2024-12-19</td>
+        <td>
+          <div class="actions">
+            <i class="fa-solid fa-eye"></i>
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="incident-id">INC-504</td>
+        <td>SW789448</td>
+        <td>Delay</td>
+        <td><span class="severity severity-medium">Medium</span></td>
+        <td>Weather conditions</td>
+        <td><span class="status status-resolved">Resolved</span></td>
+        <td>2024-12-17</td>
+        <td>
+          <div class="actions">
+            <i class="fa-solid fa-eye"></i>
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <!--7at lehna-->
+
+  <!-- ADD MODAL -->
+<div id="addModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Add Incident</h2>
+
+    <form id="addIncidentForm">
+      <input name="shipment" placeholder="Shipment ID" required>
+
+      <select name="type" required>
+        <option value="">Type</option>
+        <option>Delay</option>
+        <option>Damage</option>
+        <option>Lost</option>
+      </select>
+
+      <select name="severity" required>
+        <option value="">Severity</option>
+        <option>Low</option>
+        <option>Medium</option>
+        <option>High</option>
+        <option>Critical</option>
+      </select>
+
+      <textarea name="description" placeholder="Description" required></textarea>
+
+      <select name="status" required>
+        <option value="">Status</option>
+        <option>Open</option>
+        <option>In Progress</option>
+        <option>Resolved</option>
+      </select>
+
+      <input type="date" name="date" required>
+
+      <button type="submit">Save</button>
+    </form>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div id="deleteModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Delete Incident</h2>
+
+    <form id="deleteIncidentForm">
+      <input name="incident_id" placeholder="INC-501" required>
+      <button type="submit" class="delete">Delete</button>
+    </form>
+  </div>
+</div>
+
+<script src="JS/incidents.js"></script>
+
+</body>
+</html>
+
+<!--{% endblock %}-->

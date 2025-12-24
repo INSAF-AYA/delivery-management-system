@@ -1,0 +1,177 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    background: #f5f7fb;
+    margin: 0;
+    padding: 30px;
+    color: #1f2937;
+}
+
+h1{
+  color: rgb(28 57 147);
+  font-size: 32px;
+  font-weight: 400;
+  margin: 0;
+}
+
+.description{
+  font-size: 17px;
+  font-weight: 400;
+  color: #4a5565;
+  margin-top: 5px;
+}
+
+.container{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;  
+}
+
+button{
+ background-color: #155dfc;
+ color: white;
+ width: 150px;
+ height: 43px;
+ border-radius: 10px;
+ border-style: none;
+ font-size: 15px;
+ margin-left: 8px;
+}
+
+
+.delete{
+  background-color: #ef4444;
+}
+
+.delete:hover{
+  background-color: #ee3232;
+}
+
+button:hover{
+ background-color: #0F4EDC;
+}
+
+.btn-icn{
+  margin-right: 5px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+thead {
+  background: #f9fafb;
+}
+
+th {
+  text-align: left;
+  padding: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+}
+
+td {
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.invoice-id {
+    color: #2563eb;
+    font-weight: 400;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.status {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 400;
+    display: inline-block;
+}
+
+.status-paid {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-pending {
+  background:#fef3c7;
+  color: rgb(137, 75, 0);
+}
+.status-overdue {
+  background: #ffe2e2;
+  color: #9f0712;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.actions i {
+  font-size: 15px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.actions i:hover {
+  color: #2563eb;
+}
+
+
+td i {
+  cursor: pointer;
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+td i:hover {
+  color: #2563eb;
+}
+
+tbody tr:hover {
+  background: #f9fafb;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background: white;
+  width: 420px;
+  margin: 8% auto;
+  padding: 25px;
+  border-radius: 12px;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.close {
+  float: right;
+  cursor: pointer;
+}
+

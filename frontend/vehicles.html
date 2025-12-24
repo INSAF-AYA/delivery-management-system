@@ -1,0 +1,172 @@
+<!--{% extends 'base.html' %}
+
+{% block title %}Vehicles{% endblock %}
+
+{% block content %}-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="CSS/Vehicles.css">
+  <title>Vehicles</title>
+</head>
+<body> 
+  <!--yb9a mena w ro7-->
+  <div class="content">
+  <div class="container">
+    <div class="field">
+      <h1>Vehicles Management</h1>
+      <p class="description">Manage fleet and vehicle information</p>
+    </div>
+
+    <div class="buttons">
+      <button id="addVehicleBtn">
+        <i class="btn-icn fa-solid fa-plus"></i>
+        Add Vehicle
+      </button>
+
+      <button class="delete" id="deleteVehicleBtn">
+        <i class="fa-solid fa-trash"></i>
+        Delete Vehicle
+      </button>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Vehicle ID</th>
+        <th>Type</th>
+        <th>Capacity</th>
+        <th>Assigned Driver</th>
+        <th>Mileage</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- {% for vehicle in vehicles %}
+      <tr>
+          <td>{{ vehicle.vehicle_id }}</td>
+          <td>{{ vehicle.type }}</td>
+          <td>{{ vehicle.capacity }}</td>
+          <td>{{ vehicle.assigned_driver }}</td>
+          <td>{{ vehicle.Mileage }}</td>
+          <td>{{ vehicle.status }}</td>
+          <td>{{ vehicle.actions }}</td>
+      </tr>
+      {% endfor %} -->
+      <tr>
+        <td class="vehicle-id">VAN-001</td>
+        <td>Delivery Van</td>
+        <td>2 tons</td>
+        <td>John Doe</td>
+        <td>45,320 km</td>
+        <td><span class="status status-active">Active</span></td>
+        <td>
+          <div class="actions">
+            <i class="fa-solid fa-eye"></i>
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="vehicle-id">TRUCK-002</td>
+        <td>Cargo Truck</td>
+        <td>10 tons</td>
+        <td>Jane Smith</td>
+        <td>82,150 km</td>
+        <td><span class="status status-active">Active</span></td>
+        <td>
+          <div class="actions">
+            <i class="fa-solid fa-eye"></i>
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="vehicle-id">VAN-003</td>
+        <td>Delivery Van</td>
+        <td>2 tons</td>
+        <td>Mike Johnson</td>
+        <td>38,900 km</td>
+        <td><span class="status status-maintenance">Maintenance</span></td>
+        <td>
+          <div class="actions">
+            <i class="fa-solid fa-eye"></i>
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="vehicle-id">TRUCK-004</td>
+        <td>Cargo Truck</td>
+        <td>10 tons</td>
+        <td>Sarah Wilson</td>
+        <td>56,780 km</td>
+        <td><span class="status status-active">Active</span></td>
+        <td>
+          <div class="actions">
+            <i class="fa-solid fa-eye"></i>
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <!--7at lehna-->
+
+  <div id="addVehicleModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Add Vehicle</h2>
+
+    <form id="addVehicleForm">
+      <select name="type" required>
+        <option value="">Type</option>
+        <option>Delivery Van</option>
+        <option>Car</option>
+        <option>Cargo Truck</option>
+        <option>Motorbike</option>
+      </select>
+
+      <input name="capacity" placeholder="Capacity" required>
+      <input name="assigned_driver" placeholder="Assigned Driver" required>
+      <input name="mileage" placeholder="Mileage (e.g., 45,320 km)" required>
+
+      <select name="status" required>
+        <option value="">Status</option>
+        <option>Active</option>
+        <option>Maintenance</option>
+      </select>
+
+      <button type="submit">Save</button>
+    </form>
+
+  </div>
+</div>
+
+
+<div id="deleteVehicleModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Delete Vehicle</h2>
+
+    <form id="deleteVehicleForm">
+      <input name="vehicle_id" placeholder="Vehicle ID (VAN-001)" required>
+      <button class="delete" type="submit">Delete</button>
+    </form>
+  </div>
+</div>
+
+<script src="JS/vehicles.js"></script>
+
+
+
+</body>
+</html>
+
+<!--{% endblock %}-->
