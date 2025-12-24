@@ -1,0 +1,190 @@
+.logo-botn{
+    color: white;
+    background-color:#008236;
+    margin-left:10px;
+    margin-right:35px;
+}
+.navbar{
+    background-color: #00a63e;
+
+}
+.brand-text{
+    font-size: 1.8rem;
+}
+.truck-icon1{
+    font-size:1.8rem;
+}
+.delivery-card{
+    border-radius: 16px;
+}
+
+
+
+.bi-truck{
+    color:oklch(55.8% 0.288 302.321);
+}
+.icon-card1{
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #d4e1ff;
+
+}
+.icon-card2{
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color:oklch(96.2% 0.044 156.743);
+
+}
+.icon-card3{
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color:oklch(94.6% 0.033 307.174);
+
+}
+.check1{
+    color:oklch(62.7% 0.194 149.214) ;
+}
+
+
+
+.delivery-card {
+    border-radius: 12px;
+   
+    transition: all 0.3s ease;
+}
+.bi-exclamation-triangle{
+    font-size: 18px;
+}
+
+.support-lable{
+    font-size: 18px;
+     color:#82181a;
+}
+.sup-btn{
+    color:white;
+}
+.card-sup{
+border-radius: 14px;
+border: 2px solid #dc3545;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    background-color: #fff1f1;
+}
+.main-card {
+  width: 100%;
+}
+
+.inner-card {
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  background-color: #fff;
+  padding: 1rem;
+}
+
+.inner-card:hover {
+  border-color: #0d6efd;
+}
+
+.circle-number {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #0d6efd;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+.main-card2 {
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.inner-green-card {
+  background: #e9f8ee;
+  border: none;
+  border-radius: 12px;
+}
+
+.high-pr{
+    color:#9f0712;
+    background-color:#ffe2e2;
+    font-size:12px;
+    border-radius:9999px;
+}
+.st-tp{
+    color: #016630;
+    background-color: #dcfce7;
+    border-radius:9999px ;
+    font-size: 12px;
+}
+.int-tp{
+    color :#894b00;
+    font-size: 12px;
+    background-color: #fef9c2;
+    border-radius:9999px;
+}
+.delv-bt{
+    color: white;
+    background-color: #00a63e;/* for delivered button*/
+transition: background-color 0.2s ease;
+}
+
+.delv-bt:hover {
+  background-color: #008f35;
+}
+.dely-bt{
+    color: white;
+   background-color: #d08700; 
+transition: background-color 0.2s ease;
+}
+
+.dely-bt:hover {
+  background-color: #b87400;
+}
+
+
+
+
+
+
+
+
+/* Buttons inside the support form */
+#supportForm .btn {
+  padding: 5px 12px;  /* smaller padding for compact buttons */
+  font-size: 0.9rem;  /* slightly smaller text */
+  width: auto;        /* do NOT take full width */
+  border-radius: 6px;
+}
+
+/* Textarea and select inputs */
+#supportForm textarea,
+#supportForm select {
+  width: 100%;            /* full width to match form */
+  border-radius: 6px;     /* slightly rounded corners */
+  padding: 8px 10px;      /* internal padding */
+  font-size: 0.95rem;     /* readable font size */
+  border: 1px solid #ced4da; /* default bootstrap border color */
+}
+
+/* Optional: style invalid fields */
+#supportForm .is-invalid {
+  border-color: #dc3545; /* red border on invalid input */
+  background-color: #f8d7da; /* light red background */
+}

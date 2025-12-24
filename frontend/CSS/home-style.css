@@ -1,0 +1,309 @@
+
+
+
+
+.circle {
+  width: 420px;
+  height: 420px;
+  background-color: #d4e1ff; 
+  border-radius: 50%; 
+  display: flex;  
+  align-items: center;  
+  justify-content: center;   
+}
+
+.truck-icon {
+  font-size: 170px;          
+  color:#0d6efd ;        
+}
+
+.navbar{
+    height: 70px;
+}
+.navbar .container{
+    display: flex;
+    align-items: center;
+}
+
+.navbar-nav{
+    margin:0 auto;
+}
+.brand-text{
+    color: #1f3a75;
+    font-size: 1.8rem;
+}
+.truck-icon1{
+    font-size:1.8rem;
+    color:#0d6efd;
+}
+.truck-icon2{
+    font-size:1.8rem;
+
+
+}
+.brand-text2{
+    color: #ffffff;
+    font-size: 1.8rem;
+
+}
+.brand{
+    margin-left: 30px;
+}
+.btn-primary{
+    margin-left:15px;
+    margin-right:25px;
+}
+
+
+
+
+.home-title{
+    color: #1f3a75;
+}
+.home-text{
+    color:#6c757D;
+}
+#home{
+    background-color: #f5f8ff;
+}
+.truck-col{
+padding-left: 85px;
+
+}
+.about{
+    margin-top: 50px;
+    margin-bottom: 50px;
+    
+}
+
+.about-title{
+    color:#1f3a75;
+}
+.about-text{
+   color:#6c757D;
+}
+section{
+    scroll-margin-top:90px;
+}
+.services-title{
+    color:#1f3a75 ;
+}
+.services-text{
+   color:#6c757D;
+}
+
+
+
+
+
+
+
+.card1-title{
+    color: #1f3a75 ;
+}
+
+
+
+
+
+
+
+
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+.service-card:target {
+  border: 3px solid #0d6efd;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  transform: translateY(-5px);
+  transition: all 0.3s ease;
+}
+
+
+.icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #d4e1ff;
+}
+
+.check-icon{
+    color: #0f9d58;
+    font-size: 30px;
+
+}
+
+
+.active-card {
+    border-radius: 12px;
+  }
+
+  .service-card {
+    border-radius: 12px;
+    scroll-margin-top:200px;
+    
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+.service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+
+.caract{
+    color: #1f3a75;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+.caract-text{
+    color: #6c757D;
+
+}
+
+.caract-label {
+    color: #1f3a75;
+}
+
+
+
+
+
+.icon-circle{
+    width: 60px;
+    height: 60px;
+    background-color: #eaf2ff; 
+  border-radius: 50%; 
+  display: flex;  
+  align-items: center;  
+  justify-content: center;
+  margin: 9 auto 15px;
+
+}
+.icon-circle i{
+    font-size: 24px;
+    color: #0d6efd;
+
+}
+.caract-lable{
+    font-weight: 600;
+    margin-top: 10px;
+
+}
+
+
+#track{
+    background-color: #122f7e;
+    padding: 120px 0;
+
+}
+.track-text{
+    margin-bottom: 30px;
+}
+.track-box{
+    width: 100%;
+    max-width: 600px;
+    margin:0 auto ;
+}
+.track-box input{
+    padding: 15px;
+
+}
+.track-box button{
+    padding:0 30px;}
+.cont-sec{
+    padding-top:100px; 
+    padding-bottom:100px ;
+    background-color: #fbf9fa;
+
+}
+
+.contact-title{
+    color:#1f3a75 ;
+}
+.contact-text{
+    color: #6c757D;
+}
+.contact-card{
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0,0.3);
+    height: 100% ;
+    max-width: 360px;
+    padding: 24px;
+    
+}
+
+footer{
+    background-color:#1c398e ;
+}
+.list-ag{
+    color:#5b5b63;
+}
+.footer ul li {
+    color: #8ca8e0;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+.footer h5{
+    margin-bottom: 14px;
+}
+.footer p{
+    color: #8ca8e0;
+    line-height:1.6;
+}
+
+
+
+.shipment-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.progress-track {
+  background: #e9ecef;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-track .bar {
+  height: 10px;
+  background: #0d6efd;
+  border-radius: 5px 0 0 5px;
+}
+
+.badge-status {
+  font-size: 0.75rem;
+  padding: 0.25em 0.5em;
+}
+
+.badge-in-transit {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.badge-delivered {
+  background-color: #198754;
+  color: #fff;
+}
+
+.timeline-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: #ccc;
+  border-radius: 50%;
+  margin-right: 0.7rem;
+}
+
+
+
+
