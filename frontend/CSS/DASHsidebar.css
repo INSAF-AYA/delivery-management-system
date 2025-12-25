@@ -1,0 +1,133 @@
+/* ===== Sidebar ===== */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--dark-blue);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    width: 12vw;
+}
+
+.sidebar-header {
+    padding: 25px 20px;
+    border-bottom: 1px solid var(--gray);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--white);
+}
+
+.logo i {
+    font-size: 3vh;
+}
+
+.logo h2 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 20px 0;
+    overflow-y: auto;
+}
+
+.sidebar-nav ul {
+    list-style: none;
+}
+
+.sidebar-nav li {
+    margin: 5px 0;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 14px 20px;
+    color: var(--white);
+    text-decoration: none;
+    transition: var(--transition);
+    font-size: 2vh;
+    font-weight: 500;
+}
+
+.sidebar-nav a i {
+    font-size: 3vh;
+    width: 8vh;
+    text-align: center;
+}
+
+.sidebar-nav li:hover a,
+.sidebar-nav li.active a {
+    background: #081569;
+    background-size: auto 100%;
+    color: var(--white);
+    border: 4px solid #081569;
+    border-radius: 15vh;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid var(--gray);
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 14px 20px;
+    color: var(--danger);
+    text-decoration: none;
+    transition: var(--transition);
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 15vh;
+    background: white;
+}
+
+.logout-btn:hover {
+    background: var(--danger);
+    color: var(--white);
+}
+
+.logout-btn i {
+    font-size: 18px;
+}
+
+/* ===== Sidebar Responsive ===== */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+    }
+
+    .sidebar-header .logo h2,
+    .sidebar-nav span,
+    .logout-btn span {
+        display: none;
+    }
+
+    .sidebar-nav a,
+    .logout-btn {
+        justify-content: center;
+        padding: 14px 10px;
+    }
+
+    .sidebar-nav li:hover a,
+    .sidebar-nav li.active a {
+        border-left: none;
+        border-top: 4px solid var(--primary-blue);
+    }
+}

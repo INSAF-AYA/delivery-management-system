@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftShip - Dashboard</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/DASHvariables.css">
+    <link rel="stylesheet" href="css/DASHsidebar.css">
+    <link rel="stylesheet" href="css/DASHtopbar.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/DASHtables.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-shipping-fast"></i>
+                <h2>SwiftShip</h2>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="active">
+                    <a href="DASHindex.html">
+                        <i class="fas fa-chart-line padding"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="DASHclients.html">
+                        <i class="fas fa-users"></i>
+                        <span>Clients</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="DASHshipments.html">
+                        <i class="fas fa-box"></i>
+                        <span>Shipments</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#drivers">
+                        <i class="fas fa-id-card"></i>
+                        <span>Drivers</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#vehicles">
+                        <i class="fas fa-truck"></i>
+                        <span>Vehicles</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#invoices">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Invoices</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#incidents">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Incidents</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <a href="#logout" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search..." class="search-input">
+            </div>
+            
+            <div class="user-info" onclick="toggleUserDropdown()">
+                <div class="user-details">
+                    <span class="user-name">John Doe</span>
+                    <span class="user-role">Administrator</span>
+                </div>
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <h1 class="page-title">Dashboard</h1>
+            
+            <!-- Stat Cards -->
+            <div class="stat-cards">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Total Shipments</h3>
+                        <p class="stat-value" id="totalShipments">1,234</p>
+                        <span class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> 12.5%
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Monthly Revenue</h3>
+                        <p class="stat-value" id="monthlyRevenue">$45,678</p>
+                        <span class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> 8.3%
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Success Rate</h3>
+                        <p class="stat-value" id="successRate">94.8%</p>
+                        <span class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> 2.1%
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Active Clients</h3>
+                        <p class="stat-value" id="activeClients">567</p>
+                        <span class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> 5.7%
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-row">
+                <div class="chart-container large">
+                    <h3 class="chart-title">
+                        <i class="fas fa-chart-area"></i> Revenue Trends
+                    </h3>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                
+                <div class="chart-container small">
+                    <h3 class="chart-title">
+                        <i class="fas fa-chart-pie"></i> Shipment Status Distribution
+                    </h3>
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Bar Chart -->
+            <div class="chart-container full">
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-bar"></i> Weekly Delivery Performance
+                </h3>
+                <canvas id="weeklyChart"></canvas>
+            </div>
+
+            <!-- Recent Activity Table -->
+            <div class="activity-section">
+                <h3 class="section-title">
+                    <i class="fas fa-history"></i> Recent Activity
+                </h3>
+                <div class="table-container">
+                    <table class="activity-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Action</th>
+                                <th>User</th>
+                                <th>Details</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityTableBody">
+                            <tr>
+                                <td>10:32 AM</td>
+                                <td>New Shipment</td>
+                                <td>John Smith</td>
+                                <td>Order #12345 created</td>
+                                <td><span class="badge success">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>10:15 AM</td>
+                                <td>Delivery Update</td>
+                                <td>Sarah Johnson</td>
+                                <td>Order #12344 delivered</td>
+                                <td><span class="badge success">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>09:58 AM</td>
+                                <td>Client Registration</td>
+                                <td>Mike Davis</td>
+                                <td>New client registered</td>
+                                <td><span class="badge info">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>09:42 AM</td>
+                                <td>Vehicle Maintenance</td>
+                                <td>Tom Wilson</td>
+                                <td>Vehicle #VH-234 serviced</td>
+                                <td><span class="badge warning">In Progress</span></td>
+                            </tr>
+                            <tr>
+                                <td>09:20 AM</td>
+                                <td>Invoice Generated</td>
+                                <td>Emma Brown</td>
+                                <td>Invoice #INV-5678 sent</td>
+                                <td><span class="badge success">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>08:55 AM</td>
+                                <td>Incident Reported</td>
+                                <td>James Taylor</td>
+                                <td>Delay in shipment #12340</td>
+                                <td><span class="badge danger">Failed</span></td>
+                            </tr>
+                            <tr>
+                                <td>08:30 AM</td>
+                                <td>Route Optimized</td>
+                                <td>System</td>
+                                <td>Daily routes updated</td>
+                                <td><span class="badge success">Completed</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Custom JavaScript -->
+    <script src="js/DASHmain.js"></script>
+    <script src="js/DASHcharts.js"></script>
+</body>
+</html>

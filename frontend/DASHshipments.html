@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftShip - Shipments</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/DASHvariables.css">
+    <link rel="stylesheet" href="css/DASHsidebar.css">
+    <link rel="stylesheet" href="css/DASHtopbar.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/DASHtables.css">
+    <link rel="stylesheet" href="css/DASHmodals.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-shipping-fast"></i>
+                <h2>SwiftShip</h2>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="DASHindex.html">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="DASHclients.html">
+                        <i class="fas fa-users"></i>
+                        <span>Clients</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="DASHshipments.html">
+                        <i class="fas fa-box"></i>
+                        <span>Shipments</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#drivers">
+                        <i class="fas fa-id-card"></i>
+                        <span>Drivers</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#vehicles">
+                        <i class="fas fa-truck"></i>
+                        <span>Vehicles</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#invoices">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Invoices</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#incidents">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Incidents</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <a href="#logout" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search..." class="search-input">
+            </div>
+            
+            <div class="user-info" onclick="toggleUserDropdown()">
+                <div class="user-details">
+                    <span class="user-name">John Doe</span>
+                    <span class="user-role">Administrator</span>
+                </div>
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Shipments Content -->
+        <div class="page-content">
+            <h1 class="page-title"><i class="fas fa-box"></i> Shipments</h1>
+            
+            <!-- Shipments Table Section -->
+            <div class="table-section">
+                <!-- Table Header with Search -->
+                <div class="table-header">
+                    <div class="table-search">
+                        <div class="table-search-input">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="shipmentSearch" placeholder="Search by client name...">
+                        </div>
+                        <button class="filter-btn" id="filterBtn">
+                            <i class="fas fa-filter"></i>
+                            Filter
+                        </button>
+                    </div>
+                    
+                    <div class="table-toolbar">
+                        <button class="toolbar-btn add" onclick="openAddModal()">
+                            <i class="fas fa-plus"></i>
+                            New Shipment
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Data Table -->
+                <div class="table-container">
+                    <table class="data-table" id="shipmentsTable">
+                        <thead>
+                            <tr>
+                                <th>Shipment ID</th>
+                                <th>Client</th>
+                                <th>Origin</th>
+                                <th>Destination</th>
+                                <th>Status</th>
+                                <th>Driver</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shipmentsTableBody">
+                            <tr data-id="SHP001" onclick="selectRow(this)">
+                                <td>SHP001</td>
+                                <td>Acme Corp</td>
+                                <td>New York, NY</td>
+                                <td>Los Angeles, CA</td>
+                                <td><span class="badge success">Delivered</span></td>
+                                <td>John Smith</td>
+                                <td>2025-12-20</td>
+                                <td>14:30</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn view" title="View Image" onclick="event.stopPropagation(); openViewModal('SHP001');">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('SHP001');">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('SHP001');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-id="SHP002" onclick="selectRow(this)">
+                                <td>SHP002</td>
+                                <td>Global Tech</td>
+                                <td>Chicago, IL</td>
+                                <td>Houston, TX</td>
+                                <td><span class="badge info">In Transit</span></td>
+                                <td>Sarah Johnson</td>
+                                <td>2025-12-19</td>
+                                <td>09:15</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn view" title="View Image" onclick="event.stopPropagation(); openViewModal('SHP002');">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('SHP002');">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('SHP002');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-id="SHP003" onclick="selectRow(this)">
+                                <td>SHP003</td>
+                                <td>Swift Logistics</td>
+                                <td>Miami, FL</td>
+                                <td>Seattle, WA</td>
+                                <td><span class="badge warning">Pending</span></td>
+                                <td>Mike Davis</td>
+                                <td>2025-12-18</td>
+                                <td>16:45</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn view" title="View Image" onclick="event.stopPropagation(); openViewModal('SHP003');">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('SHP003');">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('SHP003');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-id="SHP004" onclick="selectRow(this)">
+                                <td>SHP004</td>
+                                <td>Prime Retail</td>
+                                <td>Boston, MA</td>
+                                <td>Denver, CO</td>
+                                <td><span class="badge danger">Failed</span></td>
+                                <td>Tom Wilson</td>
+                                <td>2025-12-17</td>
+                                <td>11:20</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn view" title="View Image" onclick="event.stopPropagation(); openViewModal('SHP004');">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('SHP004');">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('SHP004');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-id="SHP005" onclick="selectRow(this)">
+                                <td>SHP005</td>
+                                <td>Metro Industries</td>
+                                <td>Phoenix, AZ</td>
+                                <td>Atlanta, GA</td>
+                                <td><span class="badge success">Delivered</span></td>
+                                <td>Emma Brown</td>
+                                <td>2025-12-16</td>
+                                <td>13:10</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn view" title="View Image" onclick="event.stopPropagation(); openViewModal('SHP005');">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('SHP005');">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('SHP005');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-id="SHP006" onclick="selectRow(this)">
+                                <td>SHP006</td>
+                                <td>Ocean Freight Co</td>
+                                <td>San Diego, CA</td>
+                                <td>Portland, OR</td>
+                                <td><span class="badge info">In Transit</span></td>
+                                <td>James Taylor</td>
+                                <td>2025-12-15</td>
+                                <td>08:00</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn view" title="View Image" onclick="event.stopPropagation(); openViewModal('SHP006');">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('SHP006');">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('SHP006');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-id="SHP007" onclick="selectRow(this)">
+                                <td>SHP007</td>
+                                <td>United Supplies</td>
+                                <td>Dallas, TX</td>
+                                <td>Philadelphia, PA</td>
+                                <td><span class="badge success">Delivered</span></td>
+                                <td>Lisa Anderson</td>
+                                <td>2025-12-14</td>
+                                <td>15:55</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn view" title="View Image" onclick="event.stopPropagation(); openViewModal('SHP007');">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('SHP007');">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('SHP007');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Modal -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal edit-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus"></i> Ajouter Shipment</h3>
+                <button class="modal-close" onclick="closeModal('addModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="modal-form" id="addShipmentForm">
+                    <div class="form-group">
+                        <label for="addClient">Client</label>
+                        <input type="text" id="addClient" placeholder="Enter client name">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="addOrigin">Origin</label>
+                            <input type="text" id="addOrigin" placeholder="Enter origin">
+                        </div>
+                        <div class="form-group">
+                            <label for="addDestination">Destination</label>
+                            <input type="text" id="addDestination" placeholder="Enter destination">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="addStatus">Status</label>
+                            <select id="addStatus">
+                                <option value="Pending">Pending</option>
+                                <option value="In Transit">In Transit</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Failed">Failed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="addDriver">Driver</label>
+                            <input type="text" id="addDriver" placeholder="Enter driver name">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="addDate">Date</label>
+                            <input type="date" id="addDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="addTime">Time</label>
+                            <input type="time" id="addTime">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('addModal')">Cancel</button>
+                <button class="modal-btn primary" onclick="addShipment()">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Image Modal -->
+    <div class="modal-overlay" id="viewModal">
+        <div class="modal view-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-image"></i> Shipment Image</h3>
+                <button class="modal-close" onclick="closeModal('viewModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="image-container">
+                    <div class="no-image">
+                        <i class="fas fa-image"></i>
+                        <span>No image available</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('viewModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal edit-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Edit Shipment</h3>
+                <button class="modal-close" onclick="closeModal('editModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="modal-form" id="editShipmentForm">
+                    <input type="hidden" id="editShipmentId">
+                    <div class="form-group">
+                        <label for="editClient">Client</label>
+                        <input type="text" id="editClient" placeholder="Enter client name">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editOrigin">Origin</label>
+                            <input type="text" id="editOrigin" placeholder="Enter origin">
+                        </div>
+                        <div class="form-group">
+                            <label for="editDestination">Destination</label>
+                            <input type="text" id="editDestination" placeholder="Enter destination">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editStatus">Status</label>
+                            <select id="editStatus">
+                                <option value="Delivered">Delivered</option>
+                                <option value="In Transit">In Transit</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Failed">Failed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editDriver">Driver</label>
+                            <input type="text" id="editDriver" placeholder="Enter driver name">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editDate">Date</label>
+                            <input type="date" id="editDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="editTime">Time</label>
+                            <input type="time" id="editTime">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('editModal')">Cancel</button>
+                <button class="modal-btn primary" onclick="saveShipmentChanges()">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal delete-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-trash"></i> Delete Shipment</h3>
+                <button class="modal-close" onclick="closeModal('deleteModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="delete-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <p class="delete-message">Are you sure you want to delete this shipment?</p>
+                <p class="delete-warning">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('deleteModal')">Cancel</button>
+                <button class="modal-btn danger" onclick="confirmDelete()">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="js/DASHmain.js"></script>
+    <script src="js/DASHshipments.js"></script>
+</body>
+</html>
