@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard — SwiftShip{% endblock %}</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="{% static 'css/DASHvariables.css' %}">
+    <link rel="stylesheet" href="{% static 'css/DASHsidebar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/DASHtopbar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/DASHtables.css' %}">
+    <link rel="stylesheet" href="{% static 'css/DASHmodals.css' %}">
+
+    <!-- Page-specific dashboard CSS (loaded globally to avoid child-load ordering issues) -->
+    <link rel="stylesheet" href="{% static 'css/drivers.css' %}">
+    <link rel="stylesheet" href="{% static 'css/vehicles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/invoices.css' %}">
+    <link rel="stylesheet" href="{% static 'css/incidents.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-shipping-fast"></i>
+                <h2>SwiftShip</h2>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="{% if request.path == '/dashboard/' %}active{% endif %}">
+                    <a href="{% url 'dashboard' %}">
+                        <i class="fas fa-chart-line padding"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'dashboard_clients' %}">
+                        <i class="fas fa-users"></i>
+                        <span>Clients</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'dashboard_shipments' %}">
+                        <i class="fas fa-box"></i>
+                        <span>Shipments</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'dashboard_drivers' %}">
+                        <i class="fas fa-id-card"></i>
+                        <span>Drivers</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'dashboard_vehicles' %}">
+                        <i class="fas fa-truck"></i>
+                        <span>Vehicles</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'dashboard_invoices' %}">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Invoices</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'dashboard_incidents' %}">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Incidents</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <a href="#logout" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search..." class="search-input">
+            </div>
+            
+            <div class="user-info" onclick="toggleUserDropdown()">
+                <div class="user-details">
+                    <span class="user-name">John Doe</span>
+                    <span class="user-role">Administrator</span>
+                </div>
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Common dashboard scripts -->
+    <script src="{% static 'js/DASHmain.js' %}"></script>
+    <script src="{% static 'js/DASHcharts.js' %}"></script>
+    <!-- Page-specific scripts loaded globally to keep template parsing consistent -->
+    <script src="{% static 'js/drivers.js' %}"></script>
+    <script src="{% static 'js/vehicles.js' %}"></script>
+    <script src="{% static 'js/invoices.js' %}"></script>
+    <script src="{% static 'js/incidents.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

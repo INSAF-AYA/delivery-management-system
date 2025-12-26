@@ -1,19 +1,11 @@
-<!--{% extends 'base.html' %}
+{% extends 'base_dashboard.html' %}
 
-{% block title %}Drivers{% endblock %}
+{% block title %}Drivers — SwiftShip{% endblock %}
 
-{% block content %}-->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="CSS/drivers.css">
-  <title>Drivers</title>
-</head>
-<body>
-  <!--yb9a mena w ro7-->
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
   <div class="content">
   <div class="container">
 
@@ -48,17 +40,6 @@
       </tr>
     </thead>
     <tbody>
-      <!-- {% for driver in drivers %}
-      <tr>
-          <td>{{ driver.driver_id }}</td>
-          <td>{{ driver.name }}</td>
-          <td>{{ driver.phone }}</td>
-          <td>{{ driver.vehicle }}</td>
-          <td>{{ driver.total_deliveries }}</td>
-          <td>{{ driver.status }}</td>
-          <td>{{ driver.actions }}</td>
-      </tr>
-      {% endfor %} -->
       <tr>
         <td class="driver-id">D001</td>
         <td>John Doe</td>
@@ -118,7 +99,6 @@
     </tbody>
   </table>
   </div>
-  <!--7at lehna-->
 
   <!-- ADD DRIVER MODAL -->
   <div id="addDriverModal" class="modal">
@@ -132,9 +112,6 @@
 
         <select name="vehicle" required>
           <option value="">Assign vehicle</option>
-          <!--{% for vehicle in vehicles %}
-            <option value="{{ vehicle.id }}">{{ vehicle.code }}</option>
-          {% endfor %} -->
         </select>
 
         <select name="status" required>
@@ -161,9 +138,7 @@
     </div>
   </div>
 
-  <script src="JS/drivers.js"></script>
+{% endblock %}
 
-</body>
-</html>
-
-<!--{% endblock %}-->
+{% block extra_js %}
+{% endblock %}

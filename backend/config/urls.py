@@ -15,8 +15,29 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.views.generic import RedirectView
+
+# Also import the dashboard view so we can expose a top-level named route
+from dashboard import views as dash_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # Redirect root to the login page
+    path('', RedirectView.as_view(pattern_name='login', permanent=False)),
+
+    # App urlconfs
+    path('', include('home.urls')),
+    # Also expose the home app at /home/ so links to /home/ work
+    path('home/', include('home.urls')),
+    path('driver/', include('driver.urls')),
+
+    # Provide a named top-level route 'dashboard' so templates that call
+    # {% url 'dashboard' %} resolve correctly. Subpaths are handled by
+    # including the dashboard.urls module.
+    path('dashboard/', dash_views.index, name='dashboard'),
+    path('dashboard/', include('dashboard.urls')),
+
+    path('client/', include('client.urls')),
 ]

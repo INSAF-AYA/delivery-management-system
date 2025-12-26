@@ -1,19 +1,11 @@
-<!--{% extends 'base.html' %}
+{% extends 'base_dashboard.html' %}
 
-{% block title %}Vehicles{% endblock %}
+{% block title %}Vehicles — SwiftShip{% endblock %}
 
-{% block content %}-->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="CSS/Vehicles.css">
-  <title>Vehicles</title>
-</head>
-<body> 
-  <!--yb9a mena w ro7-->
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
   <div class="content">
   <div class="container">
     <div class="field">
@@ -47,17 +39,6 @@
       </tr>
     </thead>
     <tbody>
-      <!-- {% for vehicle in vehicles %}
-      <tr>
-          <td>{{ vehicle.vehicle_id }}</td>
-          <td>{{ vehicle.type }}</td>
-          <td>{{ vehicle.capacity }}</td>
-          <td>{{ vehicle.assigned_driver }}</td>
-          <td>{{ vehicle.Mileage }}</td>
-          <td>{{ vehicle.status }}</td>
-          <td>{{ vehicle.actions }}</td>
-      </tr>
-      {% endfor %} -->
       <tr>
         <td class="vehicle-id">VAN-001</td>
         <td>Delivery Van</td>
@@ -117,7 +98,6 @@
     </tbody>
   </table>
   </div>
-  <!--7at lehna-->
 
   <div id="addVehicleModal" class="modal">
   <div class="modal-content">
@@ -162,11 +142,7 @@
   </div>
 </div>
 
-<script src="JS/vehicles.js"></script>
+{% endblock %}
 
-
-
-</body>
-</html>
-
-<!--{% endblock %}-->
+{% block extra_js %}
+{% endblock %}

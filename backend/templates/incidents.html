@@ -1,0 +1,57 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Incidents — SwiftShip{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+  <div class="page-row">
+    <div class="left">
+      <h1>Incidents</h1>
+      <p class="description">Report and manage incidents</p>
+    </div>
+
+    <div class="right">
+      <div class="controls">
+        <button id="reportIncidentBtn" class="primary">
+          <i class="fa-solid fa-plus"></i>
+          Report Incident
+        </button>
+      </div>
+
+      <div class="table-card">
+      <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Reported By</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {# Example row — replace with real incidents context when ready #}
+        <tr>
+          <td>INC-101</td>
+          <td>Delay</td>
+          <td>Package delayed due to traffic</td>
+          <td>Driver A</td>
+          <td>2025-01-10</td>
+          <td><span class="status status-open">Open</span></td>
+          <td>
+            <i class="fa-solid fa-eye"></i>
+          </td>
+        </tr>
+      </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

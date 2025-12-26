@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,12 +10,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/DASHvariables.css">
-    <link rel="stylesheet" href="css/DASHsidebar.css">
-    <link rel="stylesheet" href="css/DASHtopbar.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/DASHtables.css">
-    <link rel="stylesheet" href="css/DASHmodals.css">
+    <link rel="stylesheet" href="{% static 'css/DASHvariables.css' %}">
+    <link rel="stylesheet" href="{% static 'css/DASHsidebar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/DASHtopbar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/DASHtables.css' %}">
+    <link rel="stylesheet" href="{% static 'css/DASHmodals.css' %}">
 </head>
 <body>
     <!-- Sidebar Navigation -->
@@ -29,43 +30,43 @@
         <nav class="sidebar-nav">
             <ul>
                 <li>
-                    <a href="DASHindex.html">
+                    <a href="{% url 'dashboard' %}">
                         <i class="fas fa-chart-line"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="active">
-                    <a href="DASHclients.html">
+                    <a href="{% url 'dashboard_clients' %}">
                         <i class="fas fa-users"></i>
                         <span>Clients</span>
                     </a>
                 </li>
                 <li>
-                    <a href="DASHshipments.html">
+                    <a href="{% url 'dashboard_shipments' %}">
                         <i class="fas fa-box"></i>
                         <span>Shipments</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#drivers">
+                    <a href="{% url 'dashboard_drivers' %}">
                         <i class="fas fa-id-card"></i>
                         <span>Drivers</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#vehicles">
+                    <a href="{% url 'dashboard_vehicles' %}">
                         <i class="fas fa-truck"></i>
                         <span>Vehicles</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#invoices">
+                    <a href="{% url 'dashboard_invoices' %}">
                         <i class="fas fa-file-invoice-dollar"></i>
                         <span>Invoices</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#incidents">
+                    <a href="{% url 'dashboard_incidents' %}">
                         <i class="fas fa-exclamation-triangle"></i>
                         <span>Incidents</span>
                     </a>
@@ -505,7 +506,7 @@
     </div>
 
     <!-- Custom JavaScript -->
-    <script src="js/DASHmain.js"></script>
-    <script src="js/DASHclients.js"></script>
+    <script src="{% static 'js/DASHmain.js' %}"></script>
+    <script src="{% static 'js/DASHclients.js' %}"></script>
 </body>
 </html>
