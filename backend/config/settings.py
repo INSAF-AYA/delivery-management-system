@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'client.apps.ClientConfig',
     'driver.apps.DriverConfig',
     'dashboard.apps.DashboardConfig',
+    'database.apps.DatabaseConfig'
 ]
 
 MIDDLEWARE = [
