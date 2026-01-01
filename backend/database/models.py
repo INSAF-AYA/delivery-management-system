@@ -1,5 +1,6 @@
 from django.db import models, transaction
 from django.contrib.auth.hashers import make_password, check_password
+from django.utils import timezone 
 import secrets
 import string
 import re
@@ -320,3 +321,372 @@ class Expedition(models.Model):
                 self.id_expedition = f"SH{next_num:06d}"
 
         super().save(*args, **kwargs)
+
+# CLASS RECLAMATION
+class Reclamation(models.Model):
+   RECLAMATION_STATUS_CHOICES = [
+        ('new', 'New'),
+        ('open', 'Open'),
+        ('in_progress', 'In Progress'),
+        ('resolved', 'Resolved'),
+        ('cancelled', 'Cancelled'),
+        ('pending_customer', 'Pending Customer Response'),
+        ('closed', 'Closed'),
+    ]
+   id_reclamation = models.CharField(primary_key=True, max_length=10, verbose_name="Reclamation ID",editable=False)
+   date_reclamation= models.DateTimeField(default=timezone.now, verbose_name="Reclamation Date")
+   created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
+   updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated At")
+   
+   nature = models.CharField(max_length=255, verbose_name="Nature")
+   description = models.TextField(verbose_name="Description", blank=True)
+
+   status = models.CharField(
+        max_length=50, 
+        choices=RECLAMATION_STATUS_CHOICES, 
+        default='new',
+        verbose_name="Status"
+    )
+   commentaire = models.TextField(blank=True, verbose_name="Commentaire")
+   class Meta:
+        verbose_name = "Réclamation"
+        verbose_name_plural = "Réclamations"
+        ordering = ['-date_reclamation']
+        db_table = 'reclamation'  # Nom de la table en base
+    
+   def __str__(self):
+        return f"Réclamation {self.id_reclamation} - {self.nature}"
+   def save(self, *args, **kwargs):
+        # Génération ID Réclamation
+        if not self.id_reclamation:
+            with transaction.atomic():
+                last_obj = Reclamation.objects.select_for_update().filter(
+                    id_reclamation__startswith='REC'
+                ).order_by('-id_reclamation').first()
+
+                if last_obj and last_obj.id_reclamation:
+                    m = re.search(r"REC(\d+)$", last_obj.id_reclamation)
+                    next_num = int(m.group(1)) + 1 if m else 1
+                else:
+                    next_num = 1
+                self.id_reclamation = f"REC{next_num:06d}" 
+        super().save(*args, **kwargs)
+
+# CLASS INCIDENT
+class Incident(models.Model):
+    INCIDENT_TYPE_CHOICES = [
+        ('delay', 'Delay'),
+        ('loss', 'Package Loss'),
+        ('damage', 'Damage'),
+        ('technical', 'Technical Problem'),
+        ('accident', 'Accident'),
+        ('other', 'Other'),
+    ]
+    
+    INCIDENT_STATUS_CHOICES = [
+        ('new', 'New'),
+        ('open', 'Open'),
+        ('in_progress', 'In Progress'),
+        ('resolved', 'Resolved'),
+        ('closed', 'Closed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    id_incident = models.CharField(
+        primary_key=True,
+        max_length=10,
+        verbose_name="Incident ID",
+        editable=False
+    )
+    
+    incident_type = models.CharField(
+        max_length=50, 
+        choices=INCIDENT_TYPE_CHOICES, 
+        verbose_name="Type d'incident"
+    )
+    description = models.TextField(verbose_name="Description")
+    incident_date = models.DateTimeField(
+        default=timezone.now, 
+        verbose_name="Date de l'incident"
+    )
+    status = models.CharField(
+        max_length=50, 
+        choices=INCIDENT_STATUS_CHOICES, 
+        default='new',
+        verbose_name="Status"
+    )
+    attachment = models.FileField(
+     upload_to='incidents/attachments/',
+     null=True,
+     blank=True,
+     verbose_name="Document ou photo joint"
+    )
+
+    commentaire = models.TextField( blank=True,verbose_name="Commentaire")
+    
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated At")
+    resolution_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Resolution Date"
+    )
+    PRIORITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('critical', 'Critical'),
+    ]
+    
+    priority = models.CharField(
+        max_length=20,
+        choices=PRIORITY_CHOICES,
+        default='medium',
+        verbose_name="Priority"
+    )
+
+    class Meta:
+        verbose_name = "Incident"
+        verbose_name_plural = "Incidents"
+        ordering = ['-incident_date']
+        db_table = 'incident'
+    
+    def __str__(self):
+        return f"Incident {self.id_incident} - {self.get_incident_type_display()}"
+    def save(self, *args, **kwargs):
+        # Génération ID Incident
+        if not self.id_incident:
+            with transaction.atomic():
+                last_obj = Incident.objects.select_for_update().filter(
+                    id_incident__startswith='INC'
+                ).order_by('-id_incident').first()
+
+                if last_obj and last_obj.id_incident:
+                    m = re.search(r"INC(\d+)$", last_obj.id_incident)
+                    next_num = int(m.group(1)) + 1 if m else 1
+                else:
+                    next_num = 1
+
+                self.id_incident = f"INC{next_num:06d}"
+        
+        super().save(*args, **kwargs)
+    def resolve(self,  resolution_notes=""):
+         self.status = 'resolved'
+         self.resolution_date = timezone.now()
+         if resolution_notes:
+             self.commentaire = f"{self.commentaire}\n[RESOLUTION {self.resolution_date.strftime('%Y-%m-%d %H:%M')}]: {resolution_notes}"
+         self.save()
+    def close(self):
+        """Close the incident after resolution"""
+        if self.status == 'resolved':
+            self.status = 'closed'
+            self.save()
+    @property
+    def is_active(self):
+        """Check if incident is still active"""
+        return self.status in ['new', 'open', 'in_progress']
+    @property
+    def days_open(self):
+        """Calculate number of days the incident has been open"""
+        if self.status in ['resolved', 'closed', 'cancelled'] and self.resolution_date:
+            return (self.resolution_date - self.created_at).days
+        return (timezone.now() - self.created_at).days
+
+# CLASS AGENT 
+class Agent(models.Model):
+    ROLE_CHOICES = [
+        ('admin', 'Administrator'),   # Admin (fait tout + système)
+        ('agent', 'Agent Transport')  # Utilisateur principal (fait tout)
+        ]
+    
+    agent_id = models.CharField(
+        primary_key=True,
+        max_length=10,
+        verbose_name="Agent ID",
+        editable=False
+    )
+
+    nom = models.CharField(max_length=100, verbose_name="Nom")
+    prenom = models.CharField(max_length=100, verbose_name="Prénom") 
+    email = models.EmailField(unique=True, verbose_name="Email")
+    mot_de_passe = models.CharField(max_length=255, verbose_name="Mot de passe (hashé)")
+    # UN SEUL RÔLE : soit 'agent', soit 'admin'
+    role = models.CharField(
+        max_length=50, 
+        choices=ROLE_CHOICES, 
+        default='agent',
+        verbose_name="Rôle"
+    )
+    telephone = models.CharField(max_length=20, blank=True, verbose_name="Téléphone")
+    date_embauche = models.DateField(null=True, blank=True, verbose_name="Date d'embauche")
+    est_actif = models.BooleanField(default=True, verbose_name="Actif")
+
+    date_creation = models.DateTimeField(auto_now_add=True)
+    derniere_connexion = models.DateTimeField(null=True, blank=True)
+    date_modification = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Agent"
+        verbose_name_plural = "Agents"
+        ordering = ['nom', 'prenom']
+        db_table = 'agent'
+    
+    def __str__(self):
+        return f"{self.nom} {self.prenom} ({self.get_role_display()})"
+    
+    def save(self, *args, **kwargs):
+         # Génération ID Agent
+        if not self.agent_id:
+            with transaction.atomic():
+                last_obj = Agent.objects.select_for_update().filter(
+                    agent_id__startswith='AG'
+                ).order_by('-agent_id').first()
+                
+                if last_obj and last_obj.agent_id:
+                    m = re.search(r"AG(\d+)$", last_obj.agent_id)
+                    next_num = int(m.group(1)) + 1 if m else 1
+                else:
+                    next_num = 1
+                self.agent_id = f"AG{next_num:04d}"
+     # Hasher le mot de passe  (seulement si nouveau ou modifié)
+        if self.pk is None or 'mot_de_passe' in kwargs.get('update_fields', []):
+            if not self.mot_de_passe.startswith('pbkdf2_'):
+                self.mot_de_passe = make_password(self.mot_de_passe)
+        
+        super().save(*args, **kwargs)
+
+      # Méthodes d'authentification
+    def verifier_mot_de_passe(self, mot_de_passe): 
+        """
+        Vérifie si le mot de passe fourni correspond au hash stocké.
+        
+        Args:
+            mot_de_passe (str): Mot de passe en clair à vérifier
+            
+        Returns:
+            bool: True si le mot de passe est correct
+        """
+        return check_password(mot_de_passe, self.mot_de_passe)
+    
+    def changer_mot_de_passe(self, nouveau_mot_de_passe):
+        """
+        Change le mot de passe de l'agent.
+        
+        Args:
+            nouveau_mot_de_passe (str): Nouveau mot de passe en clair
+        """
+        self.mot_de_passe = make_password(nouveau_mot_de_passe)
+        self.save()
+    
+    def mettre_a_jour_connexion(self):
+        self.derniere_connexion = timezone.now()
+        self.save(update_fields=['derniere_connexion'])
+    
+      # === PROPRIÉTÉS UTILES ===
+    @property
+    def nom_complet(self):
+        """Retourne le nom complet de l'agent (Nom Prénom)."""
+        return f"{self.nom} {self.prenom}"
+    # === DEUX PROPRIÉTÉS SIMPLES ===
+    @property
+    def est_agent(self):
+        return self.role == 'agent'
+    
+    @property
+    def est_admin(self):
+        return self.role == 'admin'
+    
+    # === ACCÈS AUX SECTIONS ===
+    # L'AGENT a accès à TOUTES les sections fonctionnelles
+    # L'ADMIN a accès à TOUT (fonctionnel + système)
+    
+    @property
+    def peut_acceder_favoris(self):
+        """Section 0: Favoris - Tous peuvent personnaliser"""
+        return True  # Tous les agents
+    
+    @property
+    def peut_acceder_tables(self):
+        """Section 1: Tables - Accès complet mentionné"""
+        return True  # Tous les agents
+    
+    @property
+    def peut_gerer_expeditions(self):
+        """Section 2: Expéditions - Pour 'l'agent de transport'"""
+        return True  # Tous les agents
+    
+    @property
+    def peut_gerer_factures(self):
+        """Section 3: Facturation - Pour gérer les paiements"""
+        return True  # Tous les agents
+    
+    @property
+    def peut_gerer_incidents(self):
+        """Section 4: Incidents - Pour enregistrer/traiter"""
+        return True  # Tous les agents
+    
+    @property
+    def peut_gerer_reclamations(self):
+        """Section 5: Réclamations - Pour traiter les réclamations"""
+        return True  # Tous les agents
+    
+    @property
+    def peut_voir_analytiques(self):
+        """Section 6: Tableaux de bord - Pour 'les responsables'"""
+        return True  # Tous les agents sont des "responsables" fonctionnels
+    
+    # === ACCÈS SYSTÈME (UNIQUEMENT ADMIN) ===
+    @property
+    def peut_gerer_utilisateurs(self):
+        """Gérer les comptes agents - Admin seulement"""
+        return self.est_admin
+    
+    @property
+    def peut_configurer_systeme(self):
+        """Configuration système - Admin seulement"""
+        return self.est_admin
+    
+    @property
+    def peut_voir_logs_systeme(self):
+        """Voir les logs système - Admin seulement"""
+        return self.est_admin
+    
+    @property
+    def peut_faire_sauvegarde(self):
+        """Faire des sauvegardes - Admin seulement"""
+        return self.est_admin
+    
+    # === PERMISSIONS SPÉCIFIQUES ===
+    def peut_supprimer(self, objet_type):
+        """Vérifier les permissions de suppression"""
+        permissions_suppression = {
+            'client': self.est_admin,  # Seul admin peut supprimer un client
+            'expedition': True,  # Tous peuvent supprimer si pas dans tournée
+            'facture': self.est_admin,  # Seul admin peut supprimer facture
+            'paiement': self.est_admin,  # Seul admin peut supprimer paiement
+            'incident': True,  # Tous peuvent supprimer incidents
+            'reclamation': True,  # Tous peuvent supprimer réclamations
+        }
+        return permissions_suppression.get(objet_type, False)
+    def peut_imprimer(self, document_type):
+        """Vérifier les permissions d'impression
+         Args:
+            document_type (str): Type de document à imprimer
+         Returns:
+            bool: True si l'agent peut imprimer ce document
+        """
+        # Tous les agents peuvent imprimer
+        imprimables = ['bon_expedition', 'facture', 'recu', 'liste_clients', 
+                      'liste_chauffeurs', 'liste_vehicules', 'rapport']
+        return document_type in imprimables
+    
+    def peut_generer_rapport(self, rapport_type):
+        """Vérifier les permissions de génération de rapports
+         Args:
+            rapport_type (str): Type de rapport à générer
+         Returns:
+            bool: True si l'agent peut générer ce rapport
+        """
+        # Tous les agents peuvent générer des rapports
+        rapports_autorises = ['expeditions', 'factures', 'paiements', 'incidents', 
+                             'reclamations', 'performance', 'analytique']
+        return rapport_type in rapports_autorises
