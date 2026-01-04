@@ -41,6 +41,30 @@ button{
  margin-left: 8px;
 }
 
+/* ===== Overrides to match dashboard action button styles ===== */
+/* Ensure action buttons used in the table keep the small size and colors from DASHtables.css */
+.toolbar-btn {
+  /* make toolbar buttons slightly smaller on drivers page */
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.action-btn {
+  width: 32px !important;
+  height: 32px !important;
+  border: none !important;
+  border-radius: 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+}
+
+.action-btn i {
+  font-size: 14px;
+}
+
 
 .delete{
   background-color: #ef4444;
@@ -163,6 +187,9 @@ tbody tr:hover {
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+.modal.active {
+  display: block;
 }
 
 .modal-content h2 {
