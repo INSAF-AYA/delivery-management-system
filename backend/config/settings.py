@@ -126,3 +126,9 @@ STATIC_URL = '/static/'
 # files with the {% static %} tag. This matches the existing repo layout
 # where static assets live under backend/static/.
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+
+import os
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

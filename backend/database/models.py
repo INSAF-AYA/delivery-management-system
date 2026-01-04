@@ -690,3 +690,275 @@ class Agent(models.Model):
         rapports_autorises = ['expeditions', 'factures', 'paiements', 'incidents', 
                              'reclamations', 'performance', 'analytique']
         return rapport_type in rapports_autorises
+
+
+
+# =========================
+#        PACKAGE
+# =========================
+class Package(models.Model):
+
+    PACKAGE_TYPE_CHOICES = [
+        ('DOC', 'Documents'),
+        ('ELEC', 'Electronics'),
+        ('FURN', 'Furniture'),
+        ('OTHER', 'Other'),
+    ]
+
+    id_package = models.CharField(
+        max_length=12,
+        primary_key=True,
+        editable=False
+    )
+
+    tracking_number = models.CharField(
+        max_length=50,
+        unique=True
+    )
+
+    client = models.ForeignKey(
+        Client,
+        on_delete=models.CASCADE,
+        related_name='packages'
+    )
+
+    weight = models.DecimalField(
+        max_digits=8,
+        decimal_places=2
+    )
+
+    number_of_pieces = models.PositiveIntegerField()
+
+    package_type = models.CharField(
+        max_length=10,
+        choices=PACKAGE_TYPE_CHOICES
+    )
+
+    date_creation = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Package"
+        verbose_name_plural = "Packages"
+
+    def __str__(self):
+        return self.id_package
+
+    def save(self, *args, **kwargs):
+        """
+        Génère automatiquement l'id_package (PCG001, PCG002, ...)
+        """
+        if not self.id_package:
+            with transaction.atomic():
+                last_obj = Package.objects.select_for_update().order_by('-id_package').first()
+
+                if last_obj:
+                    match = re.search(r"PCG(\d+)$", last_obj.id_package)
+                    next_num = int(match.group(1)) + 1 if match else 1
+                else:
+                    next_num = 1
+
+                self.id_package = f"PCG{next_num:03d}"
+
+        super().save(*args, **kwargs)
+
+
+# =========================
+#        TOUR
+# =========================
+class Tour(models.Model):
+
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('COMPLETED', 'Completed'),
+    ]
+
+    id_tour = models.CharField(
+        max_length=12,
+        primary_key=True,
+        editable=False
+    )
+
+    chauffeur = models.ForeignKey(
+        Chauffeur,
+        on_delete=models.CASCADE,
+        related_name='tours'
+    )
+
+    tour_date = models.DateField()
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='PENDING'
+    )
+
+    shipments = models.ManyToManyField(
+        'Shipment',
+        blank=True,
+        related_name='tours'
+    )
+
+    date_creation = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Tour"
+        verbose_name_plural = "Tours"
+
+    def __str__(self):
+        return self.id_tour
+
+    def save(self, *args, **kwargs):
+        """
+        Génère automatiquement l'id_tour (TOU001, TOU002, ...)
+        """
+        if not self.id_tour:
+            with transaction.atomic():
+                last_obj = Tour.objects.select_for_update().order_by('-id_tour').first()
+
+                if last_obj:
+                    match = re.search(r"TOU(\d+)$", last_obj.id_tour)
+                    next_num = int(match.group(1)) + 1 if match else 1
+                else:
+                    next_num = 1
+
+                self.id_tour = f"TOU{next_num:03d}"
+
+        super().save(*args, **kwargs)
+
+
+# =========================
+#        INVOICE
+# =========================
+class Invoice(models.Model):
+
+    id_invoice = models.CharField(
+        max_length=12,
+        primary_key=True,
+        editable=False
+    )
+
+    client = models.ForeignKey(
+        Client,
+        on_delete=models.CASCADE,
+        related_name='invoices'
+    )
+
+    shipment = models.OneToOneField(
+        'Shipment',
+        on_delete=models.CASCADE,
+        related_name='invoice'
+    )
+
+    total_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    invoice_date = models.DateField(default=timezone.now)
+
+    invoice_pdf = models.FileField(
+        upload_to='invoices/'
+    )
+
+    date_creation = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Invoice"
+        verbose_name_plural = "Invoices"
+
+    def __str__(self):
+        return self.id_invoice
+
+    def save(self, *args, **kwargs):
+        """
+        Génère automatiquement l'id_invoice (INV001, INV002, ...)
+        """
+        if not self.id_invoice:
+            with transaction.atomic():
+                last_obj = Invoice.objects.select_for_update().order_by('-id_invoice').first()
+
+                if last_obj:
+                    match = re.search(r"INV(\d+)$", last_obj.id_invoice)
+                    next_num = int(match.group(1)) + 1 if match else 1
+                else:
+                    next_num = 1
+
+                self.id_invoice = f"INV{next_num:03d}"
+
+        super().save(*args, **kwargs)
+
+
+# =========================
+#        SHIPMENT
+# =========================
+class Shipment(models.Model):
+
+    SHIPMENT_ZONE_CHOICES = [
+        ('NATIONAL', 'National'),
+        ('INTERNATIONAL', 'International'),
+    ]
+
+    SPEED_CHOICES = [
+        ('NORMAL', 'Normal'),
+        ('EXPRESS', 'Express'),
+    ]
+
+    id_shipment = models.CharField(
+        max_length=12,
+        primary_key=True,
+        editable=False
+    )
+
+    package = models.OneToOneField(
+        Package,
+        on_delete=models.CASCADE,
+        related_name='shipment'
+    )
+
+    zone = models.CharField(
+        max_length=20,
+        choices=SHIPMENT_ZONE_CHOICES
+    )
+
+    speed = models.CharField(
+        max_length=20,
+        choices=SPEED_CHOICES
+    )
+
+    distance = models.DecimalField(
+        max_digits=8,
+        decimal_places=2
+    )
+
+    shipment_date = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    date_creation = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Shipment"
+        verbose_name_plural = "Shipments"
+
+    def __str__(self):
+        return self.id_shipment
+
+    def save(self, *args, **kwargs):
+        """
+        Génère automatiquement l'id_shipment (SHP001, SHP002, ...)
+        """
+        if not self.id_shipment:
+            with transaction.atomic():
+                last_obj = Shipment.objects.select_for_update().order_by('-id_shipment').first()
+
+                if last_obj:
+                    match = re.search(r"SHP(\d+)$", last_obj.id_shipment)
+                    next_num = int(match.group(1)) + 1 if match else 1
+                else:
+                    next_num = 1
+
+                self.id_shipment = f"SHP{next_num:03d}"
+
+        super().save(*args, **kwargs)
+
