@@ -47,9 +47,11 @@
           -->
           <form
             id="driverForm"
+            method="post"
             class="needs-validation"
             novalidate
           >
+            {% csrf_token %}
 
             <!-- EMAIL -->
             <div class="mb-3">

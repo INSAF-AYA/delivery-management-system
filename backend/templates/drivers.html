@@ -53,6 +53,7 @@
           <th>Email</th>
           <th>Téléphone</th>
           <th>Permis</th>
+          <th>Véhicule</th>
           <th>Status</th>
           <th>Actions</th>
         </tr>
@@ -66,6 +67,7 @@
           <td>{{ driver.email|default:"-" }}</td>
           <td>{{ driver.telephone|default:"-" }}</td>
           <td>{{ driver.numero_permis }}</td>
+          <td>{% if driver.vehicule %}{{ driver.vehicule.immatriculation }}{% else %}-{% endif %}</td>
           <td>{{ driver.get_statut_display }}</td>
           <td>
             <div class="action-btns">
@@ -105,6 +107,14 @@
         <input name="email" type="email" placeholder="Email">
         <input name="telephone" placeholder="Téléphone">
         <input name="numero_permis" placeholder="Numéro de permis" required>
+
+        <label for="addVehicule" style="margin-top:8px;display:block;">Véhicule</label>
+        <select name="vehicule" id="addVehicule">
+          <option value="">-- Aucun --</option>
+          {% for v in vehicles %}
+          <option value="{{ v.id_vehicule }}">{{ v.immatriculation }} ({{ v.id_vehicule }})</option>
+          {% endfor %}
+        </select>
 
         <select name="statut">
           <option value="actif">Actif</option>
@@ -154,6 +164,14 @@
         <input name="email" id="editEmail">
         <input name="telephone" id="editTelephone">
         <input name="numero_permis" id="editPermis">
+
+        <label for="editVehicule" style="margin-top:8px;display:block;">Véhicule</label>
+        <select name="vehicule" id="editVehicule">
+          <option value="">-- Aucun --</option>
+          {% for v in vehicles %}
+          <option value="{{ v.id_vehicule }}">{{ v.immatriculation }} ({{ v.id_vehicule }})</option>
+          {% endfor %}
+        </select>
 
         <!-- Statut (editable) -->
         <label for="editStatut" style="margin-top:8px;display:block;">Statut</label>

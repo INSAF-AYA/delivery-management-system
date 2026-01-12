@@ -8,7 +8,7 @@
     align-items: center;
     justify-content: center;
 
-    z-index: 99999;              /* 🔥 حل المشكلة */
+    z-index: 99999;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -24,6 +24,11 @@
 
 /* ===== Modal Container ===== */
 .modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+
     background: #fff;
     border-radius: 12px;
     width: 90%;
@@ -31,13 +36,21 @@
     max-height: 90vh;
     overflow-y: auto;
 
-    transform: scale(0.9);
-    transition: transform 0.25s ease;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition: transform 0.25s ease, opacity 0.25s ease;
+
+    z-index: 100000;
 }
 
-.modal-overlay.active .modal {
-    transform: scale(1);
+/* Modal visible */
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
 }
 
 /* ===== Modal Header ===== */
@@ -82,7 +95,8 @@
     gap: 12px;
 }
 
-input, select {
+input,
+select {
     padding: 10px 12px;
     border: 1px solid #d1d5db;
     border-radius: 8px;

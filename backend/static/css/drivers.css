@@ -178,18 +178,23 @@ tbody tr:hover {
   inset: 0;
   background: rgba(0,0,0,0.4);
   z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.active {
+  display: flex;
 }
 
 .modal-content {
   background: white;
   width: 420px;
-  margin: 8% auto;
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-}
-.modal.active {
-  display: block;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .modal-content h2 {

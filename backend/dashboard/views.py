@@ -4,7 +4,7 @@ from django.views.decorators.http import require_POST
 import json
 from django.contrib.admin.views.decorators import staff_member_required
 
-from database.models import Client, Chauffeur
+from database.models import Client, Chauffeur, Vehicule
 
 
 def index(request):
@@ -152,14 +152,24 @@ def drivers(request):
             chauffeur.numero_permis = request.POST.get("numero_permis", chauffeur.numero_permis)
             # Allow editing of statut
             chauffeur.statut = request.POST.get("statut", chauffeur.statut)
+            # assign vehicle if provided (id_vehicule expected)
+            veh_id = request.POST.get('vehicule')
+            if veh_id:
+                try:
+                    veh = Vehicule.objects.get(id_vehicule=veh_id)
+                    chauffeur.vehicule = veh
+                except Vehicule.DoesNotExist:
+                    chauffeur.vehicule = None
 
             chauffeur.save()
             return redirect('dashboard_drivers')
 
     # GET REQUEST
     chauffeurs = Chauffeur.objects.all().order_by('-id_chauffeur')
+    vehicules = Vehicule.objects.all().order_by('-id_vehicule')
     return render(request, 'drivers.html', {
-        'drivers': chauffeurs
+        'drivers': chauffeurs,
+        'vehicles': vehicules,
     })
 
 
@@ -201,6 +211,7 @@ def add_driver(request):
     numero_permis = request.POST.get('numero_permis', '').strip()
     disponibilite = request.POST.get('disponibilite', '1')
     statut = request.POST.get('statut', 'actif')
+    veh_id = request.POST.get('vehicule')
 
     # Required basic fields
     if not (nom and prenom and email and numero_permis):
@@ -218,6 +229,14 @@ def add_driver(request):
         disponibilite=disp_bool,
         statut=statut
     )
+
+    # assign vehicle if provided
+    if veh_id:
+        try:
+            veh = Vehicule.objects.get(id_vehicule=veh_id)
+            chauffeur.vehicule = veh
+        except Vehicule.DoesNotExist:
+            chauffeur.vehicule = None
 
     # generate and save password (generate_password_driver saves the instance)
     try:

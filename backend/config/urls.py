@@ -35,6 +35,8 @@ urlpatterns = [
     # Also expose the home app at /home/ so links to /home/ work
     path('home/', include('home.urls')),
     path('driver/', include('driver.urls')),
+    # API endpoints (AJAX logins etc.)
+    path('api/', include('api.urls')),
 
     # Provide a named top-level route 'dashboard' so templates that call
     # {% url 'dashboard' %} resolve correctly. Subpaths are handled by

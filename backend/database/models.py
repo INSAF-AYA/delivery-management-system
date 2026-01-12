@@ -215,6 +215,15 @@ class Chauffeur(models.Model):
         verbose_name="Numéro de permis"
     )
 
+    # Véhicule affecté (optionnel)
+    vehicule = models.ForeignKey(
+        'Vehicule',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='chauffeurs'
+    )
+
     date_embauche = models.DateField(auto_now_add=True)
 
     disponibilite = models.BooleanField(default=True)
