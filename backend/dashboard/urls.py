@@ -19,4 +19,6 @@ urlpatterns = [
     path('invoices/', views.invoices, name='dashboard_invoices'),
     path('incidents/', views.incidents, name='dashboard_incidents'),
      path('clients/add/', views.add_client, name='dashboard_add_client'),
+   
+    path('packages/', views.package, name='dashboard_packages'),
 ]

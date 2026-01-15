@@ -66,6 +66,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{% url 'dashboard_packages' %}">
+                        <i class="fas fa-box"></i>
+                        <span>Packages</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{% url 'dashboard_incidents' %}">
                         <i class="fas fa-exclamation-triangle"></i>
                         <span>Incidents</span>
@@ -204,8 +210,8 @@
     </main>
 
     <!-- Add Client Modal -->
-    <div class="modal-overlay" id="addModal">
-        <div class="modal edit-modal">
+    <div class="modal" id="addModal">
+        <div class="modal-window edit-modal">
             <div class="modal-header">
                 <h3><i class="fas fa-plus"></i> Add Client</h3>
                 <button type="button" class="modal-close" onclick="closeModal('addModal')">
@@ -261,19 +267,16 @@
     </div>
 
     <!-- View Image Modal -->
-    <div class="modal-overlay" id="viewModal">
-        <div class="modal view-modal">
-            
+    <div class="modal" id="viewModal">
+        <div class="modal-window view-modal">
             <div class="modal-body">
-                       
-                        <div id="viewClientDetails" class="client-details">
-                            <!-- Filled dynamically by JS -->
-                        </div>
-                        <div id="viewClientPassword" class="client-password" style="display:none;margin-top:12px;">
-                            <!-- Filled dynamically when staff generates a password -->
-                        </div>
-                        <!-- If you are an admin/staff you can generate a new password once (it will be saved hashed). -->
-                    </div>
+                <div id="viewClientDetails" class="client-details">
+                    <!-- Filled dynamically by JS -->
+                </div>
+                <div id="viewClientPassword" class="client-password" style="display:none;margin-top:12px;">
+                    <!-- Filled dynamically when staff generates a password -->
+                </div>
+                <!-- If you are an admin/staff you can generate a new password once (it will be saved hashed). -->
             </div>
             <div class="modal-footer">
                 {% if user.is_staff %}
@@ -287,8 +290,8 @@
     </div>
 
     <!-- Edit Modal -->
-    <div class="modal-overlay" id="editModal">
-        <div class="modal edit-modal">
+    <div class="modal" id="editModal">
+        <div class="modal-window edit-modal">
             <div class="modal-header">
                 <h3><i class="fas fa-edit"></i> Edit Client</h3>
                 <button class="modal-close" onclick="closeModal('editModal')">
@@ -346,8 +349,8 @@
     </div>
 
     <!-- Delete Modal -->
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal delete-modal">
+    <div class="modal" id="deleteModal">
+        <div class="modal-window delete-modal">
             <div class="modal-header">
                 <h3><i class="fas fa-trash"></i> Delete Client</h3>
                 <button class="modal-close" onclick="closeModal('deleteModal')">

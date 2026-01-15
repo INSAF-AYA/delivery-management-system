@@ -3,6 +3,10 @@
 
 {% block title %}Drivers — SwiftShip{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/drivers.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="page-content">
   <h1 class="page-title"><i class="fas fa-id-card"></i> Drivers</h1>
@@ -20,7 +24,7 @@
     </div>
 
     <div class="table-toolbar">
-      <button class="toolbar-btn add" onclick="openModal('addDriverModal')">
+      <button id="addDriverBtn" class="toolbar-btn add" onclick="openAddModal()">
         <i class="fas fa-plus"></i> Add Driver
       </button>
     </div>
@@ -68,149 +72,204 @@
           <td>{{ driver.telephone|default:"-" }}</td>
           <td>{{ driver.numero_permis }}</td>
           <td>{% if driver.vehicule %}{{ driver.vehicule.immatriculation }}{% else %}-{% endif %}</td>
-          <td>{{ driver.get_statut_display }}</td>
+          <td><span class="status-badge status-{{ driver.statut }}">{{ driver.get_statut_display }}</span></td>
           <td>
             <div class="action-btns">
               <button class="action-btn view" title="View" onclick="openViewModal('{{ driver.id_chauffeur }}')">
                 <i class="fas fa-eye"></i>
               </button>
-
-                <button class="action-btn edit" title="Edit" onclick="openEditModal('{{ driver.id_chauffeur }}')">
-                  <i class="fas fa-edit"></i>
-                </button>
-
-                <button class="action-btn delete" title="Delete" onclick="openDeleteModal('{{ driver.id_chauffeur }}')">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="8" style="text-align:center;">No drivers found</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
+              <button class="action-btn edit" title="Edit" onclick="openEditModal('{{ driver.id_chauffeur }}')">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="action-btn delete" title="Delete" onclick="openDeleteModal('{{ driver.id_chauffeur }}')">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" style="text-align:center;">No drivers found</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
+</div>
 
-  <!-- ================= ADD MODAL ================= -->
-  <div id="addDriverModal" class="modal">
-    <div class="modal-content">
-      <h2>Add Driver</h2>
+<!-- ================= ADD MODAL ================= -->
+<div id="addModal" class="modal fade" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content modal-window">
+      <div class="modal-header">
+  <h5 class="modal-title">Add Driver</h5>
+  <button type="button" class="btn-close" onclick="closeModal('addModal')" aria-label="Close"></button>
+      </div>
       <form id="addDriverForm" method="post" action="{% url 'dashboard_add_driver' %}">
         {% csrf_token %}
-        <input name="nom" placeholder="Nom" required>
-        <input name="prenom" placeholder="Prénom" required>
-        <input name="email" type="email" placeholder="Email">
-        <input name="telephone" placeholder="Téléphone">
-        <input name="numero_permis" placeholder="Numéro de permis" required>
-
-        <label for="addVehicule" style="margin-top:8px;display:block;">Véhicule</label>
-        <select name="vehicule" id="addVehicule">
-          <option value="">-- Aucun --</option>
-          {% for v in vehicles %}
-          <option value="{{ v.id_vehicule }}">{{ v.immatriculation }} ({{ v.id_vehicule }})</option>
-          {% endfor %}
-        </select>
-
-        <select name="statut">
-          <option value="actif">Actif</option>
-          <option value="inactif">Inactif</option>
-          <option value="suspendu">Suspendu</option>
-          <option value="en_conge">En congé</option>
-        </select>
-
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Nom</label>
+            <input id="addNom" name="nom" class="form-control" placeholder="Nom" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Prénom</label>
+            <input id="addPrenom" name="prenom" class="form-control" placeholder="Prénom" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input id="addEmail" name="email" type="email" class="form-control" placeholder="Email">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Téléphone</label>
+            <input id="addTelephone" name="telephone" class="form-control" placeholder="Téléphone">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Numéro de permis</label>
+            <input id="addPermis" name="numero_permis" class="form-control" placeholder="Numéro de permis" required>
+          </div>
+          <div class="form-row">
+            <div class="mb-3">
+              <label class="form-label">Véhicule</label>
+              <select id="addVehicule" name="vehicule" class="form-select">
+                <option value="">-- Aucun --</option>
+                {% for v in vehicles %}
+                <option value="{{ v.id_vehicule }}">{{ v.immatriculation }} ({{ v.id_vehicule }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Statut</label>
+              <select id="addStatut" name="statut" class="form-select">
+                <option value="actif">Actif</option>
+                <option value="inactif">Inactif</option>
+                <option value="suspendu">Suspendu</option>
+                <option value="en_conge">En congé</option>
+              </select>
+            </div>
+          </div>
+        </div>
         <div class="modal-footer">
-          <button type="button" onclick="closeModal('addDriverModal')">Cancel</button>
-          <button type="submit" class="primary">Save</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>
   </div>
+</div>
 
-  <!-- ================= VIEW MODAL ================= -->
-  <div id="viewDriverModal" class="modal">
-    <div class="modal-content">
-      <h2>Driver Details</h2>
-      <div id="viewDriverDetails"><!-- filled by JS --></div>
-
-      <div id="viewDriverPassword" style="display:none;margin-top:12px;"></div>
-
+<!-- ================= VIEW MODAL ================= -->
+<div id="viewModal" class="modal fade" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content modal-window">
+      <div class="modal-header">
+  <h5 class="modal-title">Driver Details</h5>
+  <button type="button" class="btn-close" onclick="closeModal('viewModal')" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="viewDriverDetails"><!-- filled by JS --></div>
+        <div id="viewDriverPassword" style="display:none;margin-top:12px;"></div>
+      </div>
       <div class="modal-footer">
         {% if user.is_staff %}
-        <button class="modal-btn" id="viewGenerateDriverPasswordBtn" onclick="generateDriverPasswordForCurrentView()">
+        <button class="btn btn-warning" id="viewGenerateDriverPasswordBtn" onclick="generateDriverPasswordForCurrentView()">
           <i class="fas fa-key"></i> Générer mot de passe
         </button>
         {% endif %}
-        <button onclick="closeModal('viewDriverModal')">Close</button>
+  <button type="button" class="btn btn-secondary" onclick="closeModal('viewModal')">Close</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ================= EDIT MODAL ================= -->
-  <div id="editDriverModal" class="modal">
-    <div class="modal-content">
-      <h2>Edit Driver</h2>
+<!-- ================= EDIT MODAL ================= -->
+<div id="editModal" class="modal fade" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content modal-window">
+      <div class="modal-header">
+  <h5 class="modal-title">Edit Driver</h5>
+  <button type="button" class="btn-close" onclick="closeModal('editModal')" aria-label="Close"></button>
+      </div>
       <form id="editDriverForm" method="post" action="{% url 'dashboard_drivers' %}">
         {% csrf_token %}
         <input type="hidden" name="driver_id" id="editDriverId">
         <input type="hidden" name="action" value="edit">
-
-        <input name="nom" id="editNom" required>
-        <input name="prenom" id="editPrenom" required>
-        <input name="email" id="editEmail">
-        <input name="telephone" id="editTelephone">
-        <input name="numero_permis" id="editPermis">
-
-        <label for="editVehicule" style="margin-top:8px;display:block;">Véhicule</label>
-        <select name="vehicule" id="editVehicule">
-          <option value="">-- Aucun --</option>
-          {% for v in vehicles %}
-          <option value="{{ v.id_vehicule }}">{{ v.immatriculation }} ({{ v.id_vehicule }})</option>
-          {% endfor %}
-        </select>
-
-        <!-- Statut (editable) -->
-        <label for="editStatut" style="margin-top:8px;display:block;">Statut</label>
-        <select name="statut" id="editStatut">
-          <option value="actif">Actif</option>
-          <option value="inactif">Inactif</option>
-          <option value="suspendu">Suspendu</option>
-          <option value="en_conge">En congé</option>
-        </select>
-
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Nom</label>
+            <input name="nom" id="editNom" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Prénom</label>
+            <input name="prenom" id="editPrenom" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input name="email" id="editEmail" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Téléphone</label>
+            <input name="telephone" id="editTelephone" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Numéro de permis</label>
+            <input name="numero_permis" id="editPermis" class="form-control">
+          </div>
+          <div class="form-row">
+            <div class="mb-3">
+              <label class="form-label">Véhicule</label>
+              <select name="vehicule" id="editVehicule" class="form-select">
+                <option value="">-- Aucun --</option>
+                {% for v in vehicles %}
+                <option value="{{ v.id_vehicule }}">{{ v.immatriculation }} ({{ v.id_vehicule }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Statut</label>
+              <select name="statut" id="editStatut" class="form-select">
+                <option value="actif">Actif</option>
+                <option value="inactif">Inactif</option>
+                <option value="suspendu">Suspendu</option>
+                <option value="en_conge">En congé</option>
+              </select>
+            </div>
+          </div>
+        </div>
         <div class="modal-footer">
-          <button type="button" onclick="closeModal('editDriverModal')">Cancel</button>
-          <button type="submit" class="primary">Save</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('editModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>
   </div>
+</div>
 
-  <!-- ================= DELETE MODAL ================= -->
-  <div id="deleteDriverModal" class="modal">
-    <div class="modal-content">
-      <h2>Delete Driver</h2>
+<!-- ================= DELETE MODAL ================= -->
+<div id="deleteModal" class="modal fade" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content modal-window">
+      <div class="modal-header">
+  <h5 class="modal-title">Delete Driver</h5>
+  <button type="button" class="btn-close" onclick="closeModal('deleteModal')" aria-label="Close"></button>
+      </div>
       <form id="deleteDriverForm" method="post" action="{% url 'dashboard_drivers' %}">
         {% csrf_token %}
         <input type="hidden" name="driver_id" id="deleteDriverId">
         <input type="hidden" name="action" value="delete">
-        <p id="deleteDriverInfo">Are you sure?</p>
-
+        <div class="modal-body">
+          <p id="deleteDriverInfo">Are you sure?</p>
+        </div>
         <div class="modal-footer">
-          <button type="button" onclick="closeModal('deleteDriverModal')">Cancel</button>
-          <button type="submit" class="delete">Delete</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('deleteModal')">Cancel</button>
+          <button type="submit" class="btn btn-danger">Delete</button>
         </div>
       </form>
     </div>
   </div>
+</div>
+{% endblock %}
 
-  {% endblock %}
-
-  {% block extra_js %}
-  <script src="{% static 'js/drivers.js' %}?v=3"></script>
-  {% endblock %}
- 
+{% block extra_js %}
+<script src="{% static 'js/drivers.js' %}"></script>
+{% endblock %}

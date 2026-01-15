@@ -129,6 +129,9 @@ tbody tr:hover {
 
 /* ===== MODALS ===== */
 
+/* MODAL STYLES MOVED TO `DASHmodals.css` to avoid conflicts with global modal rules.
+   Original modal block preserved here as comment for reference. */
+/*
 .modal {
   display: none;
   position: fixed;
@@ -180,4 +183,5 @@ tbody tr:hover {
   cursor: pointer;
   color: #6b7280;
 }
+*/
 

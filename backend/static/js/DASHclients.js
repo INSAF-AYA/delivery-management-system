@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Close modal on overlay click
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    document.querySelectorAll('.modal').forEach(overlay => {
         overlay.addEventListener('click', function (e) {
             if (e.target === this) closeModal(this.id);
         });
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Close modal on ESC
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
-            document.querySelectorAll('.modal-overlay.active')
+            document.querySelectorAll('.modal.active')
                 .forEach(modal => closeModal(modal.id));
         }
     });
@@ -153,6 +153,7 @@ function openAddModal() {
         el.value = '';
     });
 
+    console.log('openAddModal called');
     document.getElementById('addModal')?.classList.add('active');
 }
 
@@ -179,6 +180,7 @@ function openViewModal(clientId) {
                 <div class="detail-row"><strong>Pays :</strong> ${c.pays || '-'}</div>
                 <div class="detail-row"><strong>Inscription :</strong> ${c.date_inscription ? c.date_inscription.replace('T', ' ').slice(0,16) : ''}</div>
             `;
+            console.log('openViewModal: fetched data for', clientId);
             document.getElementById('viewModal')?.classList.add('active');
                     // clear any previous generated password display
                     const pwEl = document.getElementById('viewClientPassword');
@@ -277,6 +279,7 @@ function openEditModal(clientId) {
                 document.getElementById('editVille').value = c.ville || '';
                 document.getElementById('editPays').value = c.pays || '';
                 document.getElementById('editDateInscription').value = c.date_inscription ? c.date_inscription.replace('T',' ').slice(0,16) : '';
+                console.log('openEditModal: showed edit modal for', clientId);
                 document.getElementById('editModal').classList.add('active');
             } else {
                 // fallback to reading from table row or demo data
@@ -348,13 +351,22 @@ function openDeleteModal(clientId) {
         const info = document.getElementById('deleteClientInfo');
         if (row && info) info.textContent = `${row.cells[1]?.textContent || ''} ${row.cells[2]?.textContent || ''}`;
     }).finally(() => {
+        console.log('openDeleteModal: opening delete modal for', clientId);
         document.getElementById('deleteModal').classList.add('active');
     });
 }
 
 function closeModal(id) {
+    console.log('closeModal called for', id);
     document.getElementById(id)?.classList.remove('active');
 }
+
+// Expose handlers to global scope in case scripts are evaluated in module-like context
+window.openAddModal = openAddModal;
+window.openViewModal = openViewModal;
+window.openEditModal = openEditModal;
+window.openDeleteModal = openDeleteModal;
+window.closeModal = closeModal;
 
 // ================= ACTIONS =================
 function saveClientChanges() {

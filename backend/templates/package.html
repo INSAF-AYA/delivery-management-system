@@ -1,23 +1,14 @@
-{% comment %}
-{% extends 'base.html' %}
+{% extends 'base_dashboard.html' %}
+{% load static %}
 
-{% block title %}package{% endblock %}
+{% block title %}Packages{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/package.css' %}">
+{% endblock %}
 
 {% block content %}
-{% endcomment %}
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="{% static 'css/package.css' %}">
-  <title>Package</title>
-</head>
-<body> 
-  <!--yb9a mena w ro7-->
-  <div class="content">
+<div class="content">
   <div class="container">
     <div class="field">
       <h1>Package Management</h1>
@@ -49,62 +40,48 @@
       </tr>
     </thead>
     <tbody>
-      <!-- {% for package in package %}
-      <tr>
-          <td class="package_id">{{ package.package_id }}</td>
-          <td>{{ package.client_name }}</td>
-          <td>{{ package.type }}</td>
-          <td>{{ package.number Of Pieces }}</td>
-          <td>{{ package.weight }}</td>
-          <td>{{ package.tracking_number }}</td>
-          <td>{{ package.actions }}</td>
-      </tr>
-      {% endfor %} -->
-      
+      <!-- packages will be rendered here -->
     </tbody>
   </table>
+</div>
+
+<div id="addPackageModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Add Package</h2>
+
+    <form id="addPackageForm">
+      <input name="client_name" placeholder="Client name" required>
+
+      <select name="type" required>
+        <option value="">Type</option> 
+        <option>Documents</option>
+        <option>Electronics</option>
+        <option>furniture</option>
+      </select>
+
+      <input name="pieces" type="number" placeholder="Number of pieces" required>
+      <input name="weight" type="number" placeholder="Weight (kg)" required>
+
+      <button type="submit">Save</button>
+    </form>
   </div>
-  <!--7at lehna-->
+</div>
 
-  <div id="addPackageModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2>Add Package</h2>
+<div id="deletePackageModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Delete Package</h2>
 
-      <form id="addPackageForm">
-        <input name="client_name" placeholder="Client name" required>
-
-        <select name="type" required>
-          <option value="">Type</option> 
-          <option>Documents</option>
-          <option>Electronics</option>
-          <option>furniture</option>
-        </select>
-
-        <input name="pieces" type="number" placeholder="Number of pieces" required>
-        <input name="weight" type="number" placeholder="Weight (kg)" required>
-
-        <button type="submit">Save</button>
-      </form>
-    </div>
+    <form id="deletePackageForm">
+      <input name="package_id" placeholder="Package ID" required>
+      <button class="delete" type="submit">Delete</button>
+    </form>
   </div>
+</div>
 
-  <div id="deletePackageModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2>Delete Package</h2>
-
-      <form id="deletePackageForm">
-        <input name="package_id" placeholder="Package ID" required>
-        <button class="delete" type="submit">Delete</button>
-      </form>
-    </div>
-  </div>
-
-
+{% block extra_js %}
 <script src="{% static 'js/packages.js' %}"></script>
+{% endblock %}
 
-</body>
-</html>
-
-{% comment %}{% endblock %}{% endcomment %}
+{% endblock %}

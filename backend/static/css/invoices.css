@@ -181,6 +181,9 @@ tbody tr:hover {
   background: #f9fafb;
 }
 
+/* MODAL STYLES MOVED TO `DASHmodals.css` to avoid conflicts with global modal rules.
+   Original modal block preserved here as comment for reference. */
+/*
 .modal {
   display: none;
   position: fixed;
@@ -206,4 +209,5 @@ tbody tr:hover {
   float: right;
   cursor: pointer;
 }
+*/
 

@@ -6,8 +6,12 @@ body {
     font-family: ui-sans-serif, system-ui, sans-serif;
     background: #f5f7fb;
     margin: 0;
-    padding: 30px;
+
+
     color: #1f2937;
+}
+.page-content {
+    padding: 30px;
 }
 
 h1{
@@ -172,43 +176,44 @@ tbody tr:hover {
 
 /* ===== MODALS ===== */
 
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+
+
+.modal-footer {
+    margin-top: 20px;
+    text-align: right;
 }
 
-.modal.active {
-  display: flex;
+.modal-footer button {
+    margin-left: 10px;
 }
 
-.modal-content {
-  background: white;
-  width: 420px;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-  max-height: 90vh;
-  overflow-y: auto;
+tr.selected {
+    background-color: #e3f2fd !important;
 }
 
-.modal-content h2 {
-  margin-top: 0;
-  margin-bottom: 15px;
+.action-btns {
+    display: flex;
+    gap: 5px;
 }
 
-.modal-content input,
-.modal-content select {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 12px;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn.view { background: #e3f2fd; color: #1976d2; }
+.action-btn.edit { background: #fff8e1; color: #ff8f00; }
+.action-btn.delete { background: #ffebee; color: #d32f2f; }
+
+.action-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
 }
 
 .close {
@@ -217,3 +222,44 @@ tbody tr:hover {
   cursor: pointer;
   color: #6b7280;
 }
+/* ===== MODALS FIX ===== */
+.modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 10000 !important;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-window {
+    position: relative !important;
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+    margin: auto !important; /* مهم للمركز */
+}
+
+.modal.active .modal-window {
+    transform: translateY(0);
+}
+
+
