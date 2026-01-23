@@ -1,87 +1,330 @@
 {% extends 'base_dashboard.html' %}
 {% load static %}
 
-{% block title %}Packages{% endblock %}
+{% block title %}SwiftShip - Packages{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/package.css' %}">
-{% endblock %}
+{% block nav_packages %}active{% endblock %}
 
 {% block content %}
-<div class="content">
-  <div class="container">
-    <div class="field">
-      <h1>Package Management</h1>
-      <p class="description">Manage package information</p>
+<h1 class="page-title"><i class="fas fa-box"></i> Packages</h1>
+
+<div class="table-section">
+    <div class="table-header">
+        <div class="table-search">
+            <div class="table-search-input">
+                <i class="fas fa-search"></i>
+                <input type="text" id="packageSearch" placeholder="Search packages...">
+            </div>
+            <button class="filter-btn" id="filterBtn">
+                <i class="fas fa-filter"></i>
+                Filter
+            </button>
+        </div>
+        
+        <div class="table-toolbar">
+            <button class="toolbar-btn add" onclick="openAddModal()">
+                <i class="fas fa-plus"></i>
+                Add Package
+            </button>
+        </div>
     </div>
-    <div class="buttons">
-      <button id="addPackageBtn">
-        <i class="btn-icn fa-solid fa-plus"></i>
-        Add Package
-      </button>
 
-      <button class="delete" id="deletePackageBtn">
-        <i class="fa-solid fa-trash"></i>
-        Delete Package
-      </button>
+    <div class="table-container">
+        <table class="data-table" id="packagesTable">
+            <thead>
+                <tr>
+                    <th>Package ID</th>
+                    <th>Tracking Number</th>
+                    <th>Client</th>
+                    <th>Weight (kg)</th>
+                    <th>Pieces</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="packagesTableBody">
+                {% for package in packages %}
+                <tr data-id="{{ package.id_package }}" onclick="selectRow(this)">
+                    <td>{{ package.id_package }}</td>
+                    <td>{{ package.tracking_number }}</td>
+                    <td>{{ package.client.nom }} {{ package.client.prenom }}</td>
+                    <td>{{ package.weight }}</td>
+                    <td>{{ package.number_of_pieces }}</td>
+                    <td><span class="status-badge">{{ package.get_package_type_display }}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn view" title="View" onclick="event.stopPropagation(); openViewModal('{{ package.id_package }}');">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit" title="Edit" onclick="event.stopPropagation(); openEditModal('{{ package.id_package }}');">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('{{ package.id_package }}');">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align:center;">No packages found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-  </div>
-
-  <table>
-    <thead>            
-      <tr>
-        <th>Package ID</th>
-        <th>Client Name</th>
-        <th>Type</th>
-        <th>Number Of Pieces</th>
-        <th>Weight</th>
-        <th>Tracking Number</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- packages will be rendered here -->
-    </tbody>
-  </table>
 </div>
-
-<div id="addPackageModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <h2>Add Package</h2>
-
-    <form id="addPackageForm">
-      <input name="client_name" placeholder="Client name" required>
-
-      <select name="type" required>
-        <option value="">Type</option> 
-        <option>Documents</option>
-        <option>Electronics</option>
-        <option>furniture</option>
-      </select>
-
-      <input name="pieces" type="number" placeholder="Number of pieces" required>
-      <input name="weight" type="number" placeholder="Weight (kg)" required>
-
-      <button type="submit">Save</button>
-    </form>
-  </div>
-</div>
-
-<div id="deletePackageModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <h2>Delete Package</h2>
-
-    <form id="deletePackageForm">
-      <input name="package_id" placeholder="Package ID" required>
-      <button class="delete" type="submit">Delete</button>
-    </form>
-  </div>
-</div>
-
-{% block extra_js %}
-<script src="{% static 'js/packages.js' %}"></script>
 {% endblock %}
 
+{% block modals %}
+<!-- Add Modal -->
+<div class="modal" id="addModal">
+    <div class="modal-window edit-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus"></i> Add Package</h3>
+            <button class="modal-close" onclick="closeModal('addModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form class="modal-form" id="addPackageForm">
+                <div class="form-group">
+                    <label>Client</label>
+                    <select id="addClient" required>
+                        <option value="">Select client</option>
+                        {% for client in clients %}
+                        <option value="{{ client.id_client }}">{{ client.nom }} {{ client.prenom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="addWeight" placeholder="Weight" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Pieces</label>
+                        <input type="number" id="addPieces" placeholder="Pieces" min="1" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Package Type</label>
+                    <select id="addType" required>
+                        <option value="DOC">Documents</option>
+                        <option value="ELEC">Electronics</option>
+                        <option value="FURN">Furniture</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('addModal')">Cancel</button>
+            <button class="modal-btn primary" onclick="addPackage()"><i class="fas fa-plus"></i> Add</button>
+        </div>
+    </div>
+</div>
+
+<!-- View Modal -->
+<div class="modal" id="viewModal">
+    <div class="modal-window view-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-eye"></i> Package Details</h3>
+            <button class="modal-close" onclick="closeModal('viewModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div id="viewPackageDetails"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('viewModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal" id="editModal">
+    <div class="modal-window edit-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Package</h3>
+            <button class="modal-close" onclick="closeModal('editModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form class="modal-form" id="editPackageForm">
+                <input type="hidden" id="editPackageId">
+                <div class="form-group">
+                    <label>Client</label>
+                    <select id="editClient" required>
+                        <option value="">Select client</option>
+                        {% for client in clients %}
+                        <option value="{{ client.id_client }}">{{ client.nom }} {{ client.prenom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="editWeight" placeholder="Weight" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Pieces</label>
+                        <input type="number" id="editPieces" placeholder="Pieces" min="1" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Package Type</label>
+                    <select id="editType" required>
+                        <option value="DOC">Documents</option>
+                        <option value="ELEC">Electronics</option>
+                        <option value="FURN">Furniture</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('editModal')">Cancel</button>
+            <button class="modal-btn primary" onclick="savePackage()"><i class="fas fa-save"></i> Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-window delete-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-trash"></i> Delete Package</h3>
+            <button class="modal-close" onclick="closeModal('deleteModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="delete-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <p class="delete-message">Are you sure you want to delete this package?</p>
+            <p id="deletePackageInfo" style="font-weight:600;"></p>
+            <p class="delete-warning">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('deleteModal')">Cancel</button>
+            <button class="modal-btn danger" onclick="confirmDelete()"><i class="fas fa-trash"></i> Delete</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentPackageId = null;
+let selectedRow = null;
+
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+           document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '';
+}
+
+function selectRow(row) {
+    if (selectedRow) selectedRow.classList.remove('selected');
+    selectedRow = row;
+    row.classList.add('selected');
+}
+
+function openAddModal() {
+    document.getElementById('addPackageForm').reset();
+    document.getElementById('addModal').classList.add('active');
+}
+
+function openViewModal(packageId) {
+    currentPackageId = packageId;
+    fetch(`/dashboard/packages/${packageId}/json/`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const pkg = data.package;
+                document.getElementById('viewPackageDetails').innerHTML = `
+                    <div class="detail-row"><strong>Package ID:</strong> ${pkg.id_package}</div>
+                    <div class="detail-row"><strong>Tracking Number:</strong> ${pkg.tracking_number}</div>
+                    <div class="detail-row"><strong>Client:</strong> ${pkg.client || '-'}</div>
+                    <div class="detail-row"><strong>Weight:</strong> ${pkg.weight} kg</div>
+                    <div class="detail-row"><strong>Number of Pieces:</strong> ${pkg.number_of_pieces}</div>
+                    <div class="detail-row"><strong>Type:</strong> ${pkg.package_type_display}</div>
+                    <div class="detail-row"><strong>Created:</strong> ${pkg.date_creation || '-'}</div>
+                `;
+                document.getElementById('viewModal').classList.add('active');
+            }
+        });
+}
+
+function openEditModal(packageId) {
+    currentPackageId = packageId;
+    fetch(`/dashboard/packages/${packageId}/json/`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const pkg = data.package;
+                document.getElementById('editPackageId').value = pkg.id_package;
+                document.getElementById('editClient').value = pkg.client_id || '';
+                document.getElementById('editWeight').value = pkg.weight;
+                document.getElementById('editPieces').value = pkg.number_of_pieces;
+                document.getElementById('editType').value = pkg.package_type;
+                document.getElementById('editModal').classList.add('active');
+            }
+        });
+}
+
+function openDeleteModal(packageId) {
+    currentPackageId = packageId;
+    document.getElementById('deletePackageInfo').textContent = `Package ID: ${packageId}`;
+    document.getElementById('deleteModal').classList.add('active');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+
+function addPackage() {
+    const data = {
+        client_id: document.getElementById('addClient').value,
+        weight: document.getElementById('addWeight').value,
+        number_of_pieces: document.getElementById('addPieces').value,
+        package_type: document.getElementById('addType').value
+    };
+    fetch('/dashboard/packages/add/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+        body: JSON.stringify(data)
+    }).then(r => r.json()).then(data => {
+        if (data.success) { closeModal('addModal'); location.reload(); }
+        else alert('Error: ' + (data.error || 'Failed'));
+    });
+}
+
+function savePackage() {
+    const data = {
+        client_id: document.getElementById('editClient').value,
+        weight: document.getElementById('editWeight').value,
+        number_of_pieces: document.getElementById('editPieces').value,
+        package_type: document.getElementById('editType').value
+    };
+    fetch(`/dashboard/packages/${currentPackageId}/edit/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+        body: JSON.stringify(data)
+    }).then(r => r.json()).then(data => {
+        if (data.success) { closeModal('editModal'); location.reload(); }
+        else alert('Error: ' + (data.error || 'Failed'));
+    });
+}
+
+function confirmDelete() {
+    fetch(`/dashboard/packages/${currentPackageId}/delete/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCSRFToken() }
+    }).then(r => r.json()).then(data => {
+        if (data.success) { closeModal('deleteModal'); location.reload(); }
+        else alert('Error: ' + (data.error || 'Failed'));
+    });
+}
+
+document.getElementById('packageSearch').addEventListener('input', function(e) {
+    const term = e.target.value.toLowerCase();
+    document.querySelectorAll('#packagesTableBody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+    });
+});
+</script>
 {% endblock %}

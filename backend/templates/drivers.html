@@ -1,275 +1,381 @@
 {% extends 'base_dashboard.html' %}
 {% load static %}
 
-{% block title %}Drivers — SwiftShip{% endblock %}
+{% block title %}SwiftShip - Drivers{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/drivers.css' %}">
-{% endblock %}
+{% block nav_drivers %}active{% endblock %}
 
 {% block content %}
-<div class="page-content">
-  <h1 class="page-title"><i class="fas fa-id-card"></i> Drivers</h1>
+<h1 class="page-title"><i class="fas fa-id-card"></i> Drivers</h1>
 
-  <div class="table-header">
-    <div class="table-search">
-      <div class="table-search-input">
-        <i class="fas fa-search"></i>
-        <input type="text" id="driverSearch" placeholder="Search by name...">
-      </div>
-      <button class="filter-btn" id="filterBtn">
-        <i class="fas fa-filter"></i>
-        Filter
-      </button>
-    </div>
-
-    <div class="table-toolbar">
-      <button id="addDriverBtn" class="toolbar-btn add" onclick="openAddModal()">
-        <i class="fas fa-plus"></i> Add Driver
-      </button>
-    </div>
-  </div>
-
-  <div id="filterPanel" style="display:none;margin-top:10px;" class="filter-panel">
-    <label for="filterField" style="margin-right:8px;">Field:</label>
-    <select id="filterField">
-      <option value="all">All (id / nom / prenom / email / telephone / permis / status)</option>
-      <option value="id">ID</option>
-      <option value="nom">Nom</option>
-      <option value="prenom">Prénom</option>
-      <option value="email">Email</option>
-      <option value="telephone">Téléphone</option>
-      <option value="permis">Permis</option>
-      <option value="status">Status</option>
-    </select>
-    <input type="text" id="filterValue" placeholder="Filter value" style="margin-left:8px;" />
-    <button class="modal-btn" id="applyFilterBtn" style="margin-left:8px;">Apply</button>
-    <button class="modal-btn" id="clearFilterBtn" style="margin-left:6px;">Clear</button>
-  </div>
-
-  <div class="table-container">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nom</th>
-          <th>Prénom</th>
-          <th>Email</th>
-          <th>Téléphone</th>
-          <th>Permis</th>
-          <th>Véhicule</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="driversTableBody">
-        {% for driver in drivers %}
-        <tr data-id="{{ driver.id_chauffeur }}" onclick="selectRow(this)">
-          <td>{{ driver.id_chauffeur }}</td>
-          <td>{{ driver.nom }}</td>
-          <td>{{ driver.prenom }}</td>
-          <td>{{ driver.email|default:"-" }}</td>
-          <td>{{ driver.telephone|default:"-" }}</td>
-          <td>{{ driver.numero_permis }}</td>
-          <td>{% if driver.vehicule %}{{ driver.vehicule.immatriculation }}{% else %}-{% endif %}</td>
-          <td><span class="status-badge status-{{ driver.statut }}">{{ driver.get_statut_display }}</span></td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn view" title="View" onclick="openViewModal('{{ driver.id_chauffeur }}')">
-                <i class="fas fa-eye"></i>
-              </button>
-              <button class="action-btn edit" title="Edit" onclick="openEditModal('{{ driver.id_chauffeur }}')">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button class="action-btn delete" title="Delete" onclick="openDeleteModal('{{ driver.id_chauffeur }}')">
-                <i class="fas fa-trash"></i>
-              </button>
+<div class="table-section">
+    <div class="table-header">
+        <div class="table-search">
+            <div class="table-search-input">
+                <i class="fas fa-search"></i>
+                <input type="text" id="driverSearch" placeholder="Search drivers...">
             </div>
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="9" style="text-align:center;">No drivers found</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
+            <button class="filter-btn" id="filterBtn">
+                <i class="fas fa-filter"></i>
+                Filter
+            </button>
+        </div>
+        
+        <div class="table-toolbar">
+            <button class="toolbar-btn add" onclick="openAddModal()">
+                <i class="fas fa-plus"></i>
+                Add Driver
+            </button>
+        </div>
+    </div>
 
-<!-- ================= ADD MODAL ================= -->
-<div id="addModal" class="modal fade" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content modal-window">
-      <div class="modal-header">
-  <h5 class="modal-title">Add Driver</h5>
-  <button type="button" class="btn-close" onclick="closeModal('addModal')" aria-label="Close"></button>
-      </div>
-      <form id="addDriverForm" method="post" action="{% url 'dashboard_add_driver' %}">
-        {% csrf_token %}
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">Nom</label>
-            <input id="addNom" name="nom" class="form-control" placeholder="Nom" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Prénom</label>
-            <input id="addPrenom" name="prenom" class="form-control" placeholder="Prénom" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input id="addEmail" name="email" type="email" class="form-control" placeholder="Email">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Téléphone</label>
-            <input id="addTelephone" name="telephone" class="form-control" placeholder="Téléphone">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Numéro de permis</label>
-            <input id="addPermis" name="numero_permis" class="form-control" placeholder="Numéro de permis" required>
-          </div>
-          <div class="form-row">
-            <div class="mb-3">
-              <label class="form-label">Véhicule</label>
-              <select id="addVehicule" name="vehicule" class="form-select">
-                <option value="">-- Aucun --</option>
-                {% for v in vehicles %}
-                <option value="{{ v.id_vehicule }}">{{ v.immatriculation }} ({{ v.id_vehicule }})</option>
+    <div class="table-container">
+        <table class="data-table" id="driversTable">
+            <thead>
+                <tr>
+                    <th>Driver ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>License</th>
+                    <th>Vehicle</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="driversTableBody">
+                {% for driver in drivers %}
+                <tr data-id="{{ driver.id_chauffeur }}" onclick="selectRow(this)">
+                    <td>{{ driver.id_chauffeur }}</td>
+                    <td>{{ driver.nom }} {{ driver.prenom }}</td>
+                    <td>{{ driver.email|default:"-" }}</td>
+                    <td>{{ driver.telephone|default:"-" }}</td>
+                    <td>{{ driver.numero_permis }}</td>
+                    <td>{% if driver.vehicule %}{{ driver.vehicule.immatriculation }}{% else %}-{% endif %}</td>
+                    <td><span class="status-badge status-{{ driver.statut }}">{{ driver.get_statut_display }}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn view" title="View" onclick="event.stopPropagation(); openViewModal('{{ driver.id_chauffeur }}');">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit" title="Edit" onclick="event.stopPropagation(); openEditModal('{{ driver.id_chauffeur }}');">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('{{ driver.id_chauffeur }}');">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align:center;">No drivers found.</td>
+                </tr>
                 {% endfor %}
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Statut</label>
-              <select id="addStatut" name="statut" class="form-select">
-                <option value="actif">Actif</option>
-                <option value="inactif">Inactif</option>
-                <option value="suspendu">Suspendu</option>
-                <option value="en_conge">En congé</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('addModal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save</button>
-        </div>
-      </form>
+            </tbody>
+        </table>
     </div>
-  </div>
 </div>
+{% endblock %}
 
-<!-- ================= VIEW MODAL ================= -->
-<div id="viewModal" class="modal fade" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content modal-window">
-      <div class="modal-header">
-  <h5 class="modal-title">Driver Details</h5>
-  <button type="button" class="btn-close" onclick="closeModal('viewModal')" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div id="viewDriverDetails"><!-- filled by JS --></div>
-        <div id="viewDriverPassword" style="display:none;margin-top:12px;"></div>
-      </div>
-      <div class="modal-footer">
-        {% if user.is_staff %}
-        <button class="btn btn-warning" id="viewGenerateDriverPasswordBtn" onclick="generateDriverPasswordForCurrentView()">
-          <i class="fas fa-key"></i> Générer mot de passe
-        </button>
-        {% endif %}
-  <button type="button" class="btn btn-secondary" onclick="closeModal('viewModal')">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ================= EDIT MODAL ================= -->
-<div id="editModal" class="modal fade" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content modal-window">
-      <div class="modal-header">
-  <h5 class="modal-title">Edit Driver</h5>
-  <button type="button" class="btn-close" onclick="closeModal('editModal')" aria-label="Close"></button>
-      </div>
-      <form id="editDriverForm" method="post" action="{% url 'dashboard_drivers' %}">
-        {% csrf_token %}
-        <input type="hidden" name="driver_id" id="editDriverId">
-        <input type="hidden" name="action" value="edit">
+{% block modals %}
+<!-- Add Modal -->
+<div class="modal" id="addModal">
+    <div class="modal-window edit-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus"></i> Add Driver</h3>
+            <button class="modal-close" onclick="closeModal('addModal')"><i class="fas fa-times"></i></button>
+        </div>
         <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">Nom</label>
-            <input name="nom" id="editNom" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Prénom</label>
-            <input name="prenom" id="editPrenom" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input name="email" id="editEmail" class="form-control">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Téléphone</label>
-            <input name="telephone" id="editTelephone" class="form-control">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Numéro de permis</label>
-            <input name="numero_permis" id="editPermis" class="form-control">
-          </div>
-          <div class="form-row">
-            <div class="mb-3">
-              <label class="form-label">Véhicule</label>
-              <select name="vehicule" id="editVehicule" class="form-select">
-                <option value="">-- Aucun --</option>
-                {% for v in vehicles %}
-                <option value="{{ v.id_vehicule }}">{{ v.immatriculation }} ({{ v.id_vehicule }})</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Statut</label>
-              <select name="statut" id="editStatut" class="form-select">
-                <option value="actif">Actif</option>
-                <option value="inactif">Inactif</option>
-                <option value="suspendu">Suspendu</option>
-                <option value="en_conge">En congé</option>
-              </select>
-            </div>
-          </div>
+            <form class="modal-form" id="addDriverForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="addPrenom" placeholder="First name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="addNom" placeholder="Last name" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="addEmail" placeholder="Email address">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="addTelephone" placeholder="Phone number">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>License Number</label>
+                        <input type="text" id="addPermis" placeholder="License number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Vehicle</label>
+                        <select id="addVehicule">
+                            <option value="">-- None --</option>
+                            {% for v in vehicles %}
+                            <option value="{{ v.id_vehicule }}">{{ v.immatriculation }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="addStatut">
+                        <option value="actif">Active</option>
+                        <option value="inactif">Inactive</option>
+                        <option value="suspendu">Suspended</option>
+                        <option value="en_conge">On Leave</option>
+                    </select>
+                </div>
+            </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('editModal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save</button>
+            <button class="modal-btn cancel" onclick="closeModal('addModal')">Cancel</button>
+            <button class="modal-btn primary" onclick="addDriver()"><i class="fas fa-plus"></i> Add</button>
         </div>
-      </form>
     </div>
-  </div>
 </div>
 
-<!-- ================= DELETE MODAL ================= -->
-<div id="deleteModal" class="modal fade" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content modal-window">
-      <div class="modal-header">
-  <h5 class="modal-title">Delete Driver</h5>
-  <button type="button" class="btn-close" onclick="closeModal('deleteModal')" aria-label="Close"></button>
-      </div>
-      <form id="deleteDriverForm" method="post" action="{% url 'dashboard_drivers' %}">
-        {% csrf_token %}
-        <input type="hidden" name="driver_id" id="deleteDriverId">
-        <input type="hidden" name="action" value="delete">
+<!-- View Modal -->
+<div class="modal" id="viewModal">
+    <div class="modal-window view-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-eye"></i> Driver Details</h3>
+            <button class="modal-close" onclick="closeModal('viewModal')"><i class="fas fa-times"></i></button>
+        </div>
         <div class="modal-body">
-          <p id="deleteDriverInfo">Are you sure?</p>
+            <div id="viewDriverDetails"></div>
+            <div id="viewDriverPassword" style="display:none;margin-top:12px;padding:10px;background:#f0f9ff;border-radius:6px;"></div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('deleteModal')">Cancel</button>
-          <button type="submit" class="btn btn-danger">Delete</button>
+            <button class="modal-btn cancel" onclick="closeModal('viewModal')">Close</button>
         </div>
-      </form>
     </div>
-  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal" id="editModal">
+    <div class="modal-window edit-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Driver</h3>
+            <button class="modal-close" onclick="closeModal('editModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form class="modal-form" id="editDriverForm">
+                <input type="hidden" id="editDriverId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="editPrenom" placeholder="First name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="editNom" placeholder="Last name" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="editEmail" placeholder="Email address">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="editTelephone" placeholder="Phone number">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>License Number</label>
+                        <input type="text" id="editPermis" placeholder="License number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Vehicle</label>
+                        <select id="editVehicule">
+                            <option value="">-- None --</option>
+                            {% for v in vehicles %}
+                            <option value="{{ v.id_vehicule }}">{{ v.immatriculation }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="editStatut">
+                        <option value="actif">Active</option>
+                        <option value="inactif">Inactive</option>
+                        <option value="suspendu">Suspended</option>
+                        <option value="en_conge">On Leave</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('editModal')">Cancel</button>
+            <button class="modal-btn primary" onclick="saveDriver()"><i class="fas fa-save"></i> Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-window delete-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-trash"></i> Delete Driver</h3>
+            <button class="modal-close" onclick="closeModal('deleteModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="delete-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <p class="delete-message">Are you sure you want to delete this driver?</p>
+            <p id="deleteDriverInfo" style="font-weight:600;"></p>
+            <p class="delete-warning">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('deleteModal')">Cancel</button>
+            <button class="modal-btn danger" onclick="confirmDelete()"><i class="fas fa-trash"></i> Delete</button>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/drivers.js' %}"></script>
+<script>
+let currentDriverId = null;
+let selectedRow = null;
+
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+           document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '';
+}
+
+function selectRow(row) {
+    if (selectedRow) selectedRow.classList.remove('selected');
+    selectedRow = row;
+    row.classList.add('selected');
+}
+
+function openAddModal() {
+    document.getElementById('addDriverForm').reset();
+    document.getElementById('addModal').classList.add('active');
+}
+
+function openViewModal(driverId) {
+    currentDriverId = driverId;
+    fetch(`/dashboard/drivers/${driverId}/json/`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const d = data.driver;
+                const statusLabels = {
+                    'actif': 'Active',
+                    'inactif': 'Inactive',
+                    'suspendu': 'Suspended',
+                    'en_conge': 'On Leave'
+                };
+                document.getElementById('viewDriverDetails').innerHTML = `
+                    <div class="detail-row"><strong>Driver ID:</strong> ${d.id_chauffeur}</div>
+                    <div class="detail-row"><strong>Name:</strong> ${d.nom} ${d.prenom}</div>
+                    <div class="detail-row"><strong>Email:</strong> ${d.email || '-'}</div>
+                    <div class="detail-row"><strong>Phone:</strong> ${d.telephone || '-'}</div>
+                    <div class="detail-row"><strong>License:</strong> ${d.numero_permis}</div>
+                    <div class="detail-row"><strong>Vehicle:</strong> ${d.vehicule || '-'}</div>
+                    <div class="detail-row"><strong>Status:</strong> ${statusLabels[d.statut] || d.statut}</div>
+                `;
+                document.getElementById('viewDriverPassword').style.display = 'none';
+                document.getElementById('viewModal').classList.add('active');
+            }
+        });
+}
+
+function openEditModal(driverId) {
+    currentDriverId = driverId;
+    fetch(`/dashboard/drivers/${driverId}/json/`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const d = data.driver;
+                document.getElementById('editDriverId').value = d.id_chauffeur;
+                document.getElementById('editPrenom').value = d.prenom;
+                document.getElementById('editNom').value = d.nom;
+                document.getElementById('editEmail').value = d.email || '';
+                document.getElementById('editTelephone').value = d.telephone || '';
+                document.getElementById('editPermis').value = d.numero_permis;
+                document.getElementById('editVehicule').value = d.vehicule_id || '';
+                document.getElementById('editStatut').value = d.statut;
+                document.getElementById('editModal').classList.add('active');
+            }
+        });
+}
+
+function openDeleteModal(driverId) {
+    currentDriverId = driverId;
+    document.getElementById('deleteDriverInfo').textContent = `Driver ID: ${driverId}`;
+    document.getElementById('deleteModal').classList.add('active');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+
+function addDriver() {
+    const data = {
+        prenom: document.getElementById('addPrenom').value,
+        nom: document.getElementById('addNom').value,
+        email: document.getElementById('addEmail').value,
+        telephone: document.getElementById('addTelephone').value,
+        numero_permis: document.getElementById('addPermis').value,
+        vehicule_id: document.getElementById('addVehicule').value,
+        statut: document.getElementById('addStatut').value
+    };
+    fetch('/dashboard/drivers/add/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+        body: JSON.stringify(data)
+    }).then(r => r.json()).then(data => {
+        if (data.success) { closeModal('addModal'); location.reload(); }
+        else alert('Error: ' + (data.error || 'Failed'));
+    });
+}
+
+function saveDriver() {
+    const data = {
+        prenom: document.getElementById('editPrenom').value,
+        nom: document.getElementById('editNom').value,
+        email: document.getElementById('editEmail').value,
+        telephone: document.getElementById('editTelephone').value,
+        numero_permis: document.getElementById('editPermis').value,
+        vehicule_id: document.getElementById('editVehicule').value,
+        statut: document.getElementById('editStatut').value
+    };
+    fetch(`/dashboard/drivers/${currentDriverId}/edit/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+        body: JSON.stringify(data)
+    }).then(r => r.json()).then(data => {
+        if (data.success) { closeModal('editModal'); location.reload(); }
+        else alert('Error: ' + (data.error || 'Failed'));
+    });
+}
+
+function confirmDelete() {
+    fetch(`/dashboard/drivers/${currentDriverId}/delete/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCSRFToken() }
+    }).then(r => r.json()).then(data => {
+        if (data.success) { closeModal('deleteModal'); location.reload(); }
+        else alert('Error: ' + (data.error || 'Failed'));
+    });
+}
+
+document.getElementById('driverSearch').addEventListener('input', function(e) {
+    const term = e.target.value.toLowerCase();
+    document.querySelectorAll('#driversTableBody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+    });
+});
+</script>
 {% endblock %}

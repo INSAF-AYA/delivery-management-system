@@ -1,58 +1,515 @@
 {% extends 'base_dashboard.html' %}
 {% load static %}
-{% block title %}Incidents — SwiftShip{% endblock %}
+
+{% block title %}SwiftShip - Incidents{% endblock %}
+
+{% block nav_incidents %}active{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/incidents.css' %}">
 {% endblock %}
 
 {% block content %}
-  <div class="page-row">
-    <div class="left">
-      <h1>Incidents</h1>
-      <p class="description">Report and manage incidents</p>
+<h1 class="page-title"><i class="fas fa-exclamation-triangle"></i> Incidents</h1>
+
+<!-- Incidents Table Section -->
+<div class="table-section">
+    <!-- Table Header with Search -->
+    <div class="table-header">
+        <div class="table-search">
+            <div class="table-search-input">
+                <i class="fas fa-search"></i>
+                <input type="text" id="incidentSearch" placeholder="Search incidents...">
+            </div>
+            <button class="filter-btn" id="filterBtn">
+                <i class="fas fa-filter"></i>
+                Filter
+            </button>
+        </div>
+        
+        <div class="table-toolbar">
+            <button class="toolbar-btn add" onclick="openAddModal()">
+                <i class="fas fa-plus"></i>
+                Report Incident
+            </button>
+        </div>
     </div>
 
-    <div class="right">
-      <div class="controls">
-        <button id="reportIncidentBtn" class="primary">
-          <i class="fa-solid fa-plus"></i>
-          Report Incident
-        </button>
-      </div>
-
-      <div class="table-card">
-      <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Reported By</th>
-          <th>Date</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {# Example row — replace with real incidents context when ready #}
-        <tr>
-          <td>INC-101</td>
-          <td>Delay</td>
-          <td>Package delayed due to traffic</td>
-          <td>Driver A</td>
-          <td>2025-01-10</td>
-          <td><span class="status status-open">Open</span></td>
-          <td>
-            <i class="fa-solid fa-eye"></i>
-          </td>
-        </tr>
-      </tbody>
-      </table>
-      </div>
+    <!-- Data Table -->
+    <div class="table-container">
+        <table class="data-table" id="incidentsTable">
+            <thead>
+                <tr>
+                    <th>Incident ID</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Priority</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="incidentsTableBody">
+                {% for incident in incidents %}
+                <tr data-id="{{ incident.id_incident }}" onclick="selectRow(this)">
+                    <td>{{ incident.id_incident }}</td>
+                    <td>{{ incident.get_incident_type_display }}</td>
+                    <td>{{ incident.description|truncatewords:10 }}</td>
+                    <td>
+                        {% if incident.priority == 'critical' %}
+                        <span class="badge danger">Critical</span>
+                        {% elif incident.priority == 'high' %}
+                        <span class="badge warning">High</span>
+                        {% elif incident.priority == 'medium' %}
+                        <span class="badge info">Medium</span>
+                        {% else %}
+                        <span class="badge">Low</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ incident.incident_date|date:"Y-m-d" }}</td>
+                    <td>
+                        {% if incident.status == 'resolved' %}
+                        <span class="badge success">Resolved</span>
+                        {% elif incident.status == 'in_progress' %}
+                        <span class="badge info">In Progress</span>
+                        {% elif incident.status == 'open' or incident.status == 'new' %}
+                        <span class="badge warning">Open</span>
+                        {% elif incident.status == 'closed' %}
+                        <span class="badge">Closed</span>
+                        {% else %}
+                        <span class="badge">{{ incident.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn view" title="View Details" onclick="event.stopPropagation(); openViewModal('{{ incident.id_incident }}');">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('{{ incident.id_incident }}');">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('{{ incident.id_incident }}');">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align:center;">No incidents found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-  </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Add Modal -->
+<div class="modal" id="addModal">
+    <div class="modal-window edit-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus"></i> Report Incident</h3>
+            <button class="modal-close" onclick="closeModal('addModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form class="modal-form" id="addIncidentForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="addType">Incident Type</label>
+                        <select id="addType">
+                            <option value="delay">Delay</option>
+                            <option value="damage">Damage</option>
+                            <option value="loss">Package Loss</option>
+                            <option value="technical">Technical Problem</option>
+                            <option value="accident">Accident</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="addPriority">Priority</label>
+                        <select id="addPriority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="addDescription">Description</label>
+                    <textarea id="addDescription" placeholder="Describe the incident..." rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="addDate">Date</label>
+                        <input type="date" id="addDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="addStatus">Status</label>
+                        <select id="addStatus">
+                            <option value="new">New</option>
+                            <option value="open">Open</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="addCommentaire">Comments</label>
+                    <textarea id="addCommentaire" placeholder="Additional comments..." rows="2"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('addModal')">Cancel</button>
+            <button class="modal-btn primary" onclick="addIncident()">
+                <i class="fas fa-plus"></i> Report
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- View Modal -->
+<div class="modal" id="viewModal">
+    <div class="modal-window view-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-eye"></i> Incident Details</h3>
+            <button class="modal-close" onclick="closeModal('viewModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="viewIncidentDetails" class="incident-details">
+                <!-- Filled dynamically by JS -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('viewModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal" id="editModal">
+    <div class="modal-window edit-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Incident</h3>
+            <button class="modal-close" onclick="closeModal('editModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form class="modal-form" id="editIncidentForm">
+                <input type="hidden" id="editIncidentId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editType">Incident Type</label>
+                        <select id="editType">
+                            <option value="delay">Delay</option>
+                            <option value="damage">Damage</option>
+                            <option value="loss">Package Loss</option>
+                            <option value="technical">Technical Problem</option>
+                            <option value="accident">Accident</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPriority">Priority</label>
+                        <select id="editPriority">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="editDescription">Description</label>
+                    <textarea id="editDescription" placeholder="Describe the incident..." rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editDate">Date</label>
+                        <input type="date" id="editDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="editStatus">Status</label>
+                        <select id="editStatus">
+                            <option value="new">New</option>
+                            <option value="open">Open</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="editCommentaire">Comments</label>
+                    <textarea id="editCommentaire" placeholder="Additional comments..." rows="2"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('editModal')">Cancel</button>
+            <button class="modal-btn primary" onclick="saveIncidentChanges()">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-window delete-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-trash"></i> Delete Incident</h3>
+            <button class="modal-close" onclick="closeModal('deleteModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="delete-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <p class="delete-message">Are you sure you want to delete this incident?</p>
+            <p id="deleteIncidentInfo" style="font-weight:600;"></p>
+            <p class="delete-warning">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('deleteModal')">Cancel</button>
+            <button class="modal-btn danger" onclick="confirmDelete()">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
+<script>
+// Incidents CRUD functionality
+let currentIncidentId = null;
+let selectedRow = null;
+
+// CSRF token helper
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+           document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '';
+}
+
+// Row selection
+function selectRow(row) {
+    if (selectedRow) {
+        selectedRow.classList.remove('selected');
+    }
+    selectedRow = row;
+    row.classList.add('selected');
+}
+
+// Modal functions
+function openAddModal() {
+    document.getElementById('addIncidentForm').reset();
+    // Set default date to today
+    document.getElementById('addDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('addModal').classList.add('active');
+}
+
+function openViewModal(incidentId) {
+    currentIncidentId = incidentId;
+    fetch(`/dashboard/incidents/${incidentId}/json/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const inc = data.incident;
+                const statusBadge = getStatusBadge(inc.status);
+                const priorityBadge = getPriorityBadge(inc.priority);
+                document.getElementById('viewIncidentDetails').innerHTML = `
+                    <div class="detail-row"><strong>Incident ID:</strong> ${inc.id_incident}</div>
+                    <div class="detail-row"><strong>Type:</strong> ${inc.type_display || inc.incident_type}</div>
+                    <div class="detail-row"><strong>Description:</strong> ${inc.description || '-'}</div>
+                    <div class="detail-row"><strong>Priority:</strong> ${priorityBadge}</div>
+                    <div class="detail-row"><strong>Status:</strong> ${statusBadge}</div>
+                    <div class="detail-row"><strong>Date:</strong> ${inc.date || '-'}</div>
+                    <div class="detail-row"><strong>Comments:</strong> ${inc.commentaire || '-'}</div>
+                    <div class="detail-row"><strong>Created:</strong> ${inc.created_at ? new Date(inc.created_at).toLocaleString() : '-'}</div>
+                    ${inc.resolution_date ? `<div class="detail-row"><strong>Resolved:</strong> ${new Date(inc.resolution_date).toLocaleString()}</div>` : ''}
+                `;
+                document.getElementById('viewModal').classList.add('active');
+            }
+        })
+        .catch(err => console.error('Error fetching incident:', err));
+}
+
+function openEditModal(incidentId) {
+    currentIncidentId = incidentId;
+    fetch(`/dashboard/incidents/${incidentId}/json/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const inc = data.incident;
+                document.getElementById('editIncidentId').value = inc.id_incident;
+                document.getElementById('editType').value = inc.incident_type || 'other';
+                document.getElementById('editDescription').value = inc.description || '';
+                document.getElementById('editPriority').value = inc.priority || 'medium';
+                document.getElementById('editStatus').value = inc.status || 'new';
+                document.getElementById('editDate').value = inc.date || '';
+                document.getElementById('editCommentaire').value = inc.commentaire || '';
+                document.getElementById('editModal').classList.add('active');
+            }
+        })
+        .catch(err => console.error('Error fetching incident:', err));
+}
+
+function openDeleteModal(incidentId) {
+    currentIncidentId = incidentId;
+    document.getElementById('deleteIncidentInfo').textContent = `Incident ID: ${incidentId}`;
+    document.getElementById('deleteModal').classList.add('active');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+
+// CRUD operations
+function addIncident() {
+    const payload = {
+        incident_type: document.getElementById('addType').value,
+        description: document.getElementById('addDescription').value,
+        priority: document.getElementById('addPriority').value,
+        status: document.getElementById('addStatus').value,
+        date: document.getElementById('addDate').value,
+        commentaire: document.getElementById('addCommentaire').value,
+    };
+
+    fetch('/dashboard/incidents/add/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify(payload),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('addModal');
+            location.reload();
+        } else {
+            alert('Error adding incident: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('Error adding incident');
+    });
+}
+
+function saveIncidentChanges() {
+    const incidentId = document.getElementById('editIncidentId').value;
+    const payload = {
+        incident_type: document.getElementById('editType').value,
+        description: document.getElementById('editDescription').value,
+        priority: document.getElementById('editPriority').value,
+        status: document.getElementById('editStatus').value,
+        date: document.getElementById('editDate').value,
+        commentaire: document.getElementById('editCommentaire').value,
+    };
+
+    fetch(`/dashboard/incidents/${incidentId}/edit/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify(payload),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('editModal');
+            location.reload();
+        } else {
+            alert('Error updating incident: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('Error updating incident');
+    });
+}
+
+function confirmDelete() {
+    fetch(`/dashboard/incidents/${currentIncidentId}/delete/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('deleteModal');
+            location.reload();
+        } else {
+            alert('Error deleting incident');
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('Error deleting incident');
+    });
+}
+
+// Helper functions
+function getStatusBadge(status) {
+    const badges = {
+        'resolved': '<span class="badge success">Resolved</span>',
+        'in_progress': '<span class="badge info">In Progress</span>',
+        'open': '<span class="badge warning">Open</span>',
+        'new': '<span class="badge warning">New</span>',
+        'closed': '<span class="badge">Closed</span>',
+        'cancelled': '<span class="badge">Cancelled</span>',
+    };
+    return badges[status] || `<span class="badge">${status}</span>`;
+}
+
+function getPriorityBadge(priority) {
+    const badges = {
+        'critical': '<span class="badge danger">Critical</span>',
+        'high': '<span class="badge warning">High</span>',
+        'medium': '<span class="badge info">Medium</span>',
+        'low': '<span class="badge">Low</span>',
+    };
+    return badges[priority] || `<span class="badge">${priority}</span>`;
+}
+
+// Search functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('incidentSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#incidentsTableBody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    }
+
+    // Close modal when clicking outside
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

@@ -1,5 +1,5 @@
 	:root {
-		--brand-purple: #8b00ff;
+		--brand-color: #2563eb;
 		--muted: #6b7280;
 		--card-radius: 12px;
 	}
@@ -7,15 +7,6 @@
 body {
 	background: #f6f7fb;
 	color: #243b55;
-}
-
-.topbar {
-	background: linear-gradient(90deg, var(--brand-purple), #a13bff);
-	color: #fff;
-}
-
-.topbar .container {
-	padding: 1.25rem 2rem;
 }
 
 .brand {
@@ -26,18 +17,18 @@ body {
 .header-logout {
 	border: none;
 	border-radius: 10px;
-	background: rgba(255, 255, 255, 0.12);
-	color: #fff;
+	background: rgba(37, 99, 235, 0.12);
+	color: #2563eb;
 	padding: .45rem .85rem;
 }
 .header-logout:hover {
- background: rgba(105, 13, 161, 0.25);
+ background: rgba(37, 99, 235, 0.25);
  transform: translateY(-1px);
 }
 
 .header-logout:focus {
  outline: none;
- box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+ box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
 }
 
 .stat-card {
@@ -55,7 +46,7 @@ body {
 	justify-content: center;
 	border-radius: 10px;
 	background: #f2f4ff;
-	color: var(--brand-purple);
+	color: var(--brand-color);
 }
 
 .quick-track {
@@ -74,7 +65,7 @@ body {
 .progress-track .bar {
 	height: 10px;
 	border-radius: 999px;
-	background: var(--brand-purple);
+	background: var(--brand-color);
 }
 
 .shipment-card {
@@ -119,8 +110,8 @@ body {
 	padding: 1rem;
 }
 
-.purple-link {
-	color: var(--brand-purple);
+.blue-link {
+	color: var(--brand-color);
 	text-decoration: none;
 }
 
@@ -138,7 +129,7 @@ body {
 }
 
 .nav-tabs .nav-link.active {
-    color: var(--brand-purple);
+    color: var(--brand-color);
     background: transparent;
     border: none;
 }
@@ -152,7 +143,7 @@ body {
     transform: translateX(-50%);
     width: 120%;          
     height: 3px;
-    background-color: var(--brand-purple);
+    background-color: var(--brand-color);
     border-radius: 999px;
 }
 

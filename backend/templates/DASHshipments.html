@@ -1,501 +1,531 @@
+{% extends 'base_dashboard.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SwiftShip - Shipments</title>
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/DASHvariables.css' %}">
-    <link rel="stylesheet" href="{% static 'css/DASHsidebar.css' %}">
-    <link rel="stylesheet" href="{% static 'css/DASHtopbar.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-    <link rel="stylesheet" href="{% static 'css/DASHtables.css' %}">
-    <link rel="stylesheet" href="{% static 'css/DASHmodals.css' %}">
-</head>
-<body>
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <i class="fas fa-shipping-fast"></i>
-                <h2>SwiftShip</h2>
-            </div>
-        </div>
-        
-        <nav class="sidebar-nav">
-            <ul>
-                <li>
-                    <a href="{% url 'dashboard' %}">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'dashboard_clients' %}">
-                        <i class="fas fa-users"></i>
-                        <span>Clients</span>
-                    </a>
-                </li>
-                <li class="active">
-                    <a href="{% url 'dashboard_shipments' %}">
-                        <i class="fas fa-box"></i>
-                        <span>Shipments</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'dashboard_drivers' %}">
-                        <i class="fas fa-id-card"></i>
-                        <span>Drivers</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'dashboard_vehicles' %}">
-                        <i class="fas fa-truck"></i>
-                        <span>Vehicles</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'dashboard_invoices' %}">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                        <span>Invoices</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'dashboard_packages' %}">
-                        <i class="fas fa-box"></i>
-                        <span>Packages</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'dashboard_incidents' %}">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <span>Incidents</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        
-        <div class="sidebar-footer">
-            <a href="#logout" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </a>
-        </div>
-    </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Top Bar -->
-        <header class="topbar">
-            <div class="search-container">
+{% block title %}SwiftShip - Shipments{% endblock %}
+
+{% block nav_shipments %}active{% endblock %}
+
+{% block content %}
+<h1 class="page-title"><i class="fas fa-box"></i> Shipments</h1>
+
+<!-- Shipments Table Section -->
+<div class="table-section">
+    <!-- Table Header with Search -->
+    <div class="table-header">
+        <div class="table-search">
+            <div class="table-search-input">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search..." class="search-input">
+                <input type="text" id="shipmentSearch" placeholder="Search by client name...">
             </div>
-            
-            <div class="user-info" onclick="toggleUserDropdown()">
-                <div class="user-details">
-                    <span class="user-name">John Doe</span>
-                    <span class="user-role">Administrator</span>
-                </div>
-                <div class="user-avatar">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-                <div class="user-dropdown" id="userDropdown">
-                    <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
-                </div>
-            </div>
-        </header>
-
-        <!-- Shipments Content -->
-        <div class="page-content">
-            <h1 class="page-title"><i class="fas fa-box"></i> Shipments</h1>
-            
-            <!-- Shipments Table Section -->
-            <div class="table-section">
-                <!-- Table Header with Search -->
-                <div class="table-header">
-                    <div class="table-search">
-                        <div class="table-search-input">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="shipmentSearch" placeholder="Search by client name...">
-                        </div>
-                        <button class="filter-btn" id="filterBtn">
-                            <i class="fas fa-filter"></i>
-                            Filter
-                        </button>
-                    </div>
-                    
-                    <div class="table-toolbar">
-                        <button class="toolbar-btn add" onclick="openAddModal()">
-                            <i class="fas fa-plus"></i>
-                            New Shipment
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Data Table -->
-                <div class="table-container">
-                    <table class="data-table" id="shipmentsTable">
-                        <thead>
-                            <tr>
-                                <th>Shipment ID</th>
-                                <th>Client</th>
-                                <th>Origin</th>
-                                <th>Destination</th>
-                                <th>Status</th>
-                                <th>Driver</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="shipmentsTableBody">
-                            <tr data-id="SHP001" onclick="selectRow(this)">
-                                <td>SHP001</td>
-                                <td>Acme Corp</td>
-                                <td>New York, NY</td>
-                                <td>Los Angeles, CA</td>
-                                <td><span class="badge success">Delivered</span></td>
-                                <td>John Smith</td>
-                                <td>2025-12-20</td>
-                                <td>14:30</td>
-                                <td>
-                                    <div class="action-btns">
-                                        <button class="action-btn view" title="View Image" onclick="event.stopPropagation(); openViewModal('SHP001');">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('SHP001');">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('SHP001');">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-id="SHP002" onclick="selectRow(this)">
-                                <td>SHP002</td>
-                                <td>Global Tech</td>
-                                <td>Chicago, IL</td>
-                                <td>Houston, TX</td>
-                                <td><span class="badge info">In Transit</span></td>
-                                <td>Sarah Johnson</td>
-                                <td>2025-12-19</td>
-                                <td>09:15</td>
-                                <td>
-                                    <div class="action-btns">
-                                        <button class="action-btn view" title="View Image" onclick="event.stopPropagation(); openViewModal('SHP002');">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('SHP002');">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('SHP002');">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-id="SHP003" onclick="selectRow(this)">
-                                <td>SHP003</td>
-                                <td>Swift Logistics</td>
-                                <td>Miami, FL</td>
-                                <td>Seattle, WA</td>
-                                <td><span class="badge warning">Pending</span></td>
-                                <td>Mike Davis</td>
-                                <td>2025-12-18</td>
-                                <td>16:45</td>
-                                <td>
-                                    <div class="action-btns">
-                                        <button class="action-btn view" title="View Image" onclick="event.stopPropagation(); openViewModal('SHP003');">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('SHP003');">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('SHP003');">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-id="SHP004" onclick="selectRow(this)">
-                                <td>SHP004</td>
-                                <td>Prime Retail</td>
-                                <td>Boston, MA</td>
-                                <td>Denver, CO</td>
-                                <td><span class="badge danger">Failed</span></td>
-                                <td>Tom Wilson</td>
-                                <td>2025-12-17</td>
-                                <td>11:20</td>
-                                <td>
-                                    <div class="action-btns">
-                                        <button class="action-btn view" title="View Image" onclick="event.stopPropagation(); openViewModal('SHP004');">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('SHP004');">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('SHP004');">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-id="SHP005" onclick="selectRow(this)">
-                                <td>SHP005</td>
-                                <td>Metro Industries</td>
-                                <td>Phoenix, AZ</td>
-                                <td>Atlanta, GA</td>
-                                <td><span class="badge success">Delivered</span></td>
-                                <td>Emma Brown</td>
-                                <td>2025-12-16</td>
-                                <td>13:10</td>
-                                <td>
-                                    <div class="action-btns">
-                                        <button class="action-btn view" title="View Image" onclick="event.stopPropagation(); openViewModal('SHP005');">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('SHP005');">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('SHP005');">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-id="SHP006" onclick="selectRow(this)">
-                                <td>SHP006</td>
-                                <td>Ocean Freight Co</td>
-                                <td>San Diego, CA</td>
-                                <td>Portland, OR</td>
-                                <td><span class="badge info">In Transit</span></td>
-                                <td>James Taylor</td>
-                                <td>2025-12-15</td>
-                                <td>08:00</td>
-                                <td>
-                                    <div class="action-btns">
-                                        <button class="action-btn view" title="View Image" onclick="event.stopPropagation(); openViewModal('SHP006');">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('SHP006');">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('SHP006');">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-id="SHP007" onclick="selectRow(this)">
-                                <td>SHP007</td>
-                                <td>United Supplies</td>
-                                <td>Dallas, TX</td>
-                                <td>Philadelphia, PA</td>
-                                <td><span class="badge success">Delivered</span></td>
-                                <td>Lisa Anderson</td>
-                                <td>2025-12-14</td>
-                                <td>15:55</td>
-                                <td>
-                                    <div class="action-btns">
-                                        <button class="action-btn view" title="View Image" onclick="event.stopPropagation(); openViewModal('SHP007');">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('SHP007');">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('SHP007');">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <button class="filter-btn" id="filterBtn">
+                <i class="fas fa-filter"></i>
+                Filter
+            </button>
         </div>
-    </main>
+        
+        <div class="table-toolbar">
+            <button class="toolbar-btn add" onclick="openAddModal()">
+                <i class="fas fa-plus"></i>
+                New Shipment
+            </button>
+        </div>
+    </div>
 
-    <!-- Add Modal -->
-    <div class="modal-overlay" id="addModal">
-        <div class="modal edit-modal">
-            <div class="modal-header">
-                <h3><i class="fas fa-plus"></i> Ajouter Shipment</h3>
-                <button class="modal-close" onclick="closeModal('addModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form class="modal-form" id="addShipmentForm">
+    <!-- Data Table -->
+    <div class="table-container">
+        <table class="data-table" id="shipmentsTable">
+            <thead>
+                <tr>
+                    <th>Shipment ID</th>
+                    <th>Client</th>
+                    <th>Origin</th>
+                    <th>Destination</th>
+                    <th>Status</th>
+                    <th>Driver</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="shipmentsTableBody">
+                {% for shipment in shipments %}
+                <tr data-id="{{ shipment.id_shipment }}" onclick="selectRow(this)">
+                    <td>{{ shipment.id_shipment }}</td>
+                    <td>{% if shipment.client %}{{ shipment.client.nom }} {{ shipment.client.prenom }}{% elif shipment.package.client %}{{ shipment.package.client.nom }} {{ shipment.package.client.prenom }}{% else %}-{% endif %}</td>
+                    <td>{{ shipment.origin|default:"-" }}</td>
+                    <td>{{ shipment.destination|default:"-" }}</td>
+                    <td>
+                        {% if shipment.statut == 'DELIVERED' %}
+                        <span class="badge success">Delivered</span>
+                        {% elif shipment.statut == 'IN_TRANSIT' %}
+                        <span class="badge info">In Transit</span>
+                        {% elif shipment.statut == 'PENDING' %}
+                        <span class="badge warning">Pending</span>
+                        {% else %}
+                        <span class="badge">{{ shipment.statut }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{% if shipment.driver %}{{ shipment.driver.nom }} {{ shipment.driver.prenom }}{% else %}-{% endif %}</td>
+                    <td>{{ shipment.shipment_date|date:"Y-m-d"|default:"-" }}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn view" title="View Details" onclick="event.stopPropagation(); openViewModal('{{ shipment.id_shipment }}');">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit" title="Modify" onclick="event.stopPropagation(); openEditModal('{{ shipment.id_shipment }}');">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('{{ shipment.id_shipment }}');">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align:center;">No shipments found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Add Modal -->
+<div class="modal" id="addModal">
+    <div class="modal-window edit-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus"></i> New Shipment</h3>
+            <button class="modal-close" onclick="closeModal('addModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form class="modal-form" id="addShipmentForm">
+                <div class="form-group">
+                    <label for="addClient">Client</label>
+                    <select id="addClient">
+                        <option value="">Select a client</option>
+                        {% for client in clients %}
+                        <option value="{{ client.id_client }}">{{ client.nom }} {{ client.prenom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
-                        <label for="addClient">Client</label>
-                        <input type="text" id="addClient" placeholder="Enter client name">
+                        <label for="addOrigin">Origin</label>
+                        <input type="text" id="addOrigin" placeholder="Enter origin">
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="addOrigin">Origin</label>
-                            <input type="text" id="addOrigin" placeholder="Enter origin">
-                        </div>
-                        <div class="form-group">
-                            <label for="addDestination">Destination</label>
-                            <input type="text" id="addDestination" placeholder="Enter destination">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="addStatus">Status</label>
-                            <select id="addStatus">
-                                <option value="Pending">Pending</option>
-                                <option value="In Transit">In Transit</option>
-                                <option value="Delivered">Delivered</option>
-                                <option value="Failed">Failed</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="addDriver">Driver</label>
-                            <input type="text" id="addDriver" placeholder="Enter driver name">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="addDate">Date</label>
-                            <input type="date" id="addDate">
-                        </div>
-                        <div class="form-group">
-                            <label for="addTime">Time</label>
-                            <input type="time" id="addTime">
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('addModal')">Cancel</button>
-                <button class="modal-btn primary" onclick="addShipment()">
-                    <i class="fas fa-plus"></i> Add
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- View Image Modal -->
-    <div class="modal-overlay" id="viewModal">
-        <div class="modal view-modal">
-            <div class="modal-header">
-                <h3><i class="fas fa-image"></i> Shipment Image</h3>
-                <button class="modal-close" onclick="closeModal('viewModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="image-container">
-                    <div class="no-image">
-                        <i class="fas fa-image"></i>
-                        <span>No image available</span>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('viewModal')">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Modal -->
-    <div class="modal-overlay" id="editModal">
-        <div class="modal edit-modal">
-            <div class="modal-header">
-                <h3><i class="fas fa-edit"></i> Edit Shipment</h3>
-                <button class="modal-close" onclick="closeModal('editModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form class="modal-form" id="editShipmentForm">
-                    <input type="hidden" id="editShipmentId">
                     <div class="form-group">
-                        <label for="editClient">Client</label>
-                        <input type="text" id="editClient" placeholder="Enter client name">
+                        <label for="addDestination">Destination</label>
+                        <input type="text" id="addDestination" placeholder="Enter destination">
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editOrigin">Origin</label>
-                            <input type="text" id="editOrigin" placeholder="Enter origin">
-                        </div>
-                        <div class="form-group">
-                            <label for="editDestination">Destination</label>
-                            <input type="text" id="editDestination" placeholder="Enter destination">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editStatus">Status</label>
-                            <select id="editStatus">
-                                <option value="Delivered">Delivered</option>
-                                <option value="In Transit">In Transit</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Failed">Failed</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="editDriver">Driver</label>
-                            <input type="text" id="editDriver" placeholder="Enter driver name">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editDate">Date</label>
-                            <input type="date" id="editDate">
-                        </div>
-                        <div class="form-group">
-                            <label for="editTime">Time</label>
-                            <input type="time" id="editTime">
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('editModal')">Cancel</button>
-                <button class="modal-btn primary" onclick="saveShipmentChanges()">
-                    <i class="fas fa-save"></i> Save Changes
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Modal -->
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal delete-modal">
-            <div class="modal-header">
-                <h3><i class="fas fa-trash"></i> Delete Shipment</h3>
-                <button class="modal-close" onclick="closeModal('deleteModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="delete-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
                 </div>
-                <p class="delete-message">Are you sure you want to delete this shipment?</p>
-                <p class="delete-warning">This action cannot be undone.</p>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('deleteModal')">Cancel</button>
-                <button class="modal-btn danger" onclick="confirmDelete()">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-            </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="addStatus">Status</label>
+                        <select id="addStatus">
+                            <option value="PENDING">Pending</option>
+                            <option value="IN_TRANSIT">In Transit</option>
+                            <option value="DELIVERED">Delivered</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="addDriver">Driver</label>
+                        <select id="addDriver">
+                            <option value="">Select a driver</option>
+                            {% for driver in drivers %}
+                            <option value="{{ driver.id_chauffeur }}">{{ driver.nom }} {{ driver.prenom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="addDate">Date</label>
+                        <input type="date" id="addDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="addZone">Zone</label>
+                        <select id="addZone">
+                            <option value="NATIONAL">National</option>
+                            <option value="INTERNATIONAL">International</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="addSpeed">Speed</label>
+                        <select id="addSpeed">
+                            <option value="NORMAL">Normal</option>
+                            <option value="EXPRESS">Express</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="addDistance">Distance (km)</label>
+                        <input type="number" id="addDistance" placeholder="Enter distance" step="0.01">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('addModal')">Cancel</button>
+            <button class="modal-btn primary" onclick="addShipment()">
+                <i class="fas fa-plus"></i> Add
+            </button>
         </div>
     </div>
+</div>
 
-    <!-- Custom JavaScript -->
-    <script src="{% static 'js/DASHmain.js' %}"></script>
-    <script src="{% static 'js/DASHshipments.js' %}"></script>
-</body>
-</html>
+<!-- View Modal -->
+<div class="modal" id="viewModal">
+    <div class="modal-window view-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-eye"></i> Shipment Details</h3>
+            <button class="modal-close" onclick="closeModal('viewModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="viewShipmentDetails" class="shipment-details">
+                <!-- Filled dynamically by JS -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('viewModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal" id="editModal">
+    <div class="modal-window edit-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Shipment</h3>
+            <button class="modal-close" onclick="closeModal('editModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form class="modal-form" id="editShipmentForm">
+                <input type="hidden" id="editShipmentId">
+                <div class="form-group">
+                    <label for="editClient">Client</label>
+                    <select id="editClient">
+                        <option value="">Select a client</option>
+                        {% for client in clients %}
+                        <option value="{{ client.id_client }}">{{ client.nom }} {{ client.prenom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editOrigin">Origin</label>
+                        <input type="text" id="editOrigin" placeholder="Enter origin">
+                    </div>
+                    <div class="form-group">
+                        <label for="editDestination">Destination</label>
+                        <input type="text" id="editDestination" placeholder="Enter destination">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editStatus">Status</label>
+                        <select id="editStatus">
+                            <option value="PENDING">Pending</option>
+                            <option value="IN_TRANSIT">In Transit</option>
+                            <option value="DELIVERED">Delivered</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDriver">Driver</label>
+                        <select id="editDriver">
+                            <option value="">Select a driver</option>
+                            {% for driver in drivers %}
+                            <option value="{{ driver.id_chauffeur }}">{{ driver.nom }} {{ driver.prenom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editDate">Date</label>
+                        <input type="date" id="editDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="editZone">Zone</label>
+                        <select id="editZone">
+                            <option value="NATIONAL">National</option>
+                            <option value="INTERNATIONAL">International</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editSpeed">Speed</label>
+                        <select id="editSpeed">
+                            <option value="NORMAL">Normal</option>
+                            <option value="EXPRESS">Express</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDistance">Distance (km)</label>
+                        <input type="number" id="editDistance" placeholder="Enter distance" step="0.01">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('editModal')">Cancel</button>
+            <button class="modal-btn primary" onclick="saveShipmentChanges()">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-window delete-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-trash"></i> Delete Shipment</h3>
+            <button class="modal-close" onclick="closeModal('deleteModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="delete-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <p class="delete-message">Are you sure you want to delete this shipment?</p>
+            <p id="deleteShipmentInfo" style="font-weight:600;"></p>
+            <p class="delete-warning">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('deleteModal')">Cancel</button>
+            <button class="modal-btn danger" onclick="confirmDelete()">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Shipments CRUD functionality
+let currentShipmentId = null;
+let selectedRow = null;
+
+// CSRF token helper
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+           document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '';
+}
+
+// Row selection
+function selectRow(row) {
+    if (selectedRow) {
+        selectedRow.classList.remove('selected');
+    }
+    selectedRow = row;
+    row.classList.add('selected');
+}
+
+// Modal functions
+function openAddModal() {
+    document.getElementById('addShipmentForm').reset();
+    document.getElementById('addModal').classList.add('active');
+}
+
+function openViewModal(shipmentId) {
+    currentShipmentId = shipmentId;
+    fetch(`/dashboard/shipments/${shipmentId}/json/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const s = data.shipment;
+                const statusBadge = getStatusBadge(s.status);
+                document.getElementById('viewShipmentDetails').innerHTML = `
+                    <div class="detail-row"><strong>Shipment ID:</strong> ${s.id_shipment}</div>
+                    <div class="detail-row"><strong>Client:</strong> ${s.client || '-'}</div>
+                    <div class="detail-row"><strong>Origin:</strong> ${s.origin || '-'}</div>
+                    <div class="detail-row"><strong>Destination:</strong> ${s.destination || '-'}</div>
+                    <div class="detail-row"><strong>Status:</strong> ${statusBadge}</div>
+                    <div class="detail-row"><strong>Driver:</strong> ${s.driver || '-'}</div>
+                    <div class="detail-row"><strong>Date:</strong> ${s.date || '-'}</div>
+                    <div class="detail-row"><strong>Zone:</strong> ${s.zone || '-'}</div>
+                    <div class="detail-row"><strong>Speed:</strong> ${s.speed || '-'}</div>
+                    <div class="detail-row"><strong>Distance:</strong> ${s.distance ? s.distance + ' km' : '-'}</div>
+                `;
+                document.getElementById('viewModal').classList.add('active');
+            }
+        })
+        .catch(err => console.error('Error fetching shipment:', err));
+}
+
+function openEditModal(shipmentId) {
+    currentShipmentId = shipmentId;
+    fetch(`/dashboard/shipments/${shipmentId}/json/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const s = data.shipment;
+                document.getElementById('editShipmentId').value = s.id_shipment;
+                document.getElementById('editClient').value = s.client_id || '';
+                document.getElementById('editOrigin').value = s.origin || '';
+                document.getElementById('editDestination').value = s.destination || '';
+                document.getElementById('editStatus').value = s.status || 'PENDING';
+                document.getElementById('editDriver').value = s.driver_id || '';
+                document.getElementById('editDate').value = s.date || '';
+                document.getElementById('editZone').value = s.zone || 'NATIONAL';
+                document.getElementById('editSpeed').value = s.speed || 'NORMAL';
+                document.getElementById('editDistance').value = s.distance || '';
+                document.getElementById('editModal').classList.add('active');
+            }
+        })
+        .catch(err => console.error('Error fetching shipment:', err));
+}
+
+function openDeleteModal(shipmentId) {
+    currentShipmentId = shipmentId;
+    document.getElementById('deleteShipmentInfo').textContent = `Shipment ID: ${shipmentId}`;
+    document.getElementById('deleteModal').classList.add('active');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+
+// CRUD operations
+function addShipment() {
+    const payload = {
+        client_id: document.getElementById('addClient').value,
+        origin: document.getElementById('addOrigin').value,
+        destination: document.getElementById('addDestination').value,
+        status: document.getElementById('addStatus').value,
+        driver_id: document.getElementById('addDriver').value,
+        date: document.getElementById('addDate').value,
+        zone: document.getElementById('addZone').value,
+        speed: document.getElementById('addSpeed').value,
+        distance: document.getElementById('addDistance').value || '0',
+    };
+
+    fetch('/dashboard/shipments/add/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify(payload),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('addModal');
+            location.reload();
+        } else {
+            alert('Error adding shipment: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('Error adding shipment');
+    });
+}
+
+function saveShipmentChanges() {
+    const shipmentId = document.getElementById('editShipmentId').value;
+    const payload = {
+        client_id: document.getElementById('editClient').value,
+        origin: document.getElementById('editOrigin').value,
+        destination: document.getElementById('editDestination').value,
+        status: document.getElementById('editStatus').value,
+        driver_id: document.getElementById('editDriver').value,
+        date: document.getElementById('editDate').value,
+        zone: document.getElementById('editZone').value,
+        speed: document.getElementById('editSpeed').value,
+        distance: document.getElementById('editDistance').value || '0',
+    };
+
+    fetch(`/dashboard/shipments/${shipmentId}/edit/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify(payload),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('editModal');
+            location.reload();
+        } else {
+            alert('Error updating shipment: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('Error updating shipment');
+    });
+}
+
+function confirmDelete() {
+    fetch(`/dashboard/shipments/${currentShipmentId}/delete/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('deleteModal');
+            location.reload();
+        } else {
+            alert('Error deleting shipment');
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('Error deleting shipment');
+    });
+}
+
+// Helper functions
+function getStatusBadge(status) {
+    const badges = {
+        'DELIVERED': '<span class="badge success">Delivered</span>',
+        'IN_TRANSIT': '<span class="badge info">In Transit</span>',
+        'PENDING': '<span class="badge warning">Pending</span>',
+    };
+    return badges[status] || `<span class="badge">${status}</span>`;
+}
+
+// Search functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('shipmentSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#shipmentsTableBody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    }
+
+    // Close modal when clicking outside
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

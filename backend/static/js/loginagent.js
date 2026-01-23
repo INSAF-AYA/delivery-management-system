@@ -69,10 +69,10 @@
         }
       */
 
-      if (data.role === 'admin') {
-        window.location.href = '/admin/dashboard/';
-      } else if (data.role === 'agent') {
-        window.location.href = '/agent/dashboard/';
+      // Both admin and agent redirect to the main dashboard (case-insensitive)
+      const role = (data.role || '').toLowerCase();
+      if (role === 'admin' || role === 'agent') {
+        window.location.href = '/dashboard/';
       } else {
         alert('Unknown role');
       }

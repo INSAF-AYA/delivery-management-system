@@ -1,7 +1,6 @@
 /* ===== Dashboard Content ===== */
 .dashboard-content,
 .page-content {
-    padding-top: calc(var(--topbar-height) + 30px);
     padding-left: 30px;
     padding-right: 30px;
     padding-bottom: 30px;

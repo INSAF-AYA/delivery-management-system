@@ -14,7 +14,7 @@
     position: fixed;
     top: 0;
     
-    left: 0;
+    left: var(--sidebar-width);
     right: 0;
     height: var(--topbar-height);
     background: var(--white);
@@ -25,23 +25,10 @@
     justify-content: space-between;
     
     padding: 0 30px;
-    padding-left: calc(var(--sidebar-width) + 30px);
   
     z-index: 1001;
 }
 
-
-.topbar::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    /* expand slightly to cover subpixel rounding gaps */
-    width: calc(var(--sidebar-width) + 1px);
-    height: 100%;
-    background: var(--dark-blue);
-    z-index: 1000; 
-}
 
 .search-container {
     display: flex;

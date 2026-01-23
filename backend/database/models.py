@@ -270,7 +270,9 @@ STATUS_CHOICES = [
     ('DELIVERED', 'Delivered'),
 ]
 
-# CLASS RECLAMATION
+# =========================
+#        RECLAMATION
+# =========================
 class Reclamation(models.Model):
    RECLAMATION_STATUS_CHOICES = [
         ('new', 'New'),
@@ -320,7 +322,9 @@ class Reclamation(models.Model):
                 self.id_reclamation = f"REC{next_num:06d}" 
         super().save(*args, **kwargs)
 
-# CLASS INCIDENT
+# =========================
+#        INCIDENT
+# =========================
 class Incident(models.Model):
     INCIDENT_TYPE_CHOICES = [
         ('delay', 'Delay'),
@@ -440,6 +444,9 @@ class Incident(models.Model):
         return (timezone.now() - self.created_at).days
     
 
+# =========================
+#        AGENT
+# =========================
 class Agent(models.Model):
     ROLE_CHOICES = [
         ('admin', 'Administrator'),
@@ -468,9 +475,9 @@ class Agent(models.Model):
         # 🔹 Generate agent_id if it doesn't exist
         if not self.agent_id:
             with transaction.atomic():
-                last_obj = Agent.objects.select_for_update().filter(agent_id__startswith='AG').order_by('-agent_id').first()
+                last_obj = Agent.objects.select_for_update().filter(agent_id__startswith='AG-').order_by('-agent_id').first()
                 if last_obj and last_obj.agent_id:
-                    m = re.search(r"AG(\d+)$", last_obj.agent_id)
+                    m = re.search(r"AG-(\d+)$", last_obj.agent_id)
                     next_num = int(m.group(1)) + 1 if m else 1
                 else:
                     next_num = 1
@@ -481,6 +488,15 @@ class Agent(models.Model):
             self.mot_de_passe = make_password(self.mot_de_passe)
 
         super().save(*args, **kwargs)
+
+    def verifier_mot_de_passe(self, raw_password):
+        """Check if the provided password matches the stored hashed password."""
+        return check_password(raw_password, self.mot_de_passe)
+
+    def mettre_a_jour_connexion(self):
+        """Update the last login timestamp."""
+        self.date_modification = timezone.now()
+        self.save(update_fields=['date_modification'])
 
         
 

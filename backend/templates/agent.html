@@ -1,108 +1,346 @@
 {% extends 'base_dashboard.html' %}
 {% load static %}
 
-{% block title %}Agents{% endblock %}
+{% block title %}SwiftShip - Agents{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/agent.css' %}">
-{% endblock %}
+{% block nav_agents %}active{% endblock %}
 
 {% block content %}
-<div class="content">
-  <div class="container">
-    <div class="field">
-      <h1>Agent Management</h1>
-      <p class="description">Manage Agent information</p>
+<h1 class="page-title"><i class="fas fa-user-tie"></i> Agents</h1>
+
+<div class="table-section">
+    <div class="table-header">
+        <div class="table-search">
+            <div class="table-search-input">
+                <i class="fas fa-search"></i>
+                <input type="text" id="agentSearch" placeholder="Search agents...">
+            </div>
+            <button class="filter-btn" id="filterBtn">
+                <i class="fas fa-filter"></i>
+                Filter
+            </button>
+        </div>
+        
+        <div class="table-toolbar">
+            <button class="toolbar-btn add" onclick="openAddModal()">
+                <i class="fas fa-plus"></i>
+                Add Agent
+            </button>
+        </div>
     </div>
-    {% if request.user.agent.est_admin %}
-      <div class="buttons">
-        <button id="addAgentBtn">
-          <i class="btn-icn fa-solid fa-plus"></i>
-          Add Agent
-        </button>
 
-        <button class="delete" id="deleteAgentBtn">
-          <i class="fa-solid fa-trash"></i>
-          Delete Agent
-        </button>
-      </div>
-    {% endif %}
-  </div>
-
-  <div class="filters">
-    <input type="text" id="searchName" placeholder="Search by name">
-    <input type="text" id="searchFamily" placeholder="Search by family name">
-    <input type="text" id="searchID" placeholder="Search by ID">
-    <input type="date" id="filterDate">
+    <div class="table-container">
+        <table class="data-table" id="agentsTable">
+            <thead>
+                <tr>
+                    <th>Agent ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="agentsTableBody">
+                {% for agent in agents %}
+                <tr data-id="{{ agent.agent_id }}" onclick="selectRow(this)">
+                    <td>{{ agent.agent_id }}</td>
+                    <td>{{ agent.nom }} {{ agent.prenom }}</td>
+                    <td>{{ agent.email }}</td>
+                    <td>{{ agent.telephone|default:"-" }}</td>
+                    <td><span class="status-badge status-{{ agent.role|lower }}">{{ agent.role }}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn view" title="View" onclick="event.stopPropagation(); openViewModal('{{ agent.agent_id }}');">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit" title="Edit" onclick="event.stopPropagation(); openEditModal('{{ agent.agent_id }}');">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('{{ agent.agent_id }}');">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align:center;">No agents found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-
-
-  <table>
-    <thead>
-      <tr>
-        <th>Agent ID</th>
-        <th>Agent Name</th>
-        <th>Phone number</th>
-        <th>Hiring Date</th>
-        <th>Type</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for agent in agents %}
-      <tr>
-        <td>{{ agent.agent_id }}</td>
-        <td>{{ agent.nom }} {{ agent.prenom }}</td>
-        <td>{{ agent.telephone }}</td>
-        <td>{{ agent.date_embauche|default_if_none:"" }}</td>
-        <td>{{ agent.get_role_display }}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="5">No agents found</td></tr>
-      {% endfor %}
-    </tbody>
-</table>
-
-  </table>
-</div>
-
-<div id="addAgentModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <h2>Add Agent</h2>
-
-    <form id="addAgentForm">
-      <input name="agent_name" placeholder="Agent family name" required>
-      <input name="agent_prenom" placeholder="Agent first name" required>
-      <input type="email" name="email" placeholder="Agent's email'" required>
-      <input type="number" name="Phone_number" placeholder="Agent Phone Number" required>
-      <input type="text" name="password" required>
-      <input type="date" HiringDate="Hiring_date" placeholder="Hiring Date" required>
-      
-      <select name="type" required>
-        <option value="">Type</option> 
-        <option>Normal</option>
-        <option>Admin</option>
-      </select>
-
-      <button type="submit">Save</button>
-    </form>
-  </div>
-</div>
-
-<div id="deleteAgentModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <h2>Delete Agent</h2>
-
-    <form id="deleteAgentForm">
-      <input name="Agent_id" placeholder="Agent ID" required>
-      <button class="delete" type="submit">Delete</button>
-    </form>
-  </div>
-</div>
-
-{% block extra_js %}
-<script src="{% static 'js/agents.js' %}"></script>
 {% endblock %}
 
+{% block modals %}
+<!-- Add Modal -->
+<div class="modal" id="addModal">
+    <div class="modal-window edit-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus"></i> Add Agent</h3>
+            <button class="modal-close" onclick="closeModal('addModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form class="modal-form" id="addAgentForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="addPrenom" placeholder="First name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="addNom" placeholder="Last name" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="addEmail" placeholder="Email address" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="addTelephone" placeholder="Phone number">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="addRole" required>
+                            <option value="Agent">Agent</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Supervisor">Supervisor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="addPassword" placeholder="Password" required>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('addModal')">Cancel</button>
+            <button class="modal-btn primary" onclick="addAgent()"><i class="fas fa-plus"></i> Add</button>
+        </div>
+    </div>
+</div>
+
+<!-- View Modal -->
+<div class="modal" id="viewModal">
+    <div class="modal-window view-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-eye"></i> Agent Details</h3>
+            <button class="modal-close" onclick="closeModal('viewModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div id="viewAgentDetails"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('viewModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal" id="editModal">
+    <div class="modal-window edit-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Agent</h3>
+            <button class="modal-close" onclick="closeModal('editModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form class="modal-form" id="editAgentForm">
+                <input type="hidden" id="editAgentId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="editPrenom" placeholder="First name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="editNom" placeholder="Last name" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="editEmail" placeholder="Email address" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="editTelephone" placeholder="Phone number">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="editRole" required>
+                            <option value="Agent">Agent</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Supervisor">Supervisor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>New Password (optional)</label>
+                        <input type="password" id="editPassword" placeholder="Leave blank to keep current">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('editModal')">Cancel</button>
+            <button class="modal-btn primary" onclick="saveAgent()"><i class="fas fa-save"></i> Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-window delete-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-trash"></i> Delete Agent</h3>
+            <button class="modal-close" onclick="closeModal('deleteModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="delete-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <p class="delete-message">Are you sure you want to delete this agent?</p>
+            <p id="deleteAgentInfo" style="font-weight:600;"></p>
+            <p class="delete-warning">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('deleteModal')">Cancel</button>
+            <button class="modal-btn danger" onclick="confirmDelete()"><i class="fas fa-trash"></i> Delete</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentAgentId = null;
+let selectedRow = null;
+
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+           document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '';
+}
+
+function selectRow(row) {
+    if (selectedRow) selectedRow.classList.remove('selected');
+    selectedRow = row;
+    row.classList.add('selected');
+}
+
+function openAddModal() {
+    document.getElementById('addAgentForm').reset();
+    document.getElementById('addModal').classList.add('active');
+}
+
+function openViewModal(agentId) {
+    currentAgentId = agentId;
+    fetch(`/dashboard/agents/${agentId}/json/`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const agent = data.agent;
+                document.getElementById('viewAgentDetails').innerHTML = `
+                    <div class="detail-row"><strong>Agent ID:</strong> ${agent.agent_id}</div>
+                    <div class="detail-row"><strong>Name:</strong> ${agent.nom} ${agent.prenom}</div>
+                    <div class="detail-row"><strong>Email:</strong> ${agent.email}</div>
+                    <div class="detail-row"><strong>Phone:</strong> ${agent.telephone || '-'}</div>
+                    <div class="detail-row"><strong>Role:</strong> ${agent.role}</div>
+                `;
+                document.getElementById('viewModal').classList.add('active');
+            }
+        });
+}
+
+function openEditModal(agentId) {
+    currentAgentId = agentId;
+    fetch(`/dashboard/agents/${agentId}/json/`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const agent = data.agent;
+                document.getElementById('editAgentId').value = agent.agent_id;
+                document.getElementById('editPrenom').value = agent.prenom;
+                document.getElementById('editNom').value = agent.nom;
+                document.getElementById('editEmail').value = agent.email;
+                document.getElementById('editTelephone').value = agent.telephone || '';
+                document.getElementById('editRole').value = agent.role;
+                document.getElementById('editPassword').value = '';
+                document.getElementById('editModal').classList.add('active');
+            }
+        });
+}
+
+function openDeleteModal(agentId) {
+    currentAgentId = agentId;
+    document.getElementById('deleteAgentInfo').textContent = `Agent ID: ${agentId}`;
+    document.getElementById('deleteModal').classList.add('active');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+
+function addAgent() {
+    const data = {
+        prenom: document.getElementById('addPrenom').value,
+        nom: document.getElementById('addNom').value,
+        email: document.getElementById('addEmail').value,
+        telephone: document.getElementById('addTelephone').value,
+        role: document.getElementById('addRole').value,
+        password: document.getElementById('addPassword').value
+    };
+    fetch('/dashboard/agents/add/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+        body: JSON.stringify(data)
+    }).then(r => r.json()).then(data => {
+        if (data.success) { closeModal('addModal'); location.reload(); }
+        else alert('Error: ' + (data.error || 'Failed'));
+    });
+}
+
+function saveAgent() {
+    const data = {
+        prenom: document.getElementById('editPrenom').value,
+        nom: document.getElementById('editNom').value,
+        email: document.getElementById('editEmail').value,
+        telephone: document.getElementById('editTelephone').value,
+        role: document.getElementById('editRole').value
+    };
+    const password = document.getElementById('editPassword').value;
+    if (password) data.password = password;
+    
+    fetch(`/dashboard/agents/${currentAgentId}/edit/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+        body: JSON.stringify(data)
+    }).then(r => r.json()).then(data => {
+        if (data.success) { closeModal('editModal'); location.reload(); }
+        else alert('Error: ' + (data.error || 'Failed'));
+    });
+}
+
+function confirmDelete() {
+    fetch(`/dashboard/agents/${currentAgentId}/delete/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCSRFToken() }
+    }).then(r => r.json()).then(data => {
+        if (data.success) { closeModal('deleteModal'); location.reload(); }
+        else alert('Error: ' + (data.error || 'Failed'));
+    });
+}
+
+document.getElementById('agentSearch').addEventListener('input', function(e) {
+    const term = e.target.value.toLowerCase();
+    document.querySelectorAll('#agentsTableBody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+    });
+});
+</script>
 {% endblock %}

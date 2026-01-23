@@ -17,8 +17,8 @@
 
 .sidebar-header {
     padding: 25px 20px;
-   
-    border-bottom: none;
+    margin-left: 1vw;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .logo {
@@ -29,13 +29,15 @@
 }
 
 .logo i {
-    font-size: 3vh;
+    font-size: 28px;
+    color: var(--white);
 }
 
 .logo h2 {
-    font-size: 24px;
+    font-size: 35px;
     font-weight: 700;
     letter-spacing: 0.5px;
+    color: var(--white);
 }
 
 .sidebar-nav {
