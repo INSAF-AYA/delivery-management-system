@@ -1,8 +1,9 @@
 {% extends 'base_dashboard.html' %}
-
+{% load static %}
 {% block title %}Incidents — SwiftShip{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/incidents.css' %}">
 {% endblock %}
 
 {% block content %}
