@@ -27,8 +27,8 @@ from dashboard import views as dash_views
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Redirect root to the login page
-    path('', RedirectView.as_view(pattern_name='login', permanent=False)),
+    # Redirect root to the home page
+    path('', RedirectView.as_view(pattern_name='home', permanent=False)),
 
     # App urlconfs
     path('', include('home.urls')),

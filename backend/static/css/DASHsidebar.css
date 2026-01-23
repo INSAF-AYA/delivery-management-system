@@ -5,17 +5,20 @@
     top: 0;
     width: var(--sidebar-width);
     height: 100vh;
-    background: var(--dark-blue);
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+     background: var(--dark-blue);
+   
+     box-shadow: none;
     display: flex;
     flex-direction: column;
-    z-index: 1000;
-    width: 12vw;
+    
+     z-index: 900;
+   
 }
 
 .sidebar-header {
     padding: 25px 20px;
-    border-bottom: 1px solid var(--gray);
+   
+    border-bottom: none;
 }
 
 .logo {
@@ -45,13 +48,17 @@
     list-style: none;
 }
 
-.sidebar-nav li {
-    margin: 5px 0;
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
+.sidebar-nav ul {
+    list-style: none;
 }
 
+.sidebar-nav li {
+    margin: 5px 0;
+    /* make each nav item fill the sidebar so there's no centered gap */
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
 .sidebar-nav a {
     display: flex;
     align-items: center;

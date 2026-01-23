@@ -1,4 +1,5 @@
 {% extends 'base_dashboard.html' %}
+{% load static %}
 
 {% block title %}Invoices — SwiftShip{% endblock %}
 
@@ -6,64 +7,208 @@
 {% endblock %}
 
 {% block content %}
-    <div class="page-row">
-      <div class="left">
-        <h1>Invoices</h1>
-        <p class="description">Overview of generated invoices</p>
-      </div>
+    <div class="page-content">
+        <h1 class="page-title"><i class="fas fa-file-invoice-dollar"></i> Invoices</h1>
 
-      <div class="right">
-        <div class="controls">
-          <input class="filter-input" placeholder="Search invoice ID..." />
-          <select class="filter-select">
-            <option>All Status</option>
-            <option>Paid</option>
-            <option>Unpaid</option>
-          </select>
-        </div>
+        <div class="table-section">
+            <div class="table-header">
+                <div class="table-search">
+                    <div class="table-search-input">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="invoiceSearch" placeholder="Search invoice ID or client...">
+                    </div>
+                    <button class="filter-btn">
+                        <i class="fas fa-filter"></i>
+                        Filter
+                    </button>
+                </div>
 
-        <div class="table-card">
-        <table>
-        <thead>
-          <tr>
-            <th>Invoice ID</th>
-            <th>Client</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {# Example data - replace with real invoices context when ready #}
-          <tr>
-            <td>INV-001</td>
-            <td>Acme Corp</td>
-            <td>$1,200.00</td>
-            <td><span class="status status-paid">Paid</span></td>
-            <td>2025-01-12</td>
-            <td>
-              <i class="fa-solid fa-eye"></i>
-              <i class="fa-solid fa-file-arrow-down"></i>
-            </td>
-          </tr>
-          <tr>
-            <td>INV-002</td>
-            <td>Beta LLC</td>
-            <td>$450.00</td>
-            <td><span class="status status-unpaid">Unpaid</span></td>
-            <td>2025-01-15</td>
-            <td>
-              <i class="fa-solid fa-eye"></i>
-              <i class="fa-solid fa-file-arrow-down"></i>
-            </td>
-          </tr>
-        </tbody>
-        </table>
+                <div class="table-toolbar">
+                    <button class="toolbar-btn add" onclick="openAddModal()"> <i class="fas fa-plus"></i> New Invoice</button>
+                    <button class="toolbar-btn" onclick="exportInvoices()"> <i class="fas fa-file-export"></i> Export</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="invoicesTable">
+                    <thead>
+                        <tr>
+                            <th>Invoice ID</th>
+                            <th>Client</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {# Example rows - replace with real context data #}
+                        <tr data-id="INV-001">
+                            <td>INV-001</td>
+                            <td>Acme Corp</td>
+                            <td>$1,200.00</td>
+                            <td><span class="badge success">Paid</span></td>
+                            <td>2025-01-12</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn view" title="View" onclick="openViewModal('INV-001')"><i class="fas fa-eye"></i></button>
+                                    <button class="action-btn" title="Download" onclick="downloadInvoice('INV-001')"><i class="fas fa-file-arrow-down"></i></button>
+                                    <button class="action-btn edit" title="Edit" onclick="openEditModal('INV-001')"><i class="fas fa-edit"></i></button>
+                                    <button class="action-btn delete" title="Delete" onclick="openDeleteModal('INV-001')"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr data-id="INV-002">
+                            <td>INV-002</td>
+                            <td>Beta LLC</td>
+                            <td>$450.00</td>
+                            <td><span class="badge danger">Unpaid</span></td>
+                            <td>2025-01-15</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn view" title="View" onclick="openViewModal('INV-002')"><i class="fas fa-eye"></i></button>
+                                    <button class="action-btn" title="Download" onclick="downloadInvoice('INV-002')"><i class="fas fa-file-arrow-down"></i></button>
+                                    <button class="action-btn edit" title="Edit" onclick="openEditModal('INV-002')"><i class="fas fa-edit"></i></button>
+                                    <button class="action-btn delete" title="Delete" onclick="openDeleteModal('INV-002')"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-      </div>
     </div>
+
+<!-- ================= ADD / VIEW / EDIT / DELETE MODALS FOR INVOICES ================= -->
+<!-- Add Invoice Modal -->
+<div id="addInvoiceModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content modal-window">
+            <div class="modal-header">
+                <h5 class="modal-title">New Invoice</h5>
+                <button type="button" class="btn-close" onclick="closeModal('addInvoiceModal')" aria-label="Close"></button>
+            </div>
+            {% url 'dashboard_add_invoice' as add_invoice_url %}
+            <form id="addInvoiceForm" method="post" action="{{ add_invoice_url }}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Client</label>
+                        <input id="addClient" name="client" class="form-control" placeholder="Client name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input id="addAmount" name="amount" type="number" step="0.01" class="form-control" placeholder="Amount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select id="addStatus" name="status" class="form-select">
+                            <option value="paid">Paid</option>
+                            <option value="unpaid">Unpaid</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input id="addDate" name="date" type="date" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addInvoiceModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- View Invoice Modal -->
+<div id="viewInvoiceModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content modal-window">
+            <div class="modal-header">
+                <h5 class="modal-title">Invoice Details</h5>
+                <button type="button" class="btn-close" onclick="closeModal('viewInvoiceModal')" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="viewInvoiceDetails"><!-- filled by JS --></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('viewInvoiceModal')">Close</button>
+                <button class="btn btn-primary" id="downloadInvoiceBtn" onclick="downloadInvoice()"><i class="fas fa-file-arrow-down"></i> Download</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Invoice Modal -->
+<div id="editInvoiceModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content modal-window">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Invoice</h5>
+                <button type="button" class="btn-close" onclick="closeModal('editInvoiceModal')" aria-label="Close"></button>
+            </div>
+            {% url 'dashboard_edit_invoice' as edit_invoice_url %}
+            <form id="editInvoiceForm" method="post" action="{{ edit_invoice_url }}">
+                {% csrf_token %}
+                <input type="hidden" name="invoice_id" id="editInvoiceId">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Client</label>
+                        <input id="editClient" name="client" class="form-control" placeholder="Client name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input id="editAmount" name="amount" type="number" step="0.01" class="form-control" placeholder="Amount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select id="editStatus" name="status" class="form-select">
+                            <option value="paid">Paid</option>
+                            <option value="unpaid">Unpaid</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input id="editDate" name="date" type="date" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editInvoiceModal')">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveInvoiceChanges()">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Invoice Modal -->
+<div id="deleteInvoiceModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content modal-window">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Invoice</h5>
+                <button type="button" class="btn-close" onclick="closeModal('deleteInvoiceModal')" aria-label="Close"></button>
+            </div>
+            {% url 'dashboard_delete_invoice' as delete_invoice_url %}
+            <form id="deleteInvoiceForm" method="post" action="{{ delete_invoice_url }}">
+                {% csrf_token %}
+                <input type="hidden" name="invoice_id" id="deleteInvoiceId">
+                <div class="modal-body">
+                    <p id="deleteInvoiceInfo">Are you sure you want to delete this invoice?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('deleteInvoiceModal')">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmInvoiceDelete()">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/invoices.js' %}"></script>
 {% endblock %}

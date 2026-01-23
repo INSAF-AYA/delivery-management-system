@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.contrib.auth.hashers import make_password
 
-from database.models import Client, Chauffeur, Package, Shipment, Expedition
+from database.models import Client, Chauffeur, Package, Shipment
 
 
 class Command(BaseCommand):
@@ -82,21 +82,36 @@ class Command(BaseCommand):
             )
             self.stdout.write(f'Created Shipment {shipment.id_shipment} for package {pkg.tracking_number}')
 
-        # Create expedition
-        expedition, ex_created = Expedition.objects.get_or_create(
-            client=client,
-            origin='Test Origin',
-            destination='Test Destination',
-            kilometrage=12.5,
-            defaults={
-                'driver': driver,
-                'description': 'Seeded test expedition',
-            }
-        )
-        if ex_created:
-            self.stdout.write(f'Created Expedition {expedition.id_expedition} (statut: {expedition.statut})')
+        # Attach expedition-like details onto the Shipment (we migrated
+        # Expedition -> Shipment). If shipment already exists for this
+        # package, update its driver/origin/destination/kilometrage.
+        try:
+            shipment = pkg.shipment
+        except Shipment.DoesNotExist:
+            shipment = None
+
+        if shipment:
+            shipment.driver = driver
+            shipment.origin = 'Test Origin'
+            shipment.destination = 'Test Destination'
+            shipment.kilometrage = 12.5
+            shipment.description = 'Seeded test shipment'
+            shipment.save()
+            self.stdout.write(f'Updated Shipment {shipment.id_shipment} with expedition-like data')
         else:
-            self.stdout.write(f'Expedition already exists: {expedition.id_expedition}')
+            shipment = Shipment.objects.create(
+                package=pkg,
+                zone='NATIONAL',
+                speed='NORMAL',
+                distance=12.5,
+                shipment_date=timezone.now().date(),
+                driver=driver,
+                origin='Test Origin',
+                destination='Test Destination',
+                kilometrage=12.5,
+                description='Seeded test shipment'
+            )
+            self.stdout.write(f'Created Shipment {shipment.id_shipment} with expedition-like data')
 
         self.stdout.write('\nSummary:')
         self.stdout.write(f' Client: {client.email} / password (plain): {client_password}')

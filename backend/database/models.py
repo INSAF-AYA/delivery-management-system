@@ -270,67 +270,6 @@ STATUS_CHOICES = [
     ('DELIVERED', 'Delivered'),
 ]
 
-
-class Expedition(models.Model):
-
-    id_expedition = models.CharField(
-        max_length=12,
-        primary_key=True,
-        editable=False
-    )
-
-    client = models.ForeignKey(
-        'Client',
-        on_delete=models.CASCADE,
-        related_name='expeditions'
-    )
-
-    origin = models.CharField(max_length=150)
-    destination = models.CharField(max_length=150)
-
-    kilometrage = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
-        help_text="Distance en kilomètres"
-    )
-
-    driver = models.ForeignKey(
-        'Chauffeur',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='expeditions'
-    )
-
-    date_creation = models.DateTimeField(auto_now_add=True)
-    description = models.TextField(blank=True)
-
-    statut = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='PENDING'
-    )
-
-    class Meta:
-        verbose_name = "Expedition"
-        verbose_name_plural = "Expeditions"
-
-    def __str__(self):
-        return f"{self.id_expedition} - {self.statut}"
-
-    #  Génération automatique de l'ID
-    def save(self, *args, **kwargs):
-        if not self.id_expedition:
-            with transaction.atomic():
-                last_obj = Expedition.objects.select_for_update().order_by('-id_expedition').first()
-                next_num = (
-                    int(re.search(r"SH(\d+)$", last_obj.id_expedition).group(1)) + 1
-                    if last_obj else 1
-                )
-                self.id_expedition = f"SH{next_num:06d}"
-
-        super().save(*args, **kwargs)
-
 # CLASS RECLAMATION
 class Reclamation(models.Model):
    RECLAMATION_STATUS_CHOICES = [
@@ -922,6 +861,45 @@ class Shipment(models.Model):
         Package,
         on_delete=models.CASCADE,
         related_name='shipment'
+    )
+
+    # Fields migrated from the old `Expedition` model so Shipment becomes the
+    # canonical delivery/expedition object in the system. All are optional to
+    # preserve existing records and allow gradual backfill.
+    client = models.ForeignKey(
+        'Client',
+        on_delete=models.CASCADE,
+        related_name='shipments',
+        null=True,
+        blank=True,
+        help_text='Optional: client linked to this shipment (duplicate of package.client)'
+    )
+
+    origin = models.CharField(max_length=150, blank=True)
+    destination = models.CharField(max_length=150, blank=True)
+
+    kilometrage = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text='Distance in kilometers (optional)'
+    )
+
+    driver = models.ForeignKey(
+        'Chauffeur',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='shipments'
+    )
+
+    description = models.TextField(blank=True)
+
+    statut = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='PENDING'
     )
 
     zone = models.CharField(
