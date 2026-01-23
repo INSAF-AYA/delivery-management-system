@@ -473,7 +473,7 @@
                         return;
                     }
                     output.innerHTML = '<div class="p-3 text-muted">Chargement... (fallback)</div>';
-                    fetch('/api/track/?number=' + encodeURIComponent(number), { cache: 'no-store' })
+                    fetch('/client/track/?number=' + encodeURIComponent(number), { cache: 'no-store' })
                     .then(function(res) {
                         if (!res.ok) return res.text().then(function(t){ throw new Error('HTTP ' + res.status + ' - ' + t); });
                         return res.json();

@@ -42,7 +42,7 @@
 
     const formData = new FormData(form);
 
-    fetch('/api/auth/login/', {
+    fetch('/home/auth/login/', {
       method: 'POST',
       headers: {
         'X-CSRFToken': csrftoken

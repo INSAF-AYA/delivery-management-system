@@ -13,8 +13,8 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Call backend API for tracking (use trailing slash)
-        fetch('/api/track/?number=' + encodeURIComponent(trackingNumber))
+    // Call backend API for tracking (moved from /api/track/ to /client/track/)
+    fetch('/client/track/?number=' + encodeURIComponent(trackingNumber))
       .then(function (res) {
         if (!res.ok) throw new Error('Not found');
         return res.json();

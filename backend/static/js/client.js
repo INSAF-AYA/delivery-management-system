@@ -23,8 +23,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 `;
             }
 
-            console.log('client.js: fetching /api/track/ for', trackingNumber);
-            fetch('/api/track/?number=' + encodeURIComponent(trackingNumber), { cache: 'no-store' })
+            console.log('client.js: fetching /client/track/ for', trackingNumber);
+            fetch('/client/track/?number=' + encodeURIComponent(trackingNumber), { cache: 'no-store' })
                 .then(function (res) {
                     console.log('client.js: fetch response', res.status, res);
                     // show status in debug area
