@@ -176,7 +176,8 @@
             <!-- If you are an admin/staff you can generate a new password once (it will be saved hashed). -->
         </div>
         <div class="modal-footer">
-            {% if user.is_staff %}
+            
+            {% if user.is_staff or logged_in_role == 'Admin' or logged_in_role == 'Agent' %}
             <button class="modal-btn" id="viewGeneratePasswordBtn" onclick="generatePasswordForCurrentView()">
                 <i class="fas fa-key"></i> Generate password
             </button>

@@ -6,6 +6,7 @@ import json
 import re
 from datetime import datetime
 from django.contrib.admin.views.decorators import staff_member_required
+from django.http import HttpResponseForbidden
 
 from database.models import Client, Chauffeur, Vehicule, Shipment, Incident, Package, Invoice, Agent
 
@@ -195,12 +196,19 @@ def show_client(request, client_id):
 
 
 @require_POST
-@staff_member_required
 def reset_client_password(request, client_id):
     """Generate a new password for the client, save it (hashed) and return the raw password once.
 
-    This endpoint is protected to staff members only.
+    Accessible to Django staff users OR to the project's session-based Agent admins
+    (the app stores the role in request.session['role'] when an Agent logs in).
+    Returns 403 if the caller isn't authorized.
     """
+    # Allow if Django user is staff
+    if not (request.user.is_authenticated and request.user.is_staff):
+        # Fallback: allow if session indicates an Agent with role 'admin' or 'agent'
+        if request.session.get('role', '').lower() not in ('admin', 'agent'):
+            return JsonResponse({'success': False, 'error': 'forbidden'}, status=403)
+
     client = get_object_or_404(Client, pk=client_id)
     raw = client.generate_password()
     client.save()
@@ -631,11 +639,20 @@ def delete_driver_ajax(request, driver_id):
     return JsonResponse({'success': True, 'deleted_id': driver_id_str})
 
 
-@staff_member_required
 @require_POST
-@require_POST
-@staff_member_required
 def reset_driver_password(request, driver_id):
+    """Generate a new password for the driver and return the raw password once.
+
+    Accessible to Django staff users OR to the project's session-based Agent admins
+    (the app stores the role in request.session['role'] when an Agent logs in).
+    Returns 403 if the caller isn't authorized.
+    """
+    # Allow if Django user is staff
+    if not (request.user.is_authenticated and request.user.is_staff):
+        # Fallback: allow if session indicates an Agent with role 'admin' or 'agent'
+        if request.session.get('role', '').lower() not in ('admin', 'agent'):
+            return JsonResponse({'success': False, 'error': 'forbidden'}, status=403)
+
     chauffeur = get_object_or_404(Chauffeur, pk=driver_id)
     raw = chauffeur.generate_password_driver()
     return JsonResponse({'success': True, 'password': raw})

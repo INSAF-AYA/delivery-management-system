@@ -239,12 +239,48 @@ function generatePasswordForCurrentView() {
 function copyGeneratedPassword() {
     const el = document.getElementById('generatedPassword');
     if (!el) return;
-    const text = el.textContent || el.innerText;
-    navigator.clipboard?.writeText(text).then(() => {
-        showNotification('Mot de passe copié', 'success');
-    }).catch(() => {
-        showNotification('Impossible de copier', 'danger');
-    });
+    const text = el.textContent || el.innerText || '';
+
+    // Prefer the modern Clipboard API when available and secure
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(text).then(() => {
+            showNotification('Mot de passe copié', 'success');
+        }).catch(err => {
+            console.warn('navigator.clipboard.writeText failed', err);
+            // fallback to older approach
+            fallbackCopyText(text);
+        });
+    } else {
+        fallbackCopyText(text);
+    }
+
+    function fallbackCopyText(str) {
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = str;
+            // Prevent scrolling to bottom
+            ta.style.position = 'fixed';
+            ta.style.top = '0';
+            ta.style.left = '0';
+            ta.style.width = '1px';
+            ta.style.height = '1px';
+            ta.style.padding = '0';
+            ta.style.border = 'none';
+            ta.style.outline = 'none';
+            ta.style.boxShadow = 'none';
+            ta.style.background = 'transparent';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            const ok = document.execCommand('copy');
+            ta.remove();
+            if (ok) showNotification('Mot de passe copié', 'success');
+            else showNotification('Impossible de copier', 'danger');
+        } catch (e) {
+            console.error('fallback copy failed', e);
+            showNotification('Impossible de copier', 'danger');
+        }
+    }
 }
 
 function openEditModalFromToolbar() {

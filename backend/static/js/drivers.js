@@ -181,7 +181,48 @@ window.generateDriverPasswordForCurrentView = function() {
     }).catch(err => { console.error(err); alert('Erreur réseau'); });
 };
 
-function copyDriverGeneratedPassword() { const el = document.getElementById('generatedDriverPassword'); if (!el) return; navigator.clipboard.writeText(el.textContent || el.innerText).then(()=>alert('Copié !')).catch(()=>{}); }
+function copyDriverGeneratedPassword() {
+    const el = document.getElementById('generatedDriverPassword');
+    if (!el) return;
+    const text = el.textContent || el.innerText || '';
+
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Copié !');
+        }).catch(err => {
+            console.warn('navigator.clipboard.writeText failed', err);
+            fallbackCopy(text);
+        });
+    } else {
+        fallbackCopy(text);
+    }
+
+    function fallbackCopy(str) {
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = str;
+            ta.style.position = 'fixed';
+            ta.style.top = '0';
+            ta.style.left = '0';
+            ta.style.width = '1px';
+            ta.style.height = '1px';
+            ta.style.padding = '0';
+            ta.style.border = 'none';
+            ta.style.outline = 'none';
+            ta.style.boxShadow = 'none';
+            ta.style.background = 'transparent';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            const ok = document.execCommand('copy');
+            ta.remove();
+            if (ok) alert('Copié !'); else alert('Impossible de copier');
+        } catch (e) {
+            console.error('fallback copy failed', e);
+            alert('Impossible de copier');
+        }
+    }
+}
 
 function getCookie(name) { let cookieValue=null; if (document.cookie && document.cookie !== '') { const cookies = document.cookie.split(';'); for (let i=0;i<cookies.length;i++){ const cookie = cookies[i].trim(); if (cookie.substring(0,name.length+1)=== (name+'=')) { cookieValue = decodeURIComponent(cookie.substring(name.length+1)); break; } } } return cookieValue; }
 
