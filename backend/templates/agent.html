@@ -38,7 +38,7 @@
 
 
   <table>
-    <thead>            
+    <thead>
       <tr>
         <th>Agent ID</th>
         <th>Agent Name</th>
@@ -48,8 +48,20 @@
       </tr>
     </thead>
     <tbody>
-      <!-- Agents will be rendered here -->
+      {% for agent in agents %}
+      <tr>
+        <td>{{ agent.agent_id }}</td>
+        <td>{{ agent.nom }} {{ agent.prenom }}</td>
+        <td>{{ agent.telephone }}</td>
+        <td>{{ agent.date_embauche|default_if_none:"" }}</td>
+        <td>{{ agent.get_role_display }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5">No agents found</td></tr>
+      {% endfor %}
     </tbody>
+</table>
+
   </table>
 </div>
 
