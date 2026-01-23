@@ -26,6 +26,7 @@ from dashboard import views as dash_views
 from client import views as client_views
 from driver import views as driver_views
 from home import views as home_views
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -53,6 +54,8 @@ urlpatterns = [
     path('api/auth/driver/login/', driver_views.driver_login),
     # legacy agent login path
     path('api/auth/login/', home_views.agent_login),
+
+    path('agents/', include('agent.urls', namespace='agent')),
 ]
 
 if settings.DEBUG:

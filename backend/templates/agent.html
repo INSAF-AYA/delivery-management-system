@@ -14,18 +14,28 @@
       <h1>Agent Management</h1>
       <p class="description">Manage Agent information</p>
     </div>
-    <div class="buttons">
-      <button id="addAgentBtn">
-        <i class="btn-icn fa-solid fa-plus"></i>
-        Add Agent
-      </button>
+    {% if request.user.agent.est_admin %}
+      <div class="buttons">
+        <button id="addAgentBtn">
+          <i class="btn-icn fa-solid fa-plus"></i>
+          Add Agent
+        </button>
 
-      <button class="delete" id="deleteAgentBtn">
-        <i class="fa-solid fa-trash"></i>
-        Delete Agent
-      </button>
-    </div>
+        <button class="delete" id="deleteAgentBtn">
+          <i class="fa-solid fa-trash"></i>
+          Delete Agent
+        </button>
+      </div>
+    {% endif %}
   </div>
+
+  <div class="filters">
+    <input type="text" id="searchName" placeholder="Search by name">
+    <input type="text" id="searchFamily" placeholder="Search by family name">
+    <input type="text" id="searchID" placeholder="Search by ID">
+    <input type="date" id="filterDate">
+</div>
+
 
   <table>
     <thead>            
@@ -49,9 +59,11 @@
     <h2>Add Agent</h2>
 
     <form id="addAgentForm">
-      <input familyName="agent_name" placeholder="Agent family name" required>
-      <input FirstName="agent_prenom" placeholder="Agent first name" required>
-      <input type="number" number="Phone_number" placeholder="Agent Phone Number" required>
+      <input name="agent_name" placeholder="Agent family name" required>
+      <input name="agent_prenom" placeholder="Agent first name" required>
+      <input type="email" name="email" placeholder="Agent's email'" required>
+      <input type="number" name="Phone_number" placeholder="Agent Phone Number" required>
+      <input type="text" name="password" required>
       <input type="date" HiringDate="Hiring_date" placeholder="Hiring Date" required>
       
       <select name="type" required>
