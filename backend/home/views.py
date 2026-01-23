@@ -4,6 +4,18 @@ from django.http import JsonResponse
 
 from database.models import Agent
 
+from django.shortcuts import redirect
+
+
+def logout_view(request):
+    """Clear the session and redirect to the public home page."""
+    try:
+        request.session.flush()
+    except Exception:
+        # best-effort: if session backend errors, continue to redirect
+        pass
+    return redirect('home')
+
 
 def home(request):
     return render(request, 'home.html')

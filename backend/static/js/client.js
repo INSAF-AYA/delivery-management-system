@@ -101,6 +101,17 @@ document.addEventListener('DOMContentLoaded', function () {
             this.reset();
         });
     }
+
+    // Header logout button: redirect to server logout endpoint which clears session
+    var headerLogout = document.querySelector('.header-logout');
+    if (headerLogout) {
+        headerLogout.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (!confirm('Are you sure you want to sign out?')) return;
+            // Use a simple GET to the logout route which will flush the session and redirect
+            window.location.href = '/home/logout/';
+        });
+    }
 });
 
 

@@ -25,41 +25,9 @@ h1{
 }
 
 .container{
-  display: block;
-}
-
-/* two-column layout: left heading + right table card */
-.page-row{
   display: flex;
-  align-items: flex-start;
-  gap: 36px;
-  padding-top: 18px;
-}
-.page-row .left{
-  flex: 0 0 36%;
-}
-.page-row .right{
-  flex: 1 1 60%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 18px;
-}
-.controls{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  width:100%;
-  justify-content: flex-end;
-}
-.filter-input{ padding:8px 12px; border-radius:8px; border:1px solid #e5e7eb;}
-.filter-select{ padding:8px 10px; border-radius:8px; border:1px solid #e5e7eb;}
-.table-card{
-  width: 100%;
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  justify-content: space-between;
+  align-items: center;  
 }
 
 button{
@@ -181,9 +149,6 @@ tbody tr:hover {
   background: #f9fafb;
 }
 
-/* MODAL STYLES MOVED TO `DASHmodals.css` to avoid conflicts with global modal rules.
-   Original modal block preserved here as comment for reference. */
-/*
 .modal {
   display: none;
   position: fixed;
@@ -209,5 +174,3 @@ tbody tr:hover {
   float: right;
   cursor: pointer;
 }
-*/
-

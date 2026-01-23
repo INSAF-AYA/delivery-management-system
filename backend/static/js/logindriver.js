@@ -50,15 +50,20 @@
     fetch('/driver/auth/driver/login/', {
       method: 'POST',
       headers: {
-        'X-CSRFToken': csrftoken
+        'X-CSRFToken': csrftoken,
+        'Accept': 'application/json'
       },
+      credentials: 'same-origin',
       body: formData
     })
-    .then(response => {
+    .then(async response => {
+      let data = null;
+      try { data = await response.json(); } catch (e) {}
       if (!response.ok) {
-        throw new Error('Login failed');
+        if (response.status === 401) throw new Error((data && data.error) ? data.error : 'invalid_credentials');
+        throw new Error((data && data.error) ? data.error : 'login_failed');
       }
-      return response.json();
+      return data;
     })
     .then(data => {
 
@@ -73,13 +78,17 @@
       if (data.success && data.role === 'driver') {
         window.location.href = '/driver/dashboard/';
       } else {
-        alert('Accès non autorisé');
+        alert('Access denied');
       }
 
     })
     .catch(error => {
-      console.error(error);
-      alert('Email ou mot de passe incorrect');
+      console.error('Login error:', error.message || error);
+      if ((error.message || '').toLowerCase().includes('invalid_credentials')) {
+        alert('Email or password incorrect');
+      } else {
+        alert('Login error. Please try again later.');
+      }
     });
 
   });

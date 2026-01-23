@@ -1,16 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  const addModal = document.getElementById("addModal");
-  const deleteModal = document.getElementById("deleteModal");
+  const addModal = document.getElementById("addInvoiceModal");
+  const deleteModal = document.getElementById("deleteInvoiceModal");
 
-  document.getElementById("addBtn").onclick = () => {
-    addModal.style.display = "block";
-  };
+  const addBtn = document.getElementById("addInvoiceBtn");
+  const deleteBtn = document.getElementById("deleteInvoiceBtn");
 
-  document.getElementById("deleteBtn").onclick = () => {
-    deleteModal.style.display = "block";
-  };
+  const addForm = document.getElementById("addInvoiceForm");
+  const deleteForm = document.getElementById("deleteInvoiceForm");
 
+  /* OPEN MODALS */
+  addBtn.onclick = () => addModal.style.display = "block";
+  deleteBtn.onclick = () => deleteModal.style.display = "block";
+
+  /* CLOSE MODALS */
   document.querySelectorAll(".close").forEach(btn => {
     btn.onclick = () => {
       addModal.style.display = "none";
@@ -23,17 +26,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === deleteModal) deleteModal.style.display = "none";
   };
 
-  document.getElementById("addIncidentForm").onsubmit = e => {
+  /* ADD INVOICE */
+  addForm.onsubmit = e => {
     e.preventDefault();
-    console.log("ADD:", Object.fromEntries(new FormData(e.target)));
-    e.target.reset();
+
+    const data = new FormData(addForm); // includes PDF
+    console.log("ADD INVOICE:");
+    for (const pair of data.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+
+    addForm.reset();
     addModal.style.display = "none";
   };
 
-  document.getElementById("deleteIncidentForm").onsubmit = e => {
+  /* DELETE INVOICE */
+  deleteForm.onsubmit = e => {
     e.preventDefault();
-    console.log("DELETE:", Object.fromEntries(new FormData(e.target)));
-    e.target.reset();
+
+    const data = Object.fromEntries(new FormData(deleteForm));
+    console.log("DELETE INVOICE:", data);
+
+    deleteForm.reset();
     deleteModal.style.display = "none";
   };
 

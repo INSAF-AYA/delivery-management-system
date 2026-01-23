@@ -1,9 +1,3 @@
-/*
-  CLIENT LOGIN — DJANGO READY
-  - Bootstrap validation
-  - Secure POST (CSRF)
-  - Redirect to client dashboard
-*/
 
 (function () {
 
@@ -50,35 +44,49 @@
     fetch('/client/auth/client/login/', {
       method: 'POST',
       headers: {
-        'X-CSRFToken': csrftoken
+        'X-CSRFToken': csrftoken,
+        'Accept': 'application/json'
       },
+      // Ensure cookies (csrf/session) are sent for same-origin requests
+      credentials: 'same-origin',
       body: formData
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Login failed');
+    .then(async response => {
+      
+      let data = null;
+      try {
+        data = await response.json();
+      } catch (e) {
+        
       }
-      return response.json();
+
+      if (!response.ok) {
+        // 401 Unauthorized -> invalid credentials
+        if (response.status === 401) {
+          throw new Error((data && data.error) ? data.error : 'invalid_credentials');
+        }
+        throw new Error((data && data.error) ? data.error : 'login_failed');
+      }
+
+      return data;
     })
     .then(data => {
-
-      /*
-        Expected Django response:
-        {
-          "role": "client"
-        }
-      */
-
-      if (data.role === 'client') {
+      if (data && data.role === 'client') {
         window.location.href = '/client/dashboard/';
-      } else {
-        alert('Accès non autorisé');
+        return;
       }
 
+      // Unexpected successful response
+      alert('Accès non autorisé');
     })
     .catch(error => {
-      console.error(error);
-      alert('Email ou mot de passe incorrect');
+      console.error('Login error:', error.message || error);
+      // Show a user friendly message for common cases
+      if ((error.message || '').toLowerCase().includes('invalid_credentials')) {
+        alert('Email ou mot de passe incorrect');
+      } else {
+        alert('Erreur lors de la connexion. Réessayez plus tard.');
+      }
     });
 
   });

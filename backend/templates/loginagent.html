@@ -1,12 +1,12 @@
 {% load static %}
 <!doctype html>
-<html lang="fr">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <!-- Viewport for responsive design -->
     <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-    <title>Connexion — Agent / Admin</title>
+  <title>Agent / Admin Login</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -26,10 +26,10 @@
         <div class="card-body p-4">
 
           <h4 class="card-title text-primary mb-1">
-            Connexion — Agent / Admin
+            Agent / Admin Login
           </h4>
           <p class="text-muted mb-3">
-            Entrez vos identifiants pour accéder au tableau de bord.
+            Enter your credentials to access the dashboard.
           </p>
 
           <!-- ================= LOGIN FORM ================= -->
@@ -49,7 +49,7 @@
             <!-- EMAIL / IDENTIFIER -->
             <div class="mb-3">
               <label for="agent-email" class="form-label">
-                Email ou identifiant
+                Email or username
               </label>
 
               <!--
@@ -61,20 +61,20 @@
                 name="email"
                 type="email"
                 class="form-control"
-                placeholder="votre@email.com"
+                placeholder="you@example.com"
                 required
               >
 
               <!-- Frontend validation message -->
               <div class="invalid-feedback">
-                Veuillez fournir un email ou identifiant valide.
+                Please provide a valid email or username.
               </div>
             </div>
 
             <!-- PASSWORD -->
             <div class="mb-3">
               <label for="agent-pass" class="form-label">
-                Mot de passe
+                Password
               </label>
 
               <!--
@@ -86,13 +86,13 @@
                 name="password"
                 type="password"
                 class="form-control"
-                placeholder="Mot de passe"
+                placeholder="Password"
                 required
                 minlength="6"
               >
 
               <div class="invalid-feedback">
-                Le mot de passe doit contenir au moins 6 caractères.
+                Password must be at least 6 characters.
               </div>
             </div>
 
@@ -111,20 +111,20 @@
                   name="remember"
                 >
                 <label class="form-check-label ms-2" for="agent-remember">
-                  Se souvenir de moi
+                  Remember me
                 </label>
               </div>
 
               <!-- Can be linked to backend password reset -->
               <a href="#" class="text-decoration-none">
-                Mot de passe oublié?
+                Forgot password?
               </a>
             </div>
 
             <!-- SUBMIT -->
             <div class="d-grid">
               <button type="submit" class="btn btn-primary btn-lg">
-                Se connecter
+                Sign in
               </button>
             </div>
           </form>
@@ -132,7 +132,7 @@
 
           <!-- Back navigation -->
           <a href="{% url 'login' %}" class="d-block text-center text-muted mt-3">
-            ← Retour
+            ← Back
           </a>
 
         </div>

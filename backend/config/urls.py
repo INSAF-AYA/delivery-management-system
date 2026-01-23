@@ -23,6 +23,9 @@ from django.conf.urls.static import static
 
 # Also import the dashboard view so we can expose a top-level named route
 from dashboard import views as dash_views
+from client import views as client_views
+from driver import views as driver_views
+from home import views as home_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -44,6 +47,12 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
 
     path('client/', include('client.urls')),
+    # Compatibility: some frontends still call the old /api/... routes.
+    # Keep a short-lived alias so old clients don't get 404 while caches are cleared.
+    path('api/auth/client/login/', client_views.client_login),
+    path('api/auth/driver/login/', driver_views.driver_login),
+    # legacy agent login path
+    path('api/auth/login/', home_views.agent_login),
 ]
 
 if settings.DEBUG:
