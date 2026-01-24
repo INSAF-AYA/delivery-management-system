@@ -112,6 +112,25 @@ document.addEventListener('DOMContentLoaded', function () {
             window.location.href = '/home/logout/';
         });
     }
+    
+    // Header Track button: focus the quick-track input and scroll to it
+    var headerTrack = document.getElementById('headerTrackBtn');
+    if (headerTrack) {
+        headerTrack.addEventListener('click', function (e) {
+            e.preventDefault();
+            var trackingInput = document.getElementById('trackingInput');
+            var trackSection = trackingInput ? trackingInput.closest('.quick-track') : null;
+            if (trackSection) {
+                trackSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            if (trackingInput) {
+                trackingInput.focus();
+                // add a subtle pulse to indicate focus
+                trackingInput.classList.add('focus-pulse');
+                setTimeout(function () { trackingInput.classList.remove('focus-pulse'); }, 1200);
+            }
+        });
+    }
 });
 
 

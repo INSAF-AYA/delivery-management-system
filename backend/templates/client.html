@@ -26,9 +26,14 @@
  					</div>
  				</div>
 
- 				<div>
- 					<button class="header-logout" type="button"><i class="bi bi-box-arrow-right"></i>&nbsp; Logout</button>
- 				</div>
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Quick access Track button: focuses the quick-track input -->
+                    <button id="headerTrackBtn" class="btn btn-sm btn-outline-light" type="button" title="Track a package">
+                        <i class="bi bi-search"></i>
+                        <span class="d-none d-md-inline">&nbsp;Track</span>
+                    </button>
+                    <button class="header-logout" type="button"><i class="bi bi-box-arrow-right"></i>&nbsp; Logout</button>
+                </div>
  			</div>
  		</header>
 
@@ -113,9 +118,10 @@
 						<div id="trackResult" class="mt-3" aria-live="polite"></div>
  					</div>
 
- 					<div class="col-md-2 text-end">
- 						<button id="trackBtn" class="btn text-white" style="background:var(--brand-purple);" type="button">Track</button>
- 					</div>
+                    <div class="col-md-2 text-end">
+                        <!-- Use Bootstrap primary button so it is visible across themes -->
+                        <button id="trackBtn" class="btn btn-primary text-white" type="button">Track</button>
+                    </div>
  				</div>
  			</div>
 
@@ -123,85 +129,67 @@
  			<div class="table-card">
  				<ul class="nav nav-tabs" id="mainTabs" role="tablist">
  					<li class="nav-item" role="presentation">
- 						<button class="nav-link active" id="shipments-tab" data-bs-toggle="tab" data-bs-target="#shipments" type="button" role="tab"><i class="bi bi-box-seam"></i> My Shipments</button>
+                        <button class="nav-link {% if active_tab == 'shipments' or not active_tab %}active{% endif %}" id="shipments-tab" data-bs-toggle="tab" data-bs-target="#shipments" type="button" role="tab"><i class="bi bi-box-seam"></i> My Shipments</button>
  					</li>
  					<li class="nav-item" role="presentation">
- 						<button class="nav-link" id="invoices-tab" data-bs-toggle="tab" data-bs-target="#invoices" type="button" role="tab"><i class="bi bi-receipt"></i> Invoices</button>
+                        <button class="nav-link {% if active_tab == 'invoices' %}active{% endif %}" id="invoices-tab" data-bs-toggle="tab" data-bs-target="#invoices" type="button" role="tab"><i class="bi bi-receipt"></i> Invoices</button>
  					</li>
  					<li class="nav-item" role="presentation">
- 						<button class="nav-link" id="support-tab" data-bs-toggle="tab" data-bs-target="#support" type="button" role="tab"><i class="bi bi-chat-square-text"></i> Support</button>
+                        <button class="nav-link {% if active_tab == 'support' %}active{% endif %}" id="support-tab" data-bs-toggle="tab" data-bs-target="#support" type="button" role="tab"><i class="bi bi-chat-square-text"></i> Support</button>
  					</li>
  				</ul>
 
  				<div class="tab-content p-4" id="mainTabsContent">
  					<!-- Onglet "Mes envois" (Shipments) : liste des envois et détails de progression -->
- 					<div class="tab-pane fade show active" id="shipments" role="tabpanel">
+                    <div class="tab-pane fade {% if active_tab == 'shipments' or not active_tab %}show active{% endif %}" id="shipments" role="tabpanel">
 
- 						<!-- ================== Shipment Card (Backend Template) ================== -->
- 						<div class="shipment-card mb-4">
+                        {% if shipments %}
+                            {% for s in shipments %}
+                            <div class="shipment-card mb-4">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 style="margin:0;">
+                                            Shipment: <span class="fw-bold">{{ s.id_shipment }}</span>
+                                            <span class="badge ms-2">{{ s.status }}</span>
+                                        </h5>
+                                        <div class="text-muted">Tracking: {{ s.tracking }}</div>
+                                    </div>
+                                    <div class="text-end text-muted">Est. Delivery: {{ s.estimated_delivery|default:'-' }}</div>
+                                </div>
 
- 							<!-- Header: اسم الشحنة + الحالة + تاريخ التسليم -->
- 							<div class="d-flex justify-content-between align-items-start">
- 								<div>
- 									<!-- Shipment title (FROM BACKEND) -->
- 									<h5 style="margin:0;">
- 										<!-- {{ shipment_title }} -->
- 										Shipment Title
- 										<!-- Shipment status badge (FROM BACKEND) -->
- 										<span class="badge badge-status badge-in-transit ms-2">Status</span>
- 									</h5>
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <small class="text-muted"><i class="bi bi-geo-alt"></i> From</small>
+                                        <div>{{ s.origin|default:'-' }}</div>
+                                    </div>
+                                    <div class="col-md-6 text-md-end">
+                                        <small class="text-muted"><i class="bi bi-geo"></i> To</small>
+                                        <div>{{ s.destination|default:'-' }}</div>
+                                    </div>
+                                </div>
 
- 									<!-- Tracking number (FROM BACKEND) -->
- 									<div class="text-muted">Tracking: <!-- {{ tracking_number }} --></div>
- 								</div>
+                                <div class="mt-3 p-3" style="background:#f8f9fb; border-radius:8px;">
+                                    <div class="mb-2"><i class="bi bi-truck"></i> Created: {{ s.date_creation|default:'-' }}</div>
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="progress-track w-100 me-3">
+                                           <div class="bar" data-progress="{{ s.progress|default:0 }}"></div>
 
- 								<!-- Estimated delivery date (FROM BACKEND) -->
- 								<div class="text-end text-muted">Est. Delivery: <!-- {{ estimated_delivery_date }} --></div>
- 							</div>
+                                        </div>
+                                        <div style="min-width:40px; text-align:right">{{ s.progress|default:'0'|add:'%' }}</div>
+                                    </div>
+                                </div>
 
- 							<!-- Locations: From / To -->
- 							<div class="row mt-3">
- 								<div class="col-md-6">
- 									<small class="text-muted"><i class="bi bi-geo-alt"></i> From</small>
- 									<div><!-- {{ origin_city }} --></div>
- 								</div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center p-4 text-muted">You have no shipments yet.</div>
+                        {% endif %}
 
- 								<div class="col-md-6 text-md-end">
- 									<small class="text-muted"><i class="bi bi-geo"></i> To</small>
- 									<div><!-- {{ destination_city }} --></div>
- 								</div>
- 							</div>
-
- 							<!-- Progress section -->
- 							<div class="mt-3 p-3" style="background:#f8f9fb; border-radius:8px;">
- 								<div class="mb-2"><i class="bi bi-truck"></i> Current Location: <!-- {{ current_location }} --></div>
-
- 								<div class="d-flex align-items-center justify-content-between">
- 									<!-- Progress bar percentage (FROM BACKEND) -->
- 									<div class="progress-track w-100 me-3"><div class="bar" style="width:0%;"></div></div>
-
- 									<div style="min-width:40px; text-align:right"><!-- {{ progress_percentage }}% --></div>
- 								</div>
- 							</div>
-
- 							<!-- Shipment timeline (FROM BACKEND LOOP) -->
- 							<ul class="mt-3 list-unstyled">
- 								<!-- Loop example: foreach (shipment_events as event) -->
- 								<li class="mb-2">
- 									<span class="d-inline-block" style="width:10px; height:10px; background:#ccc; border-radius:50%; margin-right:.7rem"></span>
- 									Event description
- 									<div class="text-muted"><!-- {{ event_date }} --></div>
- 								</li>
- 							</ul>
-
- 						</div>
- 						<!-- ================== End Shipment Card ================== -->
-
- 					</div>
+                    </div>
 
  					<!-- Onglet "Factures" (Invoices) : tableau des factures liées aux envois -->
  					<!-- ================== Invoices Tab (Backend Template) ================== -->
-<div class="tab-pane fade" id="invoices" role="tabpanel">
+<div class="tab-pane fade {% if active_tab == 'invoices' %}show active{% endif %}" id="invoices" role="tabpanel">
 
     <div class="table-responsive">
         <table class="table align-middle">
@@ -297,7 +285,7 @@
 
 
  					<!-- Onglet "Support" : formulaire de contact et liste des tickets -->
- 					<div class="tab-pane fade" id="support" role="tabpanel">
+                    <div class="tab-pane fade {% if active_tab == 'support' %}show active{% endif %}" id="support" role="tabpanel">
  						<div class="mb-4">
  							<h5>Submit a Support Request</h5>
  							<form id="supportForm">

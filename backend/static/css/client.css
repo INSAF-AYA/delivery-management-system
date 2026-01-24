@@ -31,6 +31,12 @@ body {
  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
 }
 
+/* subtle pulse used when focusing quick-track via header button */
+.focus-pulse {
+	box-shadow: 0 0 0 6px rgba(37,99,235,0.12);
+	transition: box-shadow 0.25s ease-out;
+}
+
 .stat-card {
 	border-radius: 14px;
 	background: #fff;

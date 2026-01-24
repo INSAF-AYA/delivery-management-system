@@ -173,7 +173,7 @@
                              {# Show to Django staff OR to session-based Agent admins (logged_in_role from context processor) #}
                         {% if user.is_staff or logged_in_role == 'Admin' or logged_in_role == 'Agent' %}
                         <button class="btn btn-warning" id="viewGenerateDriverPasswordBtn" onclick="generateDriverPasswordForCurrentView()">
-                            <i class="fas fa-key"></i> Générer mot de passe
+                            <i class="fas fa-key"></i> Generate Password
                         </button>
                         {% endif %}
             <button class="modal-btn cancel" onclick="closeModal('viewModal')">Close</button>

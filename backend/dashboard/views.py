@@ -4,11 +4,30 @@ from django.views.decorators.http import require_POST, require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import json
 import re
-from datetime import datetime
+from datetime import datetime, date
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponseForbidden
+import uuid
+from django.db import IntegrityError
 
 from database.models import Client, Chauffeur, Vehicule, Shipment, Incident, Package, Invoice, Agent
+
+def _extract_marque_modele_from_type(type_vehicule):
+    """Return (marque, modele) extracted from a stored type_vehicule string.
+
+    The code encodes marque/modele as "<type> - <marque> <modele>" in several places
+    for backward compatibility. This helper extracts those parts safely.
+    """
+    marque = ''
+    modele = ''
+    if not type_vehicule:
+        return marque, modele
+    if ' - ' in type_vehicule:
+        _, rest = type_vehicule.split(' - ', 1)
+        tokens = rest.split(' ', 1)
+        marque = tokens[0] if tokens else ''
+        modele = tokens[1] if len(tokens) > 1 else ''
+    return marque, modele
 
 
 def index(request):
@@ -347,14 +366,27 @@ def add_shipment(request):
                 pass
 
         # Create a dummy package for the shipment (required by model)
+        # Use a UUID-based tracking number to avoid UNIQUE constraint races
+        def _gen_tracking():
+            return f'TRK-{uuid.uuid4().hex[:12].upper()}'
+
         package = Package(
             client=client,
             weight=0,
             number_of_pieces=1,
             package_type='OTHER',
-            tracking_number=f'TRK-{Shipment.objects.count() + 1:06d}'
+            tracking_number=_gen_tracking()
         )
-        package.save()
+
+        # Try to save and retry a few times if we hit a UNIQUE constraint
+        for _ in range(5):
+            try:
+                package.save()
+                break
+            except IntegrityError:
+                package.tracking_number = _gen_tracking()
+        else:
+            raise IntegrityError('Could not generate unique tracking_number after retries')
 
         shipment = Shipment(
             package=package,
@@ -716,15 +748,33 @@ def vehicles(request):
 def show_vehicle(request, vehicle_id):
     """Return vehicle data as JSON for the view modal."""
     vehicle = get_object_or_404(Vehicule, pk=vehicle_id)
+    # The Vehicule model stores different field names than older UI expects.
+    # Provide backward-compatible keys where possible.
+    # Attempt to split marque/modele from type_vehicule if encoded there.
+    marque = ''
+    modele = ''
+    type_display = vehicle.type_vehicule or ''
+    # If type_vehicule was stored as "<type> - <marque> <modele>" try to split
+    if ' - ' in type_display:
+        parts = type_display.split(' - ', 1)
+        type_display = parts[0]
+        rest = parts[1]
+        # naive split for marque/modele
+        tokens = rest.split(' ', 1)
+        marque = tokens[0] if tokens else ''
+        modele = tokens[1] if len(tokens) > 1 else ''
+
     data = {
         'id_vehicule': vehicle.id_vehicule,
         'immatriculation': vehicle.immatriculation,
-        'marque': vehicle.marque,
-        'modele': vehicle.modele,
-        'type_vehicule': vehicle.type_vehicule,
-        'capacite': vehicle.capacite,
-        'annee': vehicle.annee,
-        'statut': vehicle.statut,
+        'marque': marque,
+        'modele': modele,
+        'type_vehicule': type_display,
+        # Provide canonical keys expected by the frontend
+        'capacite_charge': str(vehicle.capacite_charge) if vehicle.capacite_charge is not None else '',
+        'consommation': str(vehicle.consommation) if getattr(vehicle, 'consommation', None) is not None else '',
+        'date_mise_service': vehicle.date_mise_service.isoformat() if vehicle.date_mise_service else '',
+        'etat': vehicle.etat,
     }
     return JsonResponse({'success': True, 'vehicle': data})
 
@@ -742,28 +792,59 @@ def add_vehicle(request):
         marque = payload.get('marque', '').strip()
         modele = payload.get('modele', '').strip()
         type_vehicule = payload.get('type_vehicule', 'camion').strip()
-        capacite = payload.get('capacite', '0').strip()
-        annee = payload.get('annee', '').strip()
-        statut = payload.get('statut', 'disponible').strip()
+        # Accept either legacy 'capacite' or new 'capacite_charge'
+        capacite = payload.get('capacite_charge', payload.get('capacite', '') )
+        # Consumption key
+        consommation = payload.get('consommation', '').strip()
+        # Accept either full date or just year: 'date_mise_service' or legacy 'annee'
+        date_mise_service_val = payload.get('date_mise_service', payload.get('annee', '') ).strip()
+        statut = payload.get('etat', payload.get('statut', 'disponible')).strip()
+
+        # Encode marque/modele into type_vehicule if provided to preserve info
+        if marque or modele:
+            combined = f"{marque} {modele}".strip()
+            type_vehicule = f"{type_vehicule} - {combined}"
+
+        # Check uniqueness of immatriculation before attempting to create
+        if immatriculation:
+            if Vehicule.objects.filter(immatriculation__iexact=immatriculation).exists():
+                return JsonResponse({'success': False, 'error': 'immatriculation_exists', 'message': 'A vehicle with this immatriculation already exists.'}, status=400)
+
+        # Parse date_mise_service if provided as a full date, otherwise use year if available
+        dms = None
+        if date_mise_service_val:
+            try:
+                # try full ISO date first
+                dms = datetime.strptime(date_mise_service_val, '%Y-%m-%d').date()
+            except Exception:
+                try:
+                    # fallback: treat as year
+                    dms = date(int(date_mise_service_val), 1, 1)
+                except Exception:
+                    dms = None
 
         vehicle = Vehicule(
             immatriculation=immatriculation,
-            marque=marque,
-            modele=modele,
             type_vehicule=type_vehicule,
-            capacite=float(capacite) if capacite else 0,
-            annee=int(annee) if annee else None,
-            statut=statut,
+            capacite_charge=float(capacite) if capacite else None,
+            consommation=float(consommation) if consommation else None,
+            date_mise_service=dms,
+            etat=statut,
         )
-        vehicle.save()
+        try:
+            vehicle.save()
+        except IntegrityError as e:
+            # Fallback: possible race or unique constraint violation
+            return JsonResponse({'success': False, 'error': 'integrity_error', 'message': str(e)}, status=400)
 
         return JsonResponse({
             'success': True,
             'vehicle': {
                 'id_vehicule': vehicle.id_vehicule,
                 'immatriculation': vehicle.immatriculation,
-                'marque': vehicle.marque,
-                'modele': vehicle.modele,
+                # Provide backward-compatible keys by extracting from type_vehicule
+                'marque': _extract_marque_modele_from_type(vehicle.type_vehicule)[0],
+                'modele': _extract_marque_modele_from_type(vehicle.type_vehicule)[1],
             }
         })
     except Exception as e:
@@ -782,29 +863,59 @@ def edit_vehicle(request, vehicle_id):
             payload = request.POST
 
         if 'immatriculation' in payload:
-            vehicle.immatriculation = payload.get('immatriculation', '').strip()
-        if 'marque' in payload:
-            vehicle.marque = payload.get('marque', '').strip()
-        if 'modele' in payload:
-            vehicle.modele = payload.get('modele', '').strip()
+            new_immat = payload.get('immatriculation', '').strip()
+            # If changing immatriculation, ensure uniqueness (ignore current vehicle)
+            if new_immat and new_immat.lower() != (vehicle.immatriculation or '').lower():
+                if Vehicule.objects.filter(immatriculation__iexact=new_immat).exclude(pk=vehicle.pk).exists():
+                    return JsonResponse({'success': False, 'error': 'immatriculation_exists', 'message': 'Another vehicle already uses this immatriculation.'}, status=400)
+            vehicle.immatriculation = new_immat
+        # Map incoming (possibly old) keys to current model fields
+        if 'marque' in payload or 'modele' in payload:
+            marque = payload.get('marque', '').strip()
+            modele = payload.get('modele', '').strip()
+            # append or replace marque/modele encoding in type_vehicule
+            base_type = vehicle.type_vehicule.split(' - ')[0] if vehicle.type_vehicule else ''
+            combined = f"{marque} {modele}".strip()
+            vehicle.type_vehicule = f"{base_type} - {combined}" if combined else base_type
         if 'type_vehicule' in payload:
             vehicle.type_vehicule = payload.get('type_vehicule', '').strip()
-        if 'capacite' in payload:
-            vehicle.capacite = float(payload.get('capacite', 0))
-        if 'annee' in payload and payload.get('annee'):
-            vehicle.annee = int(payload.get('annee'))
-        if 'statut' in payload:
-            vehicle.statut = payload.get('statut', '').strip()
+        # Accept both 'capacite' and 'capacite_charge'
+        if 'capacite' in payload or 'capacite_charge' in payload:
+            try:
+                vehicle.capacite_charge = float(payload.get('capacite_charge', payload.get('capacite', 0)))
+            except Exception:
+                vehicle.capacite_charge = None
+        if 'consommation' in payload:
+            try:
+                vehicle.consommation = float(payload.get('consommation', 0))
+            except Exception:
+                vehicle.consommation = None
+        # Accept full date string 'date_mise_service' or legacy 'annee'
+        if 'date_mise_service' in payload and payload.get('date_mise_service'):
+            try:
+                vehicle.date_mise_service = datetime.strptime(payload.get('date_mise_service'), '%Y-%m-%d').date()
+            except Exception:
+                vehicle.date_mise_service = None
+        elif 'annee' in payload and payload.get('annee'):
+            try:
+                vehicle.date_mise_service = date(int(payload.get('annee')), 1, 1)
+            except Exception:
+                vehicle.date_mise_service = None
+        if 'etat' in payload or 'statut' in payload:
+            vehicle.etat = payload.get('etat', payload.get('statut', '')).strip()
 
-        vehicle.save()
+        try:
+            vehicle.save()
+        except IntegrityError as e:
+            return JsonResponse({'success': False, 'error': 'integrity_error', 'message': str(e)}, status=400)
 
         return JsonResponse({
             'success': True,
             'vehicle': {
                 'id_vehicule': vehicle.id_vehicule,
                 'immatriculation': vehicle.immatriculation,
-                'marque': vehicle.marque,
-                'modele': vehicle.modele,
+                'marque': _extract_marque_modele_from_type(vehicle.type_vehicule)[0],
+                'modele': _extract_marque_modele_from_type(vehicle.type_vehicule)[1],
             }
         })
     except Exception as e:
@@ -1093,14 +1204,26 @@ def add_package(request):
         if client_id:
             client = Client.objects.get(pk=client_id)
 
+        # Generate a safe unique tracking number
+        def _gen_tracking():
+            return f'TRK-{uuid.uuid4().hex[:12].upper()}'
+
         package = Package(
             client=client,
             weight=float(weight) if weight else 0,
             number_of_pieces=int(number_of_pieces) if number_of_pieces else 1,
             package_type=package_type,
-            tracking_number=f'TRK-{Package.objects.count() + 1:06d}'
+            tracking_number=_gen_tracking()
         )
-        package.save()
+
+        for _ in range(5):
+            try:
+                package.save()
+                break
+            except IntegrityError:
+                package.tracking_number = _gen_tracking()
+        else:
+            raise IntegrityError('Could not generate unique tracking_number after retries')
 
         return JsonResponse({
             'success': True,
