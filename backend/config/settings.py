@@ -44,8 +44,16 @@ INSTALLED_APPS = [
     'dashboard.apps.DashboardConfig',
     'database.apps.DatabaseConfig',
     'invoice',
-    'django_extensions',
+    # Optional developer tools: only include if installed to avoid import errors
 ]
+
+try:
+    import django_extensions  # type: ignore
+except Exception:
+    # django_extensions not available in minimal/dev environments
+    pass
+else:
+    INSTALLED_APPS.append('django_extensions')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

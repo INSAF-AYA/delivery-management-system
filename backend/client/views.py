@@ -4,22 +4,18 @@ from django.views.decorators.http import require_POST, require_GET
 from django.core.serializers.json import DjangoJSONEncoder
 import logging
 
-from database.models import Client, Package, Shipment
+from database.models import Client, Package, Shipment, Invoice, Reclamation
 from django.db.models import Q
 
 
 def client(request):
-    return render(request, 'client.html')
+ 
+    return my_shipments(request)
 
 
 def my_shipments(request):
-    """Render the client portal with the My Shipments tab active.
-
-    This view retrieves shipments belonging to the logged-in client (session).
-    If the user is not authenticated as a client, it returns the page with an
-    empty shipments list.
-    """
-    context = {'active_tab': 'shipments', 'shipments': []}
+ 
+    context = {'active_tab': 'shipments', 'shipments': [], 'stats': {}}
 
     try:
         role = request.session.get('role')
@@ -61,6 +57,34 @@ def my_shipments(request):
             })
 
         context['shipments'] = shipments
+        # Build simple stats for the client
+        try:
+            active_count = shipments_qs.exclude(statut__iexact='DELIVERED').count()
+            completed_count = shipments_qs.filter(statut__iexact='DELIVERED').count()
+        except Exception:
+            active_count = len([s for s in shipments if s.get('status') != 'DELIVERED'])
+            completed_count = len([s for s in shipments if s.get('status') == 'DELIVERED'])
+
+        # Pending invoices: best-effort count of invoices linked to the client
+        try:
+            pending_invoices = Invoice.objects.filter(client=client_obj).count()
+        except Exception:
+            pending_invoices = 0
+
+        # Open tickets: use Reclamation as the support ticket model (project stores reclamations globally).
+        # Note: Reclamation currently has no client FK in the schema, so this is a global open ticket count.
+        try:
+            open_tickets = Reclamation.objects.filter(status__in=['new', 'open', 'in_progress']).count()
+        except Exception:
+            open_tickets = 0
+
+        context['stats'] = {
+            'active_shipments': active_count,
+            'completed_shipments': completed_count,
+            'pending_invoices': pending_invoices,
+            'open_tickets': open_tickets,
+        }
+
         return render(request, 'client.html', context)
     except Exception:
         # On any unexpected error, log and return page without shipments
@@ -70,13 +94,47 @@ def my_shipments(request):
 
 def invoices(request):
     """Render the client portal with the Invoices tab active."""
-    context = {'active_tab': 'invoices'}
+    context = {'active_tab': 'invoices', 'stats': {}}
+
+    # attach stats when possible (same logic as my_shipments but lighter)
+    try:
+        role = request.session.get('role')
+        user_id = request.session.get('user_id')
+        if role == 'client' and user_id:
+            client_obj = Client.objects.filter(pk=user_id).first()
+            if client_obj:
+                shipments_qs = Shipment.objects.filter(Q(package__client=client_obj) | Q(client=client_obj))
+                context['stats'] = {
+                    'active_shipments': shipments_qs.exclude(statut__iexact='DELIVERED').count(),
+                    'completed_shipments': shipments_qs.filter(statut__iexact='DELIVERED').count(),
+                    'pending_invoices': Invoice.objects.filter(client=client_obj).count(),
+                    'open_tickets': Reclamation.objects.filter(status__in=['new', 'open', 'in_progress']).count(),
+                }
+    except Exception:
+        pass
+
     return render(request, 'client.html', context)
 
 
 def support(request):
     """Render the client portal with the Support tab active."""
-    context = {'active_tab': 'support'}
+    context = {'active_tab': 'support', 'stats': {}}
+    try:
+        role = request.session.get('role')
+        user_id = request.session.get('user_id')
+        if role == 'client' and user_id:
+            client_obj = Client.objects.filter(pk=user_id).first()
+            if client_obj:
+                shipments_qs = Shipment.objects.filter(Q(package__client=client_obj) | Q(client=client_obj))
+                context['stats'] = {
+                    'active_shipments': shipments_qs.exclude(statut__iexact='DELIVERED').count(),
+                    'completed_shipments': shipments_qs.filter(statut__iexact='DELIVERED').count(),
+                    'pending_invoices': Invoice.objects.filter(client=client_obj).count(),
+                    'open_tickets': Reclamation.objects.filter(status__in=['new', 'open', 'in_progress']).count(),
+                }
+    except Exception:
+        pass
+
     return render(request, 'client.html', context)
 
 
@@ -120,9 +178,17 @@ def track(request):
         role = request.session.get('role')
         user_id = request.session.get('user_id')
         if role == 'client' and user_id is not None:
-            # session user_id may be a string depending on session backend
-            if int(user_id) != int(pkg.client.id_client):
-                logging.getLogger('api.track').warning('Client %s attempted to access package %s owned by %s', user_id, pkg.tracking_number, pkg.client.id_client)
+          
+            try:
+                if str(user_id) != str(pkg.client.id_client):
+                    logging.getLogger('api.track').warning(
+                        'Client %s attempted to access package %s owned by %s',
+                        user_id, pkg.tracking_number, pkg.client.id_client
+                    )
+                    return JsonResponse({'error': 'forbidden'}, status=403)
+            except Exception:
+                # If any error occurs while comparing identifiers, deny access conservatively.
+                logging.getLogger('api.track').exception('Error comparing session user id with package owner')
                 return JsonResponse({'error': 'forbidden'}, status=403)
     except Exception:
         # Be conservative: if any error occurs while checking session, deny access

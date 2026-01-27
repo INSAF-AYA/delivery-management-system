@@ -12,7 +12,6 @@ def invoice_list(request):
     invoices = Invoice.objects.all()
     clients = Client.objects.all()
     shipments = Shipment.objects.all()
-    print("Available shipments:", shipments)  # DEBUG
     return render(request, 'invoices.html', {
         'invoices': invoices,
         'clients': clients,

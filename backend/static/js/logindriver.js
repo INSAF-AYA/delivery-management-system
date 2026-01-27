@@ -1,9 +1,4 @@
-/*
-  DRIVER LOGIN — DJANGO READY
-  - Bootstrap validation
-  - Secure POST with CSRF
-  - Redirect to driver dashboard
-*/
+
 
 (function () {
 
@@ -47,7 +42,7 @@
 
     const formData = new FormData(form);
 
-    fetch('/driver/auth/driver/login/', {
+    fetch('/api/auth/driver/login/', {
       method: 'POST',
       headers: {
         'X-CSRFToken': csrftoken,

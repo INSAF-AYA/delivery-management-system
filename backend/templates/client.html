@@ -51,8 +51,7 @@
                 <i class="bi bi-box-seam"></i>
             </div>
             <div>
-                <!-- {{ stats.active_shipments }} -->
-                <div style="font-size:1.25rem; font-weight:700">0</div>
+                <div style="font-size:1.25rem; font-weight:700">{{ stats.active_shipments|default:0 }}</div>
                 <small class="text-muted">Active Shipments</small>
             </div>
         </div>
@@ -65,8 +64,7 @@
                 <i class="bi bi-check2-circle"></i>
             </div>
             <div>
-                <!-- {{ stats.completed_shipments }} -->
-                <div style="font-size:1.25rem; font-weight:700">0</div>
+                <div style="font-size:1.25rem; font-weight:700">{{ stats.completed_shipments|default:0 }}</div>
                 <small class="text-muted">Completed</small>
             </div>
         </div>
@@ -79,8 +77,7 @@
                 <i class="bi bi-file-earmark-text"></i>
             </div>
             <div>
-                <!-- {{ stats.pending_invoices }} -->
-                <div style="font-size:1.25rem; font-weight:700">0</div>
+                <div style="font-size:1.25rem; font-weight:700">{{ stats.pending_invoices|default:0 }}</div>
                 <small class="text-muted">Pending Invoices</small>
             </div>
         </div>
@@ -93,8 +90,7 @@
                 <i class="bi bi-chat-dots"></i>
             </div>
             <div>
-                <!-- {{ stats.open_tickets }} -->
-                <div style="font-size:1.25rem; font-weight:700">0</div>
+                <div style="font-size:1.25rem; font-weight:700">{{ stats.open_tickets|default:0 }}</div>
                 <small class="text-muted">Open Tickets</small>
             </div>
         </div>

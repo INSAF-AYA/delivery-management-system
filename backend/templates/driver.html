@@ -24,8 +24,16 @@
             <span class="brand-text text-white">Driver Portal</span>
         </div>
         <div class="text-white small">
-      <small id="driverName">Driver Name</small> |
-       <span id="driverId">0000</span>
+      <small>
+        {% if driver %}
+          {{ driver.nom }} {{ driver.prenom }}
+        {% else %}
+          Driver
+        {% endif %}
+      </small> |
+       <span>
+         {% if driver %}{{ driver.id_chauffeur }}{% else %}0000{% endif %}
+       </span>
     </div>
   </div>
 
@@ -50,7 +58,7 @@
                  </div>
                     
                  <div class="d-flex flex-column">
-                    <h2 id="pending" class="pend-number mb-1 "> 0</h2>
+                    <h2 class="pend-number mb-1 ">{% if pending is not None %}{{ pending }}{% else %}0{% endif %}</h2>
                     <p class="card-text text-muted mb-0">Pending</p>
 
 </div>
@@ -68,7 +76,7 @@
                     <div class=" icon-card2 me-3">  <i class="bi bi-check2-circle check1  fs-2"></i></div>
                     <div class="d-flex flex-column">
 
-                    <h2 id="completed" class="comp-number mb-1 ">0</h2>
+                    <h2 class="comp-number mb-1">{% if completed is not None %}{{ completed }}{% else %}0{% endif %}</h2>
                     <p class="card-text mb-0 text-muted">Completed</p>
 </div>
 
@@ -84,7 +92,7 @@
                   <div class="d-flex align-items-center">
                     <div class="me-3 icon-card3">  <i class="bi bi-truck  fs-2"></i></div>
                   <div class="d-flex flex-column">
-                    <h2 id="total" class="total-number mb-1 ">0</h2>
+                    <h2 class="total-number mb-1">{% if total is not None %}{{ total }}{% else %}0{% endif %}</h2>
                     <p class="card-text  text-muted mb-0 ">Total Today</p>
 </div>
 
@@ -98,6 +106,7 @@
     </div>
 
 </div>
+          <!-- Assigned shipments table removed as requested -->
 
 
 <div class="container py-5">
@@ -108,77 +117,99 @@
           <h2 class="card-title mb-4">Today's Route</h2>
 
           <div class="d-flex flex-column gap-3">
-            <!-- Inner Card 1 -->
-            <div class="inner-card p-3">
-              <div class="d-flex align-items-center gap-2 mb-2">
-                <div class="circle-number">1</div>
-                <div class="d-flex align-items-center gap-2">
-                  <span class="fs-5">Company Name</span>
-                  <span class=" high-pr  px-2 py-1">type of shipment</span>
-                </div>
+            {% if unassigned_shipments and unassigned_shipments.exists %}
+              <div class="mb-3">
+                <h5 class="mb-2">Available Shipments (not yet assigned)</h5>
+                {% for s in unassigned_shipments %}
+                  <div class="inner-card p-3 mb-2">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                      <div class="circle-number">{{ forloop.counter }}</div>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="fs-5">{{ s.package.client.nom|default:'Client' }}</span>
+                        <span class=" high-pr  px-2 py-1">{{ s.get_speed_display }}</span>
+                      </div>
+                    </div>
+                    <p class="mb-2 text-muted">Tracking: {{ s.package.tracking_number }}</p>
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                      <span> <i class="bi bi-geo-alt me-1 "></i>{{ s.destination|default:'-' }}</span>
+                      <span class="text-muted"> <i class="bi bi-clock me-1 "></i>{% if s.shipment_date %}{{ s.shipment_date }}{% else %}-{% endif %}</span>
+                    </div>
+                    <p class="mb-3">Package: {{ s.package.number_of_pieces }} pcs, {{ s.package.get_package_type_display }}</p>
+                    <div class="d-flex gap-2">
+                        <button type="button" data-shipment-id="{{ s.id_shipment }}" class="btn claim-bt btn-primary btn-lg flex-fill" onclick="claimShipment('{{ s.id_shipment }}', this)">Claim</button>
+                    </div>
+                  </div>
+                {% endfor %}
               </div>
+            {% endif %}
+            {% if todays_shipments and todays_shipments.exists %}
+              {% for s in todays_shipments %}
+                <div class="inner-card p-3">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="circle-number">{{ forloop.counter }}</div>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="fs-5">{{ s.package.client.nom|default:'Client' }}</span>
+                      <span class=" high-pr  px-2 py-1">{{ s.get_speed_display }}</span>
+                    </div>
+                  </div>
 
-              <!-- Tracking Info -->
-              <p class="mb-2 text-muted">Tracking: #123456789</p>
-              <div class="d-flex align-items-center gap-3 mb-2">
-                <span> <i class="bi bi-geo-alt me-1 "></i>123 Main St, City</span>
-                <span class="text-muted"> <i class="bi bi-clock me-1 "></i>8:30 AM - 9:20 AM</span>
-              </div>
+                  <!-- Tracking Info -->
+                  <p class="mb-2 text-muted">Tracking: {{ s.package.tracking_number }}</p>
+                  <div class="d-flex align-items-center gap-3 mb-2">
+                    <span> <i class="bi bi-geo-alt me-1 "></i>{{ s.destination|default:'-' }}</span>
+                    <span class="text-muted"> <i class="bi bi-clock me-1 "></i>{% if s.shipment_date %}{{ s.shipment_date }}{% else %}-{% endif %}</span>
+                  </div>
 
-              <!-- Package Info -->
-              <p class="mb-3">Package:nb de box, contenu</p>
+                  <!-- Package Info -->
+                  <p class="mb-3">Package: {{ s.package.number_of_pieces }} pcs, {{ s.package.get_package_type_display }}</p>
 
-              <!-- Action Buttons -->
-              <div class="d-flex gap-2">
-                <button class="btn delv-bt btn-lg flex-fill"> <i class="bi bi-check2-circle  me-1"></i>Delivered</button>
-                <button class="btn dely-bt btn-lg flex-fill"> <i class="bi bi-clock me-1"></i>Delayed</button><!-- dely means delayed button-->
-                <button class="btn btn-danger btn-lg flex-fill"> <i class="bi bi-x-circle me-1"></i>Failed</button>
-              </div>
-            </div>
+                  <!-- Action Buttons (AJAX + fallback form) -->
+               <div class="d-flex gap-2">
+  <!-- Fallback form: submits via regular POST if JS/AJAX fails. JS will still intercept clicks when available. -->
+  <form method="post" action="{% url 'driver_update_status' %}" class="d-flex gap-2 w-100">
+    {% csrf_token %}
+    <input type="hidden" name="shipment_id" value="{{ s.id_shipment }}">
 
-            <!-- Inner Card 2 -->
-            <div class="inner-card p-3">
-              <div class="d-flex align-items-center gap-2 mb-2">
-                <div class="circle-number">2</div>
-                <div class="d-flex align-items-center gap-2">
-                  <span class="fs-5">Company XYZ</span>
-                  <span class="st-tp px-2 py-1">Standard</span>
-                </div>
-              </div>
-              <p class="mb-2 text-muted">Tracking: #987654321</p>
-              <div class="d-flex align-items-center gap-3 mb-2">
-                <span > <i class="bi bi-geo-alt me-1 "></i>456 Another Rd, Town</span>
-                <span class="text-muted"> <i class="bi bi-clock me-1 "></i>10:00 AM - 11:00 AM</span>
-              </div>
-              <p class="mb-3">Package:2 boxs, Electronics</p>
-              <div class="d-flex gap-2">
-                <button class="btn delv-bt btn-lg flex-fill" > <i class="bi bi-check2-circle  me-1"></i>Delivered</button>
-                <button class="btn dely-bt btn-lg flex-fill"> <i class="bi bi-clock me-1"></i>Delayed</button>
-                <button class="btn btn-danger btn-lg flex-fill"> <i class="bi bi-x-circle me-1"></i>Failed</button>
-              </div>
-            </div>
+    <button
+      type="submit"
+      name="action"
+      value="delivered"
+      class="btn btn-success btn-lg flex-fill"
+      data-shipment-id="{{ s.id_shipment }}"
+      data-action="delivered">
+      <i class="bi bi-check2-circle me-1"></i> Delivered
+    </button>
 
-            <!-- Inner Card 3 -->
-            <div class="inner-card p-3">
-              <div class="d-flex align-items-center gap-2 mb-2">
-                <div class="circle-number">3</div>
-                <div class="d-flex align-items-center gap-2">
-                  <span class="fs-5">Company ABC</span>
-                  <span class="int-tp  px-2 py-1">International</span><!-- int-tp means type de service intenational-->
-                </div>
-              </div>
-              <p class="mb-2 text-muted">Tracking:ID</p>
-              <div class="d-flex align-items-center gap-3 mb-2">
-                <span> <i class="bi bi-geo-alt me-1 "></i>789 Some Ave, City</span>
-                <span class="text-muted"> <i class="bi bi-clock me-1 "></i>1:40 PM -2:50 PM</span>
-              </div>
-              <p class="mb-3">Package:1 box,Documents</p>
-              <div class="d-flex gap-2">
-                <button class="btn delv-bt btn-lg flex-fill"> <i class="bi bi-check2-circle  me-1"></i>Delivered</button>
-                <button class="btn dely-bt btn-lg flex-fill"> <i class="bi bi-clock me-1"></i>Delayed</button>
-                <button class="btn btn-danger btn-lg flex-fill"> <i class="bi bi-x-circle me-1"></i>Failed</button>
-              </div>
-            </div>
+    <button
+      type="submit"
+      name="action"
+      value="delayed"
+      class="btn btn-warning btn-lg flex-fill"
+      data-shipment-id="{{ s.id_shipment }}"
+      data-action="delayed">
+      <i class="bi bi-clock me-1"></i> Delayed
+    </button>
+
+    <button
+      type="submit"
+      name="action"
+      value="failed"
+      class="btn btn-danger btn-lg flex-fill"
+      data-shipment-id="{{ s.id_shipment }}"
+      data-action="failed">
+      <i class="bi bi-x-circle me-1"></i> Failed
+    </button>
+  </form>
+
+</div>
+
+ 
+
+                
+              {% endfor %}
+            {% else %}
+              <p class="text-muted">No shipments scheduled for today.</p>
+            {% endif %}
 
           </div>
         </div>
@@ -198,28 +229,22 @@
           <h5 class="card-title mb-4">Completed Today</h5>
 
           
-          <div class="card inner-green-card mb-3">
-            <div class="card-body d-flex justify-content-between align-items-center">
-              <div>
-                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                <strong>FastCo</strong>
-                <div class="text-muted small">SW789450</div>
+          {% if completed_today and completed_today.exists %}
+            {% for s in completed_today %}
+              <div class="card inner-green-card mb-3">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                  <div>
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    <strong>{{ s.package.client.nom|default:'Client' }}</strong>
+                    <div class="text-muted small">{{ s.package.tracking_number }}</div>
+                  </div>
+                  <span class="text-muted small">{% if s.shipment_date %}{{ s.shipment_date }}{% else %}-{% endif %}</span>
+                </div>
               </div>
-              <span class="text-muted small">8:30 AM</span>
-            </div>
-          </div>
-
-          <!--eg of a completed shipment-->
-          <div class="card inner-green-card">
-            <div class="card-body d-flex justify-content-between align-items-center">
-              <div>
-                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                <strong>Retail Plus</strong>
-                <div class="text-muted small">SW789451</div>
-              </div>
-              <span class="text-muted small">9:15 AM</span>
-            </div>
-          </div>
+            {% endfor %}
+          {% else %}
+            <p class="text-muted">No completed shipments today.</p>
+          {% endif %}
 
         </div>
       </div>
@@ -281,7 +306,7 @@
   </div>
 </section>
 
-<script src="driver-script.js"></script>
+<script src="{% static 'js/driver-script.js' %}"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     

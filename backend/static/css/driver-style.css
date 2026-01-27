@@ -158,6 +158,64 @@ transition: background-color 0.2s ease;
   background-color: #b87400;
 }
 
+/* Failed button */
+.fail-bt{
+  color: white;
+  background-color: #dc3545; /* bootstrap danger shade */
+  transition: background-color 0.2s ease, box-shadow 0.15s ease, transform 0.08s ease;
+}
+.fail-bt:hover{ background-color: #c82333; }
+
+/* Common button styles for visible feedback */
+.delv-bt, .dely-bt, .fail-bt, .claim-bt {
+  position: relative;
+  border-radius: 8px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transition: transform 0.08s ease, box-shadow 0.15s ease, background-color 0.12s ease;
+}
+
+.delv-bt:active, .dely-bt:active, .fail-bt:active, .claim-bt:active{
+  transform: translateY(1px) scale(0.998);
+}
+
+/* Focus ring for accessibility */
+.delv-bt:focus, .dely-bt:focus, .fail-bt:focus, .claim-bt:focus{
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0,166,62,0.12);
+}
+
+/* Disabled state */
+.delv-bt[disabled], .dely-bt[disabled], .fail-bt[disabled], .claim-bt[disabled]{
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Processing state: add subtle glow + spinner */
+.processing{
+  pointer-events: none; /* avoid dbl clicks */
+}
+.processing::after{
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.6);
+  border-top-color: rgba(255,255,255,1);
+  animation: spin 0.8s linear infinite;
+  box-shadow: 0 0 8px rgba(0,0,0,0.12);
+}
+
+@keyframes spin{
+  from{ transform: translateY(-50%) rotate(0deg); }
+  to{ transform: translateY(-50%) rotate(360deg); }
+}
+
 
 
 

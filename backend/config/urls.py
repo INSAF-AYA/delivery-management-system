@@ -53,6 +53,8 @@ urlpatterns = [
     # Keep a short-lived alias so old clients don't get 404 while caches are cleared.
     path('api/auth/client/login/', client_views.client_login),
     path('api/auth/driver/login/', driver_views.driver_login),
+    # Legacy (pre-API) driver login path — keep temporarily for cached frontends
+    path('driver/auth/driver/login/', driver_views.driver_login),
     # legacy agent login path
     path('api/auth/login/', home_views.agent_login),
 
