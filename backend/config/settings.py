@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'dashboard.apps.DashboardConfig',
     'database.apps.DatabaseConfig',
     'invoice',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [

@@ -30,6 +30,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('dashboard/invoices/', include('invoice.urls', namespace='invoice')),
 
     # Redirect root to the home page
     path('', RedirectView.as_view(pattern_name='home', permanent=False)),

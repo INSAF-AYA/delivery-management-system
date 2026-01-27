@@ -1,5 +1,5 @@
 from django import forms
-from .models import Invoice
+from database.models import Invoice
 from database.models import Client
 from database.models import Shipment
 

@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponse
-from .models import Invoice
+from database.models import Invoice, Client, Shipment
 from database.models import Client
 from database.models import Shipment
 from .forms import InvoiceForm
@@ -11,8 +11,9 @@ from django.conf import settings
 def invoice_list(request):
     invoices = Invoice.objects.all()
     clients = Client.objects.all()
-    shipments = Shipment.objects.filter(invoice__isnull=True)  # Only shipments without invoice
-    return render(request, 'invoice/invoice_list.html', {
+    shipments = Shipment.objects.all()
+    print("Available shipments:", shipments)  # DEBUG
+    return render(request, 'invoices.html', {
         'invoices': invoices,
         'clients': clients,
         'shipments': shipments,
@@ -20,18 +21,24 @@ def invoice_list(request):
 
 def invoice_add(request):
     if request.method == 'POST':
-        import json
-        data = json.loads(request.body)
-        client = get_object_or_404(Client, pk=data.get('client_id'))
-        shipment = get_object_or_404(Shipment, pk=data.get('shipment_id'))
-        total_amount = float(data.get('total_amount', 0))
-        invoice_date = data.get('invoice_date', timezone.now().date())
-        invoice_pdf = None  # File upload handled separately if needed
+        client = get_object_or_404(Client, pk=request.POST.get('client_id'))
+        shipment = get_object_or_404(Shipment, pk=request.POST.get('shipment_id'))
+        total_amount = float(request.POST.get('total_amount', 0))
+        invoice_date = request.POST.get('invoice_date', timezone.now().date())
+        invoice_pdf = request.FILES.get('invoice_pdf')  # <-- get the uploaded file
 
-        invoice = Invoice(client=client, shipment=shipment, total_amount=total_amount, invoice_date=invoice_date)
+        invoice = Invoice(
+            client=client,
+            shipment=shipment,
+            total_amount=total_amount,
+            invoice_date=invoice_date,
+            invoice_pdf=invoice_pdf
+        )
         invoice.save()
         return JsonResponse({'success': True, 'id_invoice': invoice.id_invoice})
+
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
 
 def invoice_detail_json(request, invoice_id):
     invoice = get_object_or_404(Invoice, pk=invoice_id)
@@ -54,9 +61,26 @@ def invoice_delete(request, invoice_id):
 
 def invoice_download(request, invoice_id):
     invoice = get_object_or_404(Invoice, pk=invoice_id)
-    if invoice.invoice_pdf and os.path.exists(invoice.invoice_pdf.path):
-        with open(invoice.invoice_pdf.path, 'rb') as f:
-            response = HttpResponse(f.read(), content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="{os.path.basename(invoice.invoice_pdf.name)}"'
-            return response
-    return HttpResponse("File not found", status=404)
+
+    if not invoice.invoice_pdf:
+        return HttpResponse("No PDF attached to this invoice", status=404)
+
+    if not os.path.exists(invoice.invoice_pdf.path):
+        return HttpResponse("PDF missing on server", status=404)
+
+    with open(invoice.invoice_pdf.path, 'rb') as f:
+        response = HttpResponse(f.read(), content_type='application/pdf')
+        response['Content-Disposition'] = (
+            f'attachment; filename="{os.path.basename(invoice.invoice_pdf.name)}"'
+        )
+        return response
+
+
+def shipment_amounts(request, shipment_id):
+    shipment = Shipment.objects.get(id_shipment=shipment_id)
+    data = {
+        'montant_ht': float(shipment.montant_ht()),
+        'montant_tva': float(shipment.montant_tva()),
+        'montant_ttc': float(shipment.montant_ttc()),
+    }
+    return JsonResponse(data)

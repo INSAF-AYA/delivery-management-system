@@ -4,6 +4,8 @@ from django.utils import timezone
 import secrets
 import string
 import re
+from decimal import Decimal
+
 
 
 # =========================
@@ -808,4 +810,15 @@ class Shipment(models.Model):
                 self.id_shipment = f"SHP{next_num:03d}"
 
         super().save(*args, **kwargs)
+        
+    def montant_ht(self):
+            """Return the base amount without taxes (HT)"""
+            return Decimal(self.distance) * Decimal('2.5')  
 
+    def montant_tva(self):
+            """Return the TVA (tax)"""
+            return self.montant_ht() * Decimal('0.19')
+
+    def montant_ttc(self):
+            """Return total amount including tax"""
+            return self.montant_ht() + self.montant_tva()

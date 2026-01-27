@@ -102,11 +102,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Amount</label>
-                        <input type="number" id="addAmount" placeholder="Enter amount" step="0.01" required>
-                    </div>
+                <div class="form-row"> 
                     <div class="form-group">
                         <label>Date</label>
                         <input type="date" id="addDate" required>
@@ -114,7 +110,10 @@
                 </div>
                 <div class="form-group">
                     <label>Total Amount</label>
-                    <input type="number" id="addAmount" placeholder="Calculated automatically" readonly>
+                    <div class="form-control bg-light">
+                        <span id="totalAmount">—</span>
+                    </div>
+                    <input type="hidden" id="addAmount" name="total_amount">
                 </div>
                 <div class="form-group">
                     <label>Upload PDF</label>
@@ -218,21 +217,25 @@ function closeModal(modalId) {
 }
 
 function addInvoice() {
-    const data = {
-        client_id: document.getElementById('addClient').value,
-        shipment_id: document.getElementById('addShipment').value,
-        total_amount: document.getElementById('addAmount').value,
-        invoice_date: document.getElementById('addDate').value
-    };
+    const formData = new FormData();
+    formData.append('client_id', document.getElementById('addClient').value);
+    formData.append('shipment_id', document.getElementById('addShipment').value);
+    formData.append('total_amount', document.getElementById('addAmount').value);
+    formData.append('invoice_date', document.getElementById('addDate').value);
+    formData.append('invoice_pdf', document.getElementById('addPDF').files[0]);
+
     fetch('/dashboard/invoices/add/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
-        body: JSON.stringify(data)
-    }).then(r => r.json()).then(data => {
+        headers: { 'X-CSRFToken': getCSRFToken() },
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
         if (data.success) { closeModal('addModal'); location.reload(); }
         else alert('Error: ' + (data.error || 'Failed'));
     });
 }
+
 
 function downloadInvoice(invoiceId) {
     window.open(`/dashboard/invoices/${invoiceId}/download/`, '_blank');
@@ -254,6 +257,34 @@ document.getElementById('invoiceSearch').addEventListener('input', function(e) {
         row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
     });
 });
+
+function getShipmentAmountsUrl(shipmentId) {
+    return "{% url 'invoice:shipment_amounts' 'SHIPMENT_ID' %}".replace('SHIPMENT_ID', shipmentId);
+}
+
+document.getElementById('addShipment').addEventListener('change', function() {
+    const shipmentId = this.value;
+    if (!shipmentId) {
+        document.getElementById('totalAmount').innerText = '—';
+        document.getElementById('addAmount').value = '';
+        return;
+    }
+
+    fetch(getShipmentAmountsUrl(shipmentId))
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('totalAmount').innerText =
+                `HT: ${data.montant_ht} | TVA: ${data.montant_tva} | TTC: ${data.montant_ttc}`;
+            document.getElementById('addAmount').value = data.montant_ttc;
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById('totalAmount').innerText = 'Error';
+            document.getElementById('addAmount').value = '';
+        });
+});
+
+
 </script>
 {% endblock %}
 
