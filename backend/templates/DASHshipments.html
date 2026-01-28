@@ -22,6 +22,24 @@
                 Filter
             </button>
         </div>
+
+        <!-- Filter Panel Section -->
+        <div id="filterPanel" style="display:none;margin-top:10px;" class="filter-panel">
+            <label for="filterField" style="margin-right:8px;">Field:</label>
+            <select id="filterField">
+                <option value="all">All (ID / Client / Origin / Destination / Status / Driver)</option>
+                <option value="id">Shipment ID</option>
+                <option value="client">Client</option>
+                <option value="origin">Origin</option>
+                <option value="destination">Destination</option>
+                <option value="status">Status</option>
+                <option value="driver">Driver</option>
+            </select>
+            <input type="text" id="filterValue" placeholder="Filter value" style="margin-left:8px;" />
+            <button class="modal-btn" id="applyFilterBtn" style="margin-left:8px;">Apply</button>
+            <button class="modal-btn" id="clearFilterBtn" style="margin-left:6px;">Clear</button>
+        </div>
+
         
         <div class="table-toolbar">
             <button class="toolbar-btn add" onclick="openAddModal()">
@@ -527,5 +545,89 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Initialize search + filter controls for Shipments
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('shipmentSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', e => {
+            filterShipments('all', e.target.value);
+        });
+    }
+
+    const filterBtn = document.getElementById('filterBtn');
+    if (filterBtn) filterBtn.addEventListener('click', () => toggleFilterPanel());
+
+    const applyFilterBtn = document.getElementById('applyFilterBtn');
+    if (applyFilterBtn) applyFilterBtn.addEventListener('click', () => applyFilter());
+    const clearFilterBtn = document.getElementById('clearFilterBtn');
+    if (clearFilterBtn) clearFilterBtn.addEventListener('click', () => clearFilter());
+});
+
+function filterShipments(fieldOrTerm, maybeTerm) {
+    // Signature: filterShipments(term) or filterShipments(field, term)
+    let field = 'all';
+    let term = '';
+    if (typeof maybeTerm === 'undefined') {
+        term = (fieldOrTerm || '').toString().toLowerCase();
+    } else {
+        field = (fieldOrTerm || 'all').toString();
+        term = (maybeTerm || '').toString().toLowerCase();
+    }
+
+    const rows = document.querySelectorAll('#shipmentsTableBody tr');
+    const map = {
+        id: 0,
+        client: 1,
+        origin: 2,
+        destination: 3,
+        status: 4,
+        driver: 5,
+        date: 6
+    };
+
+    rows.forEach(row => {
+        if (!term) { row.style.display = ''; return; }
+
+        if (field === 'all') {
+            const id = (row.cells[0]?.textContent || '').toLowerCase();
+            const client = (row.cells[1]?.textContent || '').toLowerCase();
+            const origin = (row.cells[2]?.textContent || '').toLowerCase();
+            const destination = (row.cells[3]?.textContent || '').toLowerCase();
+            const status = (row.cells[4]?.textContent || '').toLowerCase();
+            const driver = (row.cells[5]?.textContent || '').toLowerCase();
+            const date = (row.cells[6]?.textContent || '').toLowerCase();
+            const hay = `${id} ${client} ${origin} ${destination} ${status} ${driver} ${date}`;
+            row.style.display = hay.includes(term) ? '' : 'none';
+        } else {
+            const idx = map[field];
+            const value = (row.cells[idx]?.textContent || '').toLowerCase();
+            row.style.display = value.includes(term) ? '' : 'none';
+        }
+    });
+}
+
+function toggleFilterPanel() {
+    const panel = document.getElementById('filterPanel');
+    if (!panel) return;
+    panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'block' : 'none';
+}
+
+function applyFilter() {
+    const field = document.getElementById('filterField')?.value || 'all';
+    const value = document.getElementById('filterValue')?.value || '';
+    filterShipments(field, value.trim());
+}
+
+function clearFilter() {
+    const fieldEl = document.getElementById('filterField');
+    const valEl = document.getElementById('filterValue');
+    if (fieldEl) fieldEl.value = 'all';
+    if (valEl) valEl.value = '';
+    const searchInput = document.getElementById('shipmentSearch');
+    if (searchInput) searchInput.value = '';
+    filterShipments('all', '');
+}
+
 </script>
 {% endblock %}
