@@ -114,17 +114,13 @@
                 <input type="text" placeholder="Search..." class="search-input">
             </div>
             
-            <div class="user-info" onclick="toggleUserDropdown()">
+            <div class="user-info">
                 <div class="user-details">
                     <span class="user-name">{% if logged_in_user %}{{ logged_in_user.prenom }} {{ logged_in_user.nom }}{% else %}Guest{% endif %}</span>
                     <span class="user-role">{% if logged_in_role %}{{ logged_in_role }}{% else %}Not logged in{% endif %}</span>
                 </div>
                 <div class="user-avatar">
                     <i class="fas fa-user-circle"></i>
-                </div>
-                <div class="user-dropdown" id="userDropdown">
-                    <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
-                    <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </div>
             </div>
         </header>

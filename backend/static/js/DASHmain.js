@@ -52,26 +52,6 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(card);
     });
 
-    // Close user dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-        const userDropdown = document.getElementById('userDropdown');
-        const userInfo = document.querySelector('.user-info');
-        if (userDropdown && !userInfo.contains(e.target)) {
-            userDropdown.classList.remove('active');
-        }
-    });
-
-    // Logout functionality
-    const logoutBtn = document.querySelector('.logout-btn');
-    
-    logoutBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        if (confirm('Are you sure you want to logout?')) {
-            console.log('Logging out...');
-            // Add logout logic here
-            // window.location.href = 'login.html';
-        }
-    });
 
     // Simulate real-time data updates
     function updateStatCards() {
@@ -135,12 +115,4 @@ function formatCurrency(amount) {
 function getRandomColor() {
     const colors = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#f97316'];
     return colors[Math.floor(Math.random() * colors.length)];
-}
-
-// Toggle user dropdown
-function toggleUserDropdown() {
-    const dropdown = document.getElementById('userDropdown');
-    if (dropdown) {
-        dropdown.classList.toggle('active');
-    }
 }
