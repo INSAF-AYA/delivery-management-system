@@ -42,6 +42,8 @@ def agent_login(request):
     """Authenticate an Agent (agent/admin) via POST and return JSON with role."""
     email = request.POST.get('email')
     password = request.POST.get('password')
+    print("DEBUG ROLE =", request.session.get('role'))
+
 
     if not email or not password:
         return JsonResponse({'success': False, 'error': 'missing_fields'}, status=400)

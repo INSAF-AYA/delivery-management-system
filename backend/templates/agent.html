@@ -22,10 +22,12 @@
         </div>
         
         <div class="table-toolbar">
-            <button class="toolbar-btn add" onclick="openAddModal()">
-                <i class="fas fa-plus"></i>
-                Add Agent
-            </button>
+            {% if request.session.role == 'admin' %}
+                <button class="toolbar-btn add" onclick="openAddModal()">
+                    <i class="fas fa-plus"></i>
+                    Add Agent
+                </button>
+            {% endif %}
         </div>
     </div>
 
@@ -57,9 +59,12 @@
                             <button class="action-btn edit" title="Edit" onclick="event.stopPropagation(); openEditModal('{{ agent.agent_id }}');">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="action-btn delete" title="Delete" onclick="event.stopPropagation(); openDeleteModal('{{ agent.agent_id }}');">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            {% if request.session.role == 'admin' %}
+                                <button class="action-btn delete" title="Delete" onclick="event.stopPropagation();      openDeleteModal('{{ agent.agent_id }}');">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            {% endif %}
+                            
                         </div>
                     </td>
                 </tr>
