@@ -204,73 +204,35 @@
 
             <!-- Table Body (FROM BACKEND LOOP) -->
             <tbody>
-
-                <!-- 
-                    Loop example:
-                    - Django: {% for invoice in invoices %}
-                    - Laravel: @foreach($invoices as $invoice)
-                    - PHP: foreach ($invoices as $invoice)
-                -->
-
-                <tr>
-                    <!-- Invoice ID -->
-                    <td>
-                        <a href="#" class="purple-link">
-                            <!-- {{ invoice.id }} -->
-                            Invoice_ID
-                        </a>
-                    </td>
-
-                    <!-- Related shipment tracking -->
-                    <td>
-                        <!-- {{ invoice.shipment_tracking }} -->
-                        Shipment_Tracking
-                    </td>
-
-                    <!-- Invoice amount -->
-                    <td>
-                        <!-- {{ invoice.amount }} -->
-                        Amount
-                    </td>
-
-                    <!-- Due date -->
-                    <td>
-                        <!-- {{ invoice.due_date }} -->
-                        Due_Date
-                    </td>
-
-                    <!-- Invoice status -->
-                    <td>
-                        <!-- status: pending | paid | overdue -->
-                        <span class="badge badge-status">
-                            <!-- {{ invoice.status }} -->
-                            Status
-                        </span>
-                    </td>
-
-                    <!-- Actions -->
-                    <td>
-                        <!-- Download invoice -->
-                        <a href="#">
-                            <i class="bi bi-download"></i>
-                            Download
-                        </a>
-
-                       
-                        <!-- if invoice.status == 'pending' -->
-                        <a href="#" class="purple-link ms-2">
-                           
-                        </a>
-                    </td>
-                </tr>
-
-                <!-- 
-                    End Loop
-                    - Django: {% endfor %}
-                    - Laravel: @endforeach
-                    - PHP: }
-                -->
-
+                {% if invoices %}
+                    {% for invoice in invoices %}
+                        <tr>
+                            <td>
+                                <a href="#" class="purple-link">{{ invoice.id_invoice }}</a>
+                            </td>
+                            <td>{{ invoice.shipment_id }}</td>
+                            <td>{{ invoice.total_amount }}</td>
+                            <td>{{ invoice.invoice_date }}</td>
+                            <td>
+                                <span class="badge badge-status">{{ invoice.status }}</span>
+                            </td>
+                            <td>
+                                {% if invoice.has_pdf %}
+                                    <a href="{% url 'invoice:download' invoice.id_invoice %}">
+                                        <i class="bi bi-download"></i>
+                                        Download
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted small">No PDF</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No invoices found.</td>
+                    </tr>
+                {% endif %}
             </tbody>
 
         </table>
@@ -302,13 +264,6 @@
     <!-- Title -->
     <h6>Your Support Tickets</h6>
 
-    <!-- ================= Support Ticket Card (LOOP FROM BACKEND) ================= -->
-    <!-- 
-        Backend loop example:
-        - Django: {% for ticket in tickets %}
-        - Laravel: @foreach ($tickets as $ticket)
-        - PHP: foreach ($tickets as $ticket)
-    -->
 
     <div class="ticket mb-3">
         <div class="d-flex justify-content-between">
@@ -355,8 +310,7 @@
         </div>
     </div>
 
-    <!-- ================= END LOOP ================= -->
-    <!-- {% endfor %} -->
+   
 
 
     <!-- ================= Help Box (STATIC or FROM BACKEND) ================= -->

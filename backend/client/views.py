@@ -94,24 +94,45 @@ def my_shipments(request):
 
 def invoices(request):
     """Render the client portal with the Invoices tab active."""
-    context = {'active_tab': 'invoices', 'stats': {}}
+    context = {'active_tab': 'invoices', 'stats': {}, 'invoices': []}
 
-    # attach stats when possible (same logic as my_shipments but lighter)
     try:
         role = request.session.get('role')
         user_id = request.session.get('user_id')
-        if role == 'client' and user_id:
-            client_obj = Client.objects.filter(pk=user_id).first()
-            if client_obj:
-                shipments_qs = Shipment.objects.filter(Q(package__client=client_obj) | Q(client=client_obj))
-                context['stats'] = {
-                    'active_shipments': shipments_qs.exclude(statut__iexact='DELIVERED').count(),
-                    'completed_shipments': shipments_qs.filter(statut__iexact='DELIVERED').count(),
-                    'pending_invoices': Invoice.objects.filter(client=client_obj).count(),
-                    'open_tickets': Reclamation.objects.filter(status__in=['new', 'open', 'in_progress']).count(),
-                }
+        if role != 'client' or not user_id:
+            return render(request, 'client.html', context)
+
+        client_obj = Client.objects.filter(pk=user_id).first()
+        if not client_obj:
+            return render(request, 'client.html', context)
+
+        # invoices linked to this client
+        inv_qs = Invoice.objects.filter(client=client_obj).order_by('-invoice_date')
+
+        invoices = []
+        for inv in inv_qs:
+            invoices.append({
+                'id_invoice': inv.id_invoice,
+                'shipment_id': inv.shipment.id_shipment if getattr(inv, 'shipment', None) else '',
+                'total_amount': str(inv.total_amount) if inv.total_amount is not None else '',
+                'invoice_date': inv.invoice_date.strftime('%Y-%m-%d') if inv.invoice_date else '',
+                'has_pdf': bool(getattr(inv, 'invoice_pdf', None)) and bool(getattr(inv.invoice_pdf, 'name', None)),
+                # simple status: available if pdf exists otherwise draft
+                'status': 'available' if getattr(inv, 'invoice_pdf', None) and getattr(inv.invoice_pdf, 'name', None) else 'pending'
+            })
+
+        # reuse stats summary for display
+        shipments_qs = Shipment.objects.filter(Q(package__client=client_obj) | Q(client=client_obj))
+        context['stats'] = {
+            'active_shipments': shipments_qs.exclude(statut__iexact='DELIVERED').count(),
+            'completed_shipments': shipments_qs.filter(statut__iexact='DELIVERED').count(),
+            'pending_invoices': inv_qs.count(),
+            'open_tickets': Reclamation.objects.filter(status__in=['new', 'open', 'in_progress']).count(),
+        }
+
+        context['invoices'] = invoices
     except Exception:
-        pass
+        logging.getLogger('client.invoices').exception('Error building invoices list')
 
     return render(request, 'client.html', context)
 
