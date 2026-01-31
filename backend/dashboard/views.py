@@ -14,6 +14,7 @@ from database.models import Client, Chauffeur, Vehicule, Shipment, Incident, Pac
 from django.utils import timezone
 from django.db.models import Count, Sum
 from datetime import timedelta
+from django.utils.timezone import make_aware
 
 def dashboard_data(request):
     """Return JSON stats for dashboard"""
@@ -79,48 +80,125 @@ def dashboard_charts_data(request):
 
 def recent_activity_data(request):
     """
-    Return last 10 activities (shipments + incidents), sorted by creation datetime descending.
+    Return recent activities:
+    5 latest of each:
+    clients, shipments, drivers, vehicles, invoices, packages, incidents, agents
     """
-    # Get last 10 shipments
-    recent_shipments = Shipment.objects.select_related('client').order_by('-date_creation')[:10]
-
-    # Get last 10 incidents
-    recent_incidents = Incident.objects.order_by('-created_at')[:10]
 
     activity_list = []
 
-    for s in recent_shipments:
+    # ---- Shipments ----
+    shipments = Shipment.objects.select_related('client').order_by('-date_creation')[:5]
+    for s in shipments:
         activity_list.append({
             "datetime": s.date_creation,
-            "time": s.date_creation.strftime("%H:%M %p"),
+            "time": s.date_creation.strftime("%H:%M"),
             "action": "New Shipment",
             "user": f"{s.client.nom} {s.client.prenom}" if s.client else "Unknown",
-            "details": f"Order #{s.id_shipment} created",
-            "status": s.statut
+            "details": f"Shipment #{s.id_shipment} created",
+            "status": s.statut,
         })
 
-    for i in recent_incidents:
+    # ---- Incidents ----
+    incidents = Incident.objects.order_by('-created_at')[:5]
+    for i in incidents:
         activity_list.append({
             "datetime": i.created_at,
-            "time": i.created_at.strftime("%H:%M %p"),
-            "action": i.incident_type,
-            "user": "System",  # you don't have a reporter field, adapt if needed
+            "time": i.created_at.strftime("%H:%M"),
+            "action": "Incident Reported",
+            "user": "System",
             "details": i.description,
-            "status": i.status
+            "status": i.status,
         })
 
-    # Sort by datetime descending
-    activity_list.sort(key=lambda x: x['datetime'], reverse=True)
+    # ---- Clients ----
+    clients = Client.objects.order_by('-date_inscription')[:5]
+    for c in clients:
+        activity_list.append({
+            "datetime": c.date_inscription,
+            "time": c.date_inscription.strftime("%H:%M"),
+            "action": "New Client",
+            "user": f"{c.nom} {c.prenom}",
+            "details": "Client registered",
+            "status": "Completed",
+        })
 
-    # Only return last 10 activities
-    activity_list = activity_list[:10]
+    # ---- Drivers ----
+    drivers = Chauffeur.objects.order_by('-date_embauche')[:5]
+    for d in drivers:
+        activity_list.append({
+            "datetime": d.date_embauche,
+            "time": d.date_embauche.strftime("%H:%M"),
+            "action": "New Driver",
+            "user": f"{d.nom} {d.prenom}",
+            "details": "Driver added to system",
+            "status": d.statut,
+        })
 
-    # Remove datetime before sending JSON
+    # ---- Vehicles ----
+    vehicles = Vehicule.objects.order_by('-date_mise_service')[:5]
+    for v in vehicles:
+        if not v.date_mise_service:
+            continue
+        activity_list.append({
+            "datetime": v.date_mise_service,
+            "time": v.date_mise_service.strftime("%H:%M"),
+            "action": "Vehicle Added",
+            "user": "System",
+            "details": f"Vehicle {v.immatriculation}",
+            "status": v.etat,
+        })
+
+    # ---- Invoices ----
+    invoices = Invoice.objects.select_related('client').order_by('-invoice_date')[:5]
+    for inv in invoices:
+        activity_list.append({
+            "datetime": inv.invoice_date,
+            "time": inv.invoice_date.strftime("%H:%M"),
+            "action": "Invoice Generated",
+            "user": f"{inv.client.nom} {inv.client.prenom}" if inv.client else "Unknown",
+            "details": f"Invoice #{inv.id_invoice}",
+            "status": "Completed",
+        })
+
+    # ---- Packages ----
+    packages = Package.objects.select_related('client').order_by('-date_creation')[:5]
+    for p in packages:
+        activity_list.append({
+            "datetime": p.date_creation,
+            "time": p.date_creation.strftime("%H:%M"),
+            "action": "Package Created",
+            "user": f"{p.client.nom} {p.client.prenom}" if p.client else "Unknown",
+            "details": f"Tracking {p.tracking_number}",
+            "status": "Completed",
+        })
+
+    # ---- Agents ----
+    agents = Agent.objects.order_by('-agent_id')[:5]
+    for a in agents:
+        activity_list.append({
+            "datetime": timezone.now(),  # no created_at → fallback
+            "time": timezone.now().strftime("%H:%M"),
+            "action": "Agent Added",
+            "user": f"{a.nom} {a.prenom}",
+            "details": f"Role: {a.role}",
+            "status": "Active",
+        })
+
+    # ---- NORMALIZE DATETIME ----
     for act in activity_list:
-        del act['datetime']
+        if isinstance(act["datetime"], datetime):
+            continue
+        # convert date → datetime
+        act["datetime"] = make_aware(datetime.combine(act["datetime"], datetime.min.time()))
+
+    # ---- SORT & CLEAN ----
+    activity_list.sort(key=lambda x: x["datetime"], reverse=True)
+
+    for act in activity_list:
+        del act["datetime"]
 
     return JsonResponse({"activities": activity_list})
-
 
 
 def _extract_marque_modele_from_type(type_vehicule):
