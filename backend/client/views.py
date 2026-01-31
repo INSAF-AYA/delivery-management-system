@@ -9,8 +9,9 @@ from django.db.models import Q
 
 
 def client(request):
- 
-    return my_shipments(request)
+  
+
+    return invoices(request)
 
 
 def my_shipments(request):
@@ -94,7 +95,7 @@ def my_shipments(request):
 
 def invoices(request):
     """Render the client portal with the Invoices tab active."""
-    context = {'active_tab': 'invoices', 'stats': {}, 'invoices': []}
+    context = {'active_tab': 'invoices', 'stats': {}, 'invoices': [], 'shipments': []}
 
     try:
         role = request.session.get('role')
@@ -122,13 +123,40 @@ def invoices(request):
             })
 
         # reuse stats summary for display
-        shipments_qs = Shipment.objects.filter(Q(package__client=client_obj) | Q(client=client_obj))
+        shipments_qs = Shipment.objects.filter(Q(package__client=client_obj) | Q(client=client_obj)).order_by('-date_creation')
+
+        # Build shipments list so the Shipments tab has data when the page
+        # renders with the Invoices tab active.
+        shipments = []
+        for sh in shipments_qs:
+            pkg = getattr(sh, 'package', None)
+            tracking = pkg.tracking_number if pkg else ''
+            if sh.statut and sh.statut.upper() == 'DELIVERED':
+                progress = 100
+            elif sh.statut and sh.statut.upper() == 'IN_TRANSIT':
+                progress = 60
+            else:
+                progress = 10
+
+            shipments.append({
+                'id_shipment': sh.id_shipment,
+                'tracking': tracking,
+                'origin': sh.origin,
+                'destination': sh.destination,
+                'status': sh.statut,
+                'estimated_delivery': sh.shipment_date.isoformat() if sh.shipment_date else '',
+                'progress': progress,
+                'date_creation': sh.date_creation.isoformat() if sh.date_creation else '',
+            })
+
         context['stats'] = {
             'active_shipments': shipments_qs.exclude(statut__iexact='DELIVERED').count(),
             'completed_shipments': shipments_qs.filter(statut__iexact='DELIVERED').count(),
             'pending_invoices': inv_qs.count(),
             'open_tickets': Reclamation.objects.filter(status__in=['new', 'open', 'in_progress']).count(),
         }
+
+        context['shipments'] = shipments
 
         context['invoices'] = invoices
     except Exception:
