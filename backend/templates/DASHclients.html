@@ -26,6 +26,15 @@
                 Filter
             </button>
         </div>
+        
+        
+        <div class="table-toolbar">
+            <button class="toolbar-btn add" onclick="openAddModal()">
+                <i class="fas fa-plus"></i>
+                Add Client
+            </button>
+        </div>
+
         <!-- Compact filter panel (hidden by default) -->
         <div id="filterPanel" style="display:none;margin-top:10px;" class="filter-panel">
             <label for="filterField" style="margin-right:8px;">Field:</label>
@@ -41,13 +50,6 @@
             <input type="text" id="filterValue" placeholder="Filter value" style="margin-left:8px;" />
             <button class="modal-btn" id="applyFilterBtn" style="margin-left:8px;">Apply</button>
             <button class="modal-btn" id="clearFilterBtn" style="margin-left:6px;">Clear</button>
-        </div>
-        
-        <div class="table-toolbar">
-            <button class="toolbar-btn add" onclick="openAddModal()">
-                <i class="fas fa-plus"></i>
-                Add Client
-            </button>
         </div>
     </div>
 
