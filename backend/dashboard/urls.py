@@ -62,4 +62,9 @@ urlpatterns = [
     path('agents/<str:agent_id>/json/', views.show_agent, name='dashboard_show_agent'),
     path('agents/<str:agent_id>/edit/', views.edit_agent, name='dashboard_edit_agent'),
     path('agents/<str:agent_id>/delete/', views.delete_agent, name='dashboard_delete_agent'),
+
+    path('data/', views.dashboard_data, name='dashboard_data'),
+    path('charts-data/', views.dashboard_charts_data, name='dashboard_charts_data'),
+    path('recent-activity/json/', views.recent_activity_data, name='dashboard_recent_activity'),
+
 ]

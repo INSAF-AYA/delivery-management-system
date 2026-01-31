@@ -11,6 +11,117 @@ import uuid
 from django.db import IntegrityError
 
 from database.models import Client, Chauffeur, Vehicule, Shipment, Incident, Package, Invoice, Agent
+from django.utils import timezone
+from django.db.models import Count, Sum
+from datetime import timedelta
+
+def dashboard_data(request):
+    """Return JSON stats for dashboard"""
+    total_shipments = Shipment.objects.count()
+    total_drivers = Chauffeur.objects.count()
+    total_clients = Client.objects.count()
+    
+    today = timezone.now().date()
+    start_month = today.replace(day=1)
+    
+    monthly_revenue = (
+        Invoice.objects.filter(invoice_date__gte=start_month)
+        .aggregate(total=Sum('total_amount'))['total'] or 0
+    )
+
+    return JsonResponse({
+        "total_shipments": total_shipments,
+        "total_drivers": total_drivers,
+        "total_clients": total_clients,
+        "monthly_revenue": float(monthly_revenue)
+    })
+  
+
+def dashboard_charts_data(request):
+    today = timezone.now().date()
+    
+    # Revenue trends (last 6 months)
+    revenue_trends = []
+    for i in range(6, 0, -1):
+        month_start = today.replace(day=1) - timedelta(days=30*i)
+        month_end = month_start.replace(day=28) + timedelta(days=4)  # trick to get last day
+        month_end = month_end - timedelta(days=month_end.day)
+        
+        total = Invoice.objects.filter(
+            invoice_date__gte=month_start,
+            invoice_date__lte=month_end
+        ).aggregate(total=Sum('total_amount'))['total'] or 0
+        
+        revenue_trends.append({
+            "month": month_start.strftime('%b %Y'),
+            "revenue": float(total)
+        })
+
+    # Shipment status distribution
+    status_distribution = Shipment.objects.values('statut').annotate(count=Count('id_shipment'))
+    
+    # Weekly delivery performance (last 7 days)
+    weekly_performance = []
+    for i in range(7, 0, -1):
+        day = today - timedelta(days=i-1)
+        count = Shipment.objects.filter(shipment_date=day).count()
+        weekly_performance.append({
+            "day": day.strftime('%a'),
+            "count": count
+        })
+    
+    return JsonResponse({
+        "revenue_trends": revenue_trends,
+        "status_distribution": list(status_distribution),
+        "weekly_performance": weekly_performance
+    })
+
+
+def recent_activity_data(request):
+    """
+    Return last 10 activities (shipments + incidents), sorted by creation datetime descending.
+    """
+    # Get last 10 shipments
+    recent_shipments = Shipment.objects.select_related('client').order_by('-date_creation')[:10]
+
+    # Get last 10 incidents
+    recent_incidents = Incident.objects.order_by('-created_at')[:10]
+
+    activity_list = []
+
+    for s in recent_shipments:
+        activity_list.append({
+            "datetime": s.date_creation,
+            "time": s.date_creation.strftime("%H:%M %p"),
+            "action": "New Shipment",
+            "user": f"{s.client.nom} {s.client.prenom}" if s.client else "Unknown",
+            "details": f"Order #{s.id_shipment} created",
+            "status": s.statut
+        })
+
+    for i in recent_incidents:
+        activity_list.append({
+            "datetime": i.created_at,
+            "time": i.created_at.strftime("%H:%M %p"),
+            "action": i.incident_type,
+            "user": "System",  # you don't have a reporter field, adapt if needed
+            "details": i.description,
+            "status": i.status
+        })
+
+    # Sort by datetime descending
+    activity_list.sort(key=lambda x: x['datetime'], reverse=True)
+
+    # Only return last 10 activities
+    activity_list = activity_list[:10]
+
+    # Remove datetime before sending JSON
+    for act in activity_list:
+        del act['datetime']
+
+    return JsonResponse({"activities": activity_list})
+
+
 
 def _extract_marque_modele_from_type(type_vehicule):
     """Return (marque, modele) extracted from a stored type_vehicule string.

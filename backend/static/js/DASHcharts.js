@@ -1,255 +1,115 @@
-// Charts.js - Chart configurations for SwiftShip Dashboard
+// dashChart.js - Dashboard functionality
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Common chart options
-    const commonOptions = {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-            legend: {
-                display: true,
-                position: 'bottom',
-                labels: {
-                    padding: 15,
-                    font: {
-                        size: 12,
-                        family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-                    },
-                    usePointStyle: true
-                }
-            },
-            tooltip: {
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                padding: 12,
-                titleFont: {
-                    size: 14,
-                    weight: 'bold'
-                },
-                bodyFont: {
-                    size: 13
-                },
-                cornerRadius: 8
-            }
-        }
-    };
-
-    // ===== Revenue Trends Chart (Line Chart) =====
-    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-    const revenueChart = new Chart(revenueCtx, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            datasets: [{
-                label: 'Revenue ($)',
-                data: [32000, 38000, 35000, 42000, 45000, 48000, 52000, 49000, 55000, 58000, 56000, 62000],
-                borderColor: '#2563eb',
-                backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                pointBackgroundColor: '#2563eb',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2
-            }]
-        },
-        options: {
-            ...commonOptions,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return '$' + value.toLocaleString();
-                        },
-                        font: {
-                            size: 11
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        font: {
-                            size: 11
-                        }
-                    }
-                }
-            },
-            plugins: {
-                ...commonOptions.plugins,
-                legend: {
-                    ...commonOptions.plugins.legend,
-                    display: false
-                }
-            }
-        }
-    });
-
-    // ===== Shipment Status Distribution (Pie Chart) =====
-    const statusCtx = document.getElementById('statusChart').getContext('2d');
-    const statusChart = new Chart(statusCtx, {
-        type: 'pie',
-        data: {
-            labels: ['Delivered', 'In Transit', 'Pending', 'Failed'],
-            datasets: [{
-                data: [850, 210, 95, 45],
-                backgroundColor: [
-                    '#10b981',  // Green for Delivered
-                    '#2563eb',  // Blue for In Transit
-                    '#f59e0b',  // Orange for Pending
-                    '#ef4444'   // Red for Failed
-                ],
-                borderWidth: 2,
-                borderColor: '#fff',
-                hoverOffset: 10
-            }]
-        },
-        options: {
-            ...commonOptions,
-            plugins: {
-                ...commonOptions.plugins,
-                legend: {
-                    ...commonOptions.plugins.legend,
-                    position: 'right'
-                },
-                tooltip: {
-                    ...commonOptions.plugins.tooltip,
-                    callbacks: {
-                        label: function(context) {
-                            const label = context.label || '';
-                            const value = context.parsed || 0;
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = ((value / total) * 100).toFixed(1);
-                            return label + ': ' + value + ' (' + percentage + '%)';
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    // ===== Weekly Delivery Performance (Bar Chart) =====
-    const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
-    
-    // Get the last 7 days
-    const getLast7Days = () => {
-        const days = [];
-        const today = new Date();
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date(today);
-            date.setDate(date.getDate() - i);
-            days.push(date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
-        }
-        return days;
-    };
-
-    const weeklyChart = new Chart(weeklyCtx, {
-        type: 'bar',
-        data: {
-            labels: getLast7Days(),
-            datasets: [
-                {
-                    label: 'Delivered Packages',
-                    data: [125, 142, 138, 156, 148, 165, 172],
-                    backgroundColor: '#1e40af',
-                    borderRadius: 8,
-                    borderSkipped: false
-                }
-            ]
-        },
-        options: {
-            ...commonOptions,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        font: {
-                            size: 11
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        font: {
-                            size: 11
-                        }
-                    }
-                }
-            },
-            plugins: {
-                ...commonOptions.plugins,
-                legend: {
-                    ...commonOptions.plugins.legend,
-                    display: false
-                }
-            }
-        }
-    });
-
-    // ===== Chart Animation and Update Functions =====
-    
-    // Function to update revenue chart with new data
-    function updateRevenueChart(newData) {
-        revenueChart.data.datasets[0].data = newData;
-        revenueChart.update('active');
-    }
-
-    // Function to update status chart with new data
-    function updateStatusChart(newData) {
-        statusChart.data.datasets[0].data = newData;
-        statusChart.update('active');
-    }
-
-    // Function to update weekly chart with new data
-    function updateWeeklyChart(newData) {
-        weeklyChart.data.datasets.forEach((dataset, index) => {
-            dataset.data = newData[index];
-        });
-        weeklyChart.update('active');
-    }
-
-    // Simulate real-time updates (optional)
-    // Uncomment to enable automatic data updates
-    /*
-    setInterval(() => {
-        // Update status chart with random variations
-        const currentData = statusChart.data.datasets[0].data;
-        const newData = currentData.map(value => {
-            const change = Math.floor(Math.random() * 10) - 5;
-            return Math.max(0, value + change);
-        });
-        updateStatusChart(newData);
-    }, 30000); // Update every 30 seconds
-    */
-
-    console.log('Charts initialized successfully!');
+    updateDashboardStats();
+    renderDashboardCharts();
+    loadRecentActivity();
 });
 
-// Export update functions for external use
-window.chartUpdaters = {
-    updateRevenue: function(data) {
-        // Function to update revenue chart from external scripts
-        console.log('Updating revenue chart:', data);
-    },
-    updateStatus: function(data) {
-        // Function to update status chart from external scripts
-        console.log('Updating status chart:', data);
-    },
-    updateWeekly: function(data) {
-        // Function to update weekly chart from external scripts
-        console.log('Updating weekly chart:', data);
+// ---------- Dashboard stats ----------
+function updateDashboardStats() {
+    fetch('/dashboard/data/')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('totalShipments').innerText = data.total_shipments;
+            document.getElementById('totalDrivers').innerText = data.total_drivers;
+            document.getElementById('totalClients').innerText = data.total_clients;
+            document.getElementById('monthlyRevenue').innerText =
+                '$' + parseFloat(data.monthly_revenue).toLocaleString(undefined, { maximumFractionDigits: 1 });
+        })
+        .catch(err => console.error('Error fetching dashboard stats:', err));
+}
+
+// ---------- Charts ----------
+function renderDashboardCharts() {
+    fetch('/dashboard/charts-data/')
+        .then(res => res.json())
+        .then(data => {
+            renderRevenueChart(data.revenue_trends);
+            renderStatusChart(data.status_distribution);
+            renderWeeklyChart(data.weekly_performance);
+        })
+        .catch(err => console.error('Error loading charts data:', err));
+}
+
+function renderRevenueChart(data) {
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.map(d => d.month),
+            datasets: [{
+                label: 'Revenue ($)',
+                data: data.map(d => d.revenue),
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59,130,246,0.2)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+}
+
+function renderStatusChart(data) {
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: data.map(d => d.statut),
+            datasets: [{
+                data: data.map(d => d.count),
+                backgroundColor: ['#10b981','#3b82f6','#facc15','#ef4444']
+            }]
+        },
+        options: { responsive: true }
+    });
+}
+
+function renderWeeklyChart(data) {
+    const ctx = document.getElementById('weeklyChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.map(d => d.day),
+            datasets: [{
+                label: 'Shipments',
+                data: data.map(d => d.count),
+                backgroundColor: '#f97316'
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, precision: 0 } } }
+    });
+}
+
+// ---------- Recent Activity ----------
+function loadRecentActivity() {
+    fetch('/dashboard/recent-activity/json/')
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('activityTableBody');
+            tbody.innerHTML = '';
+            data.activities.forEach(act => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${act.time}</td>
+                    <td>${act.action}</td>
+                    <td>${act.user}</td>
+                    <td>${act.details}</td>
+                    <td><span class="badge ${getBadgeClass(act.status)}">${act.status}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        })
+        .catch(err => console.error('Error loading recent activity:', err));
+}
+
+function getBadgeClass(status) {
+    switch(status.toLowerCase()) {
+        case 'completed': return 'success';
+        case 'pending': return 'info';
+        case 'in progress': return 'warning';
+        case 'failed': return 'danger';
+        default: return 'info';
     }
-};
+}
