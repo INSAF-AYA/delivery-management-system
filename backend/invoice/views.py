@@ -7,6 +7,7 @@ from .forms import InvoiceForm
 from django.utils import timezone
 import os
 from django.conf import settings
+from django.http import FileResponse
 
 def invoice_list(request):
     invoices = Invoice.objects.all()
@@ -83,3 +84,17 @@ def shipment_amounts(request, shipment_id):
         'montant_ttc': float(shipment.montant_ttc()),
     }
     return JsonResponse(data)
+
+def download_blank_invoice(request):
+    file_path = os.path.join(
+        settings.BASE_DIR,
+        'static',
+        'blank_invoice',
+        'SwiftShip Invoice.pdf'
+    )
+
+    return FileResponse(
+        open(file_path, 'rb'),
+        as_attachment=True,
+        filename='SwiftShip_Invoice.pdf'
+    )

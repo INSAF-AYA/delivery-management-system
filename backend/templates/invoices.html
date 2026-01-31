@@ -22,11 +22,12 @@
         </div>
 
         <div class="table-toolbar">
-            <button class="toolbar-btn add" onclick=>
-                <i class="fa-solid fa-download"></i>
+            <button class="toolbar-btn add" onclick="window.location.href='{% url 'invoice:download_blank_invoice' %}'">
+                <i class="fa-solid fa-download btn-icn"></i>
                 Download blank invoice
             </button>
-        </div>    
+        </div>
+    
 
         <div class="table-toolbar">
             <button class="toolbar-btn add" onclick="openAddModal()">

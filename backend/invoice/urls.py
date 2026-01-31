@@ -10,5 +10,6 @@ urlpatterns = [
     path('<str:invoice_id>/delete/', views.invoice_delete, name='delete'),
     path('<str:invoice_id>/download/', views.invoice_download, name='download'),
     path('shipment-amounts/<str:shipment_id>/', views.shipment_amounts, name='shipment_amounts'),
+    path('download-blank/', views.download_blank_invoice, name='download_blank_invoice'),
 
 ]
