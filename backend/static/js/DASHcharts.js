@@ -11,7 +11,10 @@ function updateDashboardStats() {
     fetch('/dashboard/data/')
         .then(res => res.json())
         .then(data => {
-            document.getElementById('totalShipments').innerText = data.total_shipments;
+            const el = document.getElementById('totalShipments');
+            el.innerText = Number(data.total_shipments);
+            console.log('[DASHBOARD FETCH]', data.total_shipments);
+
             document.getElementById('totalDrivers').innerText = data.total_drivers;
             document.getElementById('totalClients').innerText = data.total_clients;
             document.getElementById('monthlyRevenue').innerText =
