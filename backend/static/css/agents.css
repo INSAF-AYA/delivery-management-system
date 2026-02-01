@@ -120,3 +120,166 @@ table th, table td {
 .modal-content button.delete {
     background: #e74c3c;
 }
+
+
+/* ---------- Tablets (≤ 1024px) ---------- */
+@media (max-width: 1024px) {
+    .content {
+        padding: 15px;
+    }
+
+    .table-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .table-search {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .table-toolbar {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    table th,
+    table td {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .modal-window {
+        width: 90%;
+    }
+}
+
+/* ---------- Mobile (≤ 768px) ---------- */
+@media (max-width: 768px) {
+
+    /* Title */
+    .page-title {
+        font-size: 22px;
+    }
+
+    /* Search + Filter */
+    .table-search {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .table-search-input {
+        width: 100%;
+    }
+
+    .filter-btn {
+        width: 100%;
+    }
+
+    /* Toolbar buttons */
+    .table-toolbar {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .toolbar-btn {
+        width: 100%;
+    }
+
+    /* Filters panel */
+    .filter-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .filter-panel select,
+    .filter-panel input,
+    .filter-panel button {
+        width: 100%;
+    }
+
+    /* Table → Card layout */
+    table,
+    thead,
+    tbody,
+    th,
+    td,
+    tr {
+        display: block;
+    }
+
+    thead {
+        display: none;
+    }
+
+    tbody tr {
+        background: #fff;
+        margin-bottom: 12px;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    tbody td {
+        border: none;
+        padding: 6px 0;
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+    }
+
+    tbody td::before {
+        font-weight: 600;
+        color: #444;
+    }
+
+    tbody td:nth-child(1)::before { content: "Agent ID"; }
+    tbody td:nth-child(2)::before { content: "Name"; }
+    tbody td:nth-child(3)::before { content: "Email"; }
+    tbody td:nth-child(4)::before { content: "Phone"; }
+    tbody td:nth-child(5)::before { content: "Role"; }
+    tbody td:nth-child(6)::before { content: "Actions"; }
+
+    /* Action buttons */
+    .action-btns {
+        display: flex;
+        gap: 8px;
+    }
+
+    /* Modals */
+    .modal-window {
+        width: 95%;
+        margin: 20px auto;
+    }
+
+    .modal-body {
+        padding: 15px;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+}
+
+/* ---------- Small Phones (≤ 480px) ---------- */
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 20px;
+    }
+
+    .modal-header h3 {
+        font-size: 16px;
+    }
+
+    .modal-btn {
+        width: 100%;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+        gap: 8px;
+    }
+}

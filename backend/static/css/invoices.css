@@ -174,3 +174,18 @@ tbody tr:hover {
   float: right;
   cursor: pointer;
 }
+
+@media (max-width:1024px){
+    table{ min-width:900px; }
+}
+
+@media (max-width:768px){
+    .table-header, .table-search, .table-toolbar, .filter-panel, .modal-footer{ flex-direction:column; align-items:stretch; }
+    .table-search-input, .filter-panel select, .filter-panel input, .filter-panel button, .toolbar-btn.add, .modal-footer button{ width:100%; margin-left:0; }
+    .action-btn{ width:36px; height:36px !important; }
+}
+
+@media (max-width:576px){
+    .page-title{ font-size:24px; }
+    .modal-window{ width:95%; }
+}

@@ -161,3 +161,152 @@ body {
     }
 }
 
+/* ---------- Tablets (≤ 992px) ---------- */
+@media (max-width: 992px) {
+
+	/* Header */
+	.topbar .container {
+		flex-wrap: wrap;
+		gap: .75rem;
+	}
+
+	/* Stats cards */
+	.stat-card {
+		padding: .9rem 1rem;
+	}
+
+	/* Shipment cards */
+	.shipment-card {
+		padding: 1rem;
+	}
+
+	/* Tabs */
+	.nav-tabs {
+		overflow-x: auto;
+		flex-wrap: nowrap;
+	}
+
+	.nav-tabs .nav-link {
+		white-space: nowrap;
+	}
+}
+
+/* ---------- Mobile (≤ 768px) ---------- */
+@media (max-width: 768px) {
+
+	/* Header brand */
+	.brand div > div {
+		font-size: 1rem;
+	}
+
+	/* Logout + Track buttons */
+	.header-logout,
+	#headerTrackBtn {
+		font-size: .85rem;
+		padding: .35rem .65rem;
+	}
+
+	/* Quick Track */
+	.quick-track {
+		padding: 1rem;
+	}
+
+	.quick-track .row {
+		flex-direction: column;
+	}
+
+	#trackBtn {
+		width: 100%;
+		margin-top: .5rem;
+	}
+
+	/* Shipment cards */
+	.shipment-card h5 {
+		font-size: 1rem;
+	}
+
+	.shipment-card .row {
+		gap: .5rem;
+	}
+
+	/* Progress bar spacing */
+	.progress-track {
+		height: 8px;
+	}
+
+	.progress-track .bar {
+		height: 8px;
+	}
+
+	/* Tabs content */
+	.table-card {
+		padding: .75rem;
+	}
+
+	/* Tables */
+	.table-responsive {
+		font-size: .85rem;
+	}
+
+	/* Support tickets */
+	.ticket {
+		padding: .85rem;
+	}
+
+	/* Help box */
+	.help-box {
+		font-size: .85rem;
+	}
+}
+
+/* ---------- Small Phones (≤ 480px) ---------- */
+@media (max-width: 480px) {
+
+	/* Header */
+	.brand {
+		font-size: 1rem;
+	}
+
+	.brand small {
+		font-size: .7rem;
+	}
+
+	/* Stats numbers */
+	.stat-card div > div {
+		font-size: 1.1rem !important;
+	}
+
+	/* Shipment card layout */
+	.shipment-card {
+		padding: .85rem;
+	}
+
+	.shipment-card .d-flex {
+		flex-direction: column;
+		gap: .4rem;
+	}
+
+	.shipment-card .text-end {
+		text-align: left !important;
+	}
+
+	/* Badge */
+	.badge-status {
+		font-size: .75rem;
+	}
+
+	/* Modal */
+	.modal-dialog {
+		margin: .75rem;
+	}
+
+	.modal-content {
+		border-radius: 12px;
+	}
+
+	/* Support form */
+	#supportForm textarea {
+		font-size: .85rem;
+	}
+}
+

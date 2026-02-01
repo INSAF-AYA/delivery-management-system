@@ -127,6 +127,46 @@ tbody tr:hover {
   background: #f9fafb;
 }
 
+/* ================== RESPONSIVE ================== */
+
+/* Medium screens: tablets */
+@media (max-width:1024px){
+    table { min-width:900px; } /* allow horizontal scroll */
+    .table-header, .table-search, .table-toolbar, .filter-panel, .modal-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    .table-search-input, .filter-panel select, .filter-panel input, .filter-panel button, .toolbar-btn.add, .modal-footer button {
+        width: 100%;
+        margin-left: 0;
+    }
+}
+
+/* Small screens: phones */
+@media (max-width:768px){
+    .page-title { font-size: 24px; }
+    .table-container { overflow-x: auto; }
+    table { min-width:600px; }
+    .action-btn { width:36px; height:36px !important; padding:0 !important; }
+    .table-header, .table-search, .table-toolbar, .filter-panel, .modal-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .table-search-input, .filter-panel select, .filter-panel input, .filter-panel button, .toolbar-btn.add, .modal-footer button {
+        width: 100%;
+        margin-left: 0;
+    }
+}
+
+/* Extra small screens: very small phones */
+@media (max-width:576px){
+    .page-title { font-size: 20px; }
+    .modal-window { width: 95%; margin: 20px auto; padding: 15px; }
+    th, td { padding: 10px; font-size: 12px; }
+    .table-search input, .filter-panel input, .filter-panel select { font-size: 13px; }
+}
+
 /* ===== MODALS ===== */
 
 /* MODAL STYLES MOVED TO `DASHmodals.css` to avoid conflicts with global modal rules.

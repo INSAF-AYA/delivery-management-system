@@ -164,26 +164,129 @@ canvas {
     color: var(--primary-blue);
 }
 
-/* ===== Dashboard Responsive ===== */
+/* ---------- Large tablets / small laptops (≤ 1200px) ---------- */
 @media (max-width: 1200px) {
     .charts-row {
         grid-template-columns: 1fr;
     }
+
+    canvas {
+        max-height: 260px;
+    }
 }
 
-@media (max-width: 768px) {
-    .stat-cards {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+/* ---------- Tablets (≤ 992px) ---------- */
+@media (max-width: 992px) {
+    .page-title {
+        font-size: 24px;
     }
 
-    .dashboard-content,
-    .page-content {
+    .stat-card {
+        padding: 20px;
+        gap: 15px;
+    }
+
+    .stat-icon {
+        width: 52px;
+        height: 52px;
+        font-size: 22px;
+    }
+
+    .stat-value {
+        font-size: 22px;
+    }
+
+    .chart-container,
+    .activity-section {
         padding: 20px;
     }
 }
 
+/* ---------- Mobile (≤ 768px) ---------- */
+@media (max-width: 768px) {
+
+    /* Page padding */
+    .dashboard-content,
+    .page-content {
+        padding: 16px;
+    }
+
+    /* Stat cards */
+    .stat-cards {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+    }
+
+    .stat-info h3 {
+        font-size: 13px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+    }
+
+    /* Charts */
+    .chart-title {
+        font-size: 16px;
+    }
+
+    canvas {
+        max-height: 220px;
+    }
+
+    /* Activity table → horizontal scroll */
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .activity-table {
+        min-width: 650px;
+    }
+}
+
+/* ---------- Small phones (≤ 480px) ---------- */
 @media (max-width: 480px) {
+
+    /* Title */
+    .page-title {
+        font-size: 20px;
+        margin-bottom: 18px;
+    }
+
+    /* Stat cards → single column */
     .stat-cards {
         grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .stat-icon {
+        width: 46px;
+        height: 46px;
+        font-size: 20px;
+    }
+
+    .stat-value {
+        font-size: 18px;
+    }
+
+    /* Charts */
+    .chart-container {
+        padding: 16px;
+    }
+
+    canvas {
+        max-height: 200px;
+    }
+
+    /* Activity section */
+    .activity-section {
+        padding: 16px;
+    }
+
+    .section-title {
+        font-size: 16px;
     }
 }

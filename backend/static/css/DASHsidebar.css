@@ -117,6 +117,15 @@
 }
 
 /* ===== Sidebar Responsive ===== */
+
+/* Tablet / medium devices */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 180px;
+    }
+}
+
+/* Small tablets / large phones */
 @media (max-width: 768px) {
     .sidebar {
         width: 70px;
@@ -137,6 +146,35 @@
     .sidebar-nav li:hover a,
     .sidebar-nav li.active a {
         border-left: none;
-        border-top: 4px solid var(--primary-blue);
+        border-top: 4px solid var(--primary-blue, #2563eb);
+        border-radius: 0;
+    }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+    .sidebar {
+        width: 60px;
+    }
+
+    .sidebar-nav a i {
+        font-size: 2.5vh;
+        width: 6vh;
+    }
+
+    .logout-btn i {
+        font-size: 16px;
+    }
+}
+
+/* Very small phones / portrait */
+@media (max-width: 360px) {
+    .sidebar {
+        width: 55px;
+    }
+
+    .sidebar-nav a i {
+        font-size: 2.2vh;
+        width: 5.5vh;
     }
 }

@@ -439,10 +439,10 @@ canvas {
     color: var(--danger);
 }
 
-/* ===== Responsive Design ===== */
-@media (max-width: 1200px) {
-    .charts-row {
-        grid-template-columns: 1fr;
+/* ===== Sidebar Responsiveness ===== */
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 220px;
     }
 }
 
@@ -467,22 +467,56 @@ canvas {
     .sidebar-nav li.active a {
         border-left: none;
         border-top: 4px solid var(--primary-blue);
+        border-radius: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --sidebar-width: 60px;
+    }
+
+    .sidebar-nav a i,
+    .logout-btn i {
+        font-size: 16px;
+        width: 24px;
+    }
+}
+
+/* ===== Topbar Responsiveness ===== */
+@media (max-width: 768px) {
+    .topbar {
+        left: var(--sidebar-width);
+        padding: 0 15px;
     }
 
     .search-container {
-        width: 200px;
+        width: 180px;
+        padding: 8px 12px;
     }
 
     .user-details {
         display: none;
     }
+}
 
-    .stat-cards {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+@media (max-width: 480px) {
+    .search-container {
+        width: 120px;
+        padding: 6px 10px;
     }
+}
 
-    .dashboard-content {
-        padding: 20px;
+/* ===== Dashboard Cards Responsiveness ===== */
+@media (max-width: 1024px) {
+    .stat-cards {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .stat-cards {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     }
 }
 
@@ -490,47 +524,63 @@ canvas {
     .stat-cards {
         grid-template-columns: 1fr;
     }
-
-    .search-container {
-        width: 150px;
-    }
-
-    .topbar {
-        padding: 0 15px;
-    }
 }
 
-/* ===== Scrollbar Styling ===== */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--light-gray);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--dark-gray);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-blue);
-}
-
-/* ===== Animations ===== */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+/* ===== Charts Responsiveness ===== */
+@media (max-width: 1024px) {
+    .charts-row {
+        grid-template-columns: 1fr;
     }
 }
 
+/* ===== Tables Responsiveness ===== */
+.table-container {
+    overflow-x: auto;
+}
+
+.activity-table th,
+.activity-table td {
+    padding: 12px;
+    font-size: 13px;
+}
+
+@media (max-width: 768px) {
+    .activity-table th,
+    .activity-table td {
+        padding: 8px;
+        font-size: 12px;
+    }
+}
+
+/* ===== Modals Responsiveness ===== */
+.modal-window {
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    padding: 20px;
+}
+
+@media (max-width: 480px) {
+    .modal-window {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-header h3 {
+        font-size: 16px;
+    }
+
+    .modal-footer button {
+        font-size: 13px;
+        padding: 8px 12px;
+    }
+}
+
+/* ===== Misc Enhancements ===== */
 .stat-card,
 .chart-container,
 .activity-section {
