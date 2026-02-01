@@ -109,11 +109,6 @@
     <main class="main-content">
         <!-- Top Bar -->
         <header class="topbar">
-            <div class="search-container">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search..." class="search-input">
-            </div>
-            
             <div class="user-info">
                 <div class="user-details">
                     <span class="user-name">{% if logged_in_user %}{{ logged_in_user.prenom }} {{ logged_in_user.nom }}{% else %}Guest{% endif %}</span>
