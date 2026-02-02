@@ -813,7 +813,7 @@ class Shipment(models.Model):
         
     def montant_ht(self):
             """Return the base amount without taxes (HT)"""
-            return Decimal(self.distance) * Decimal('2.5')  
+            return Decimal(self.distance) * Decimal('1.5')  
 
     def montant_tva(self):
             """Return the TVA (tax)"""
@@ -821,4 +821,13 @@ class Shipment(models.Model):
 
     def montant_ttc(self):
             """Return total amount including tax"""
-            return self.montant_ht() + self.montant_tva()
+            if self.speed ==  'NORMAL':
+                if self.zone ==  'NATIONAL':
+                    return self.montant_ht() + self.montant_tva() 
+                else :
+                    return self.montant_ht() + self.montant_tva() + 100
+            else :
+                if self.zone ==  'NATIONAL':
+                    return self.montant_ht() + self.montant_tva() + 20
+                else :
+                    return self.montant_ht() + self.montant_tva() + 100 + 20
